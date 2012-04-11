@@ -136,9 +136,9 @@
 						//dirs._setSchemeState, dirs)
 					});
 				}
-				selectView.collection.on('add', function (model) {
-					console.log('ADDING: ', model);
-				});
+				//selectView.collection.on('add', function (model) {
+				//	console.log('ADDING: ', model);
+				//});
 				window.selectView = selectView;
 				window.dirTreeView = dirTreeView;
 				dirTreeView.on('update', function () {
