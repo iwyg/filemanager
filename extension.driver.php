@@ -10,10 +10,10 @@ Class extension_filemanager extends Extension
 
 
 		if(!class_exists('extension_sym_requirejs')) {
-			Alert::ERROR('Please make sure extension require js is installed');
+			$alert = new Alert('Please make sure extension require js is installed', Alert::ERROR);
 		}
 		if(!class_exists('extension_sym_backbonejs')) {
-			Alert::ERROR('Please make sure extension backbone js is installed');
+			$alert = new Alert('Please make sure extension backbone js is installed', Alert::ERROR);
 		}
 	}
 	public function about() 
@@ -21,7 +21,7 @@ Class extension_filemanager extends Extension
 		return array(
 			'name' => 'Filemanager',
 			'type'	=> 'field',
-			'version' => 'beta 1.0',
+			'version' => 'dev 1.1',
 			'release-date' => '2012-04-11',
 			'author' => array(
 				'name' => 'Thomas Appel',
