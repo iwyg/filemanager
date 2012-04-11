@@ -136,15 +136,40 @@
 						//dirs._setSchemeState, dirs)
 					});
 				}
+				selectView.collection.on('add', function (model) {
+					console.log('ADDING: ', model);
+				});
+				window.selectView = selectView;
+				window.dirTreeView = dirTreeView;
 				dirTreeView.on('update', function () {
-					var files = dirTreeView.collection.getByFileName(selectView.collection.pluck('path')),
-					fids = _.pluck(files, 'id');
-					dirTreeView.selectById(fids);
+					// quickfix
+					// TODO; fix dirTreeView.collection update
+					setTimeout(function () {
+						var paths = selectView.collection.pluck('path');
+						var files = dirTreeView.collection.getByFileName(paths),
+						fids = _.pluck(files, 'id');
+						dirTreeView.selectById(fids);
+
+						//console.log(files);
+						//console.log(paths);
+						//console.log(fids);
+						selectView.collection.each(function (file) {
+							var f = dirTreeView.collection.getByFileName(file.get('path'));
+							f = f[0];
+							//console.log(f, 'updated selection', file.get('path'));
+							if (f) {
+								file.set('id', f.id);
+								file.id = f.id;
+							}
+						});
+						selectView.render();
+					}, 0);
 					// also update file ids on selectview collection
+					/*
 					setTimeout(function () {
 						selectView.collection.each(function (file) {
 							var f = dirTreeView.collection.getByFileName(file.get('path'));
-							f = f [0];
+							f = f[0];
 							//console.log(f, 'updated selection', file.get('path'));
 							if (f) {
 								file.set('id', f.id);
@@ -153,6 +178,7 @@
 						});
 						selectView.render();
 					}, 100);
+				   */
 				});
 				selectView.on('prepoulate', _.bind(dirTreeView.selectById, dirTreeView));
 				selectView.on('removedselected', _.bind(dirTreeView.unselectById, dirTreeView));

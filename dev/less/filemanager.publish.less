@@ -62,7 +62,11 @@
 	.file.selected {
 		background: #5273C0;
 		color: #fff;
-		border-top: 1px solid lighten(#5273C0, 10%);
+		border-top: 1px solid lighten(#5273C0, 6%);
+
+		&:nth-child(even) {
+			background: lighten(#5273C0, 1%);
+		}
 		//background: lighten(@dir_tree_bg, 2%);
 		.text {
 			cursor: pointer;

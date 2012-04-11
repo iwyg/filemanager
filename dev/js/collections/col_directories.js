@@ -164,6 +164,7 @@
 				//this.remove(dir.get('subdirs'));
 				this.remove(dir, {silent: true});
 				res = this.parse(resp);
+				//console.log(res, 'parse');
 				this.add(res, {parse: true});
 			}
 
