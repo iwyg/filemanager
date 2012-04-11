@@ -3,7 +3,6 @@
 	<name>Filemanager</name>
 	<description>Select, upload, move and delete files.</description>
 	<repo type="github">https://github.com/iwyg/filemanager</repo>
-	<url type="discuss">http://symphony-cms.com/discuss/thread/84156/</url>
 	<types>
 		<type>field</type>
 	</types>
@@ -14,7 +13,7 @@
 		</author>
 	</authors>
 	<releases>
-		<release versoin="1" date="2012-04-11" min="2.2.5">
+		<release versoin="beta 1.0" date="2012-04-11" min="2.2.5">
 			- initial release
 		</release>
 	</releases>
