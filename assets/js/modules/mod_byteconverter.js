@@ -1,0 +1,1 @@
+(function(a){var b=1e3,c=Math.pow(b,2),d=Math.pow(b,3);a(function(){function h(a){return a<b?a+"":a<c?e(a)+" KB":a<d?f(a)+" MB":g(a)+" GB"}function g(b){return a(b,d)}function f(b){return a(b,c)}function e(c){return a(c,b)}function a(a,b){return(Math.round(a/b*1e5)/1e5).toFixed(2)}return h})})(this.define)
