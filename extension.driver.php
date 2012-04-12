@@ -10,10 +10,10 @@ Class extension_filemanager extends Extension
 
 
 		if(!class_exists('extension_sym_requirejs')) {
-			Symphony::Engine()->Page->Alert = new Alert('Please make sure extension require js is installed', Alert::ERROR);
+			//Symphony::Engine()->Page->Alert = new Alert('Please make sure extension require js is installed', Alert::ERROR);
 		}
 		if(!class_exists('extension_sym_backbonejs')) {
-			Symphony::Engine()->Page->Alert = new Alert('Please make sure extension backbone js is installed', Alert::ERROR);
+			//Symphony::Engine()->Page->Alert = new Alert('Please make sure extension backbone js is installed', Alert::ERROR);
 		}
 	}
 	public function about() 
