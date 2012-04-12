@@ -1,3 +1,6 @@
 [submodule "assets/js/plugins/jquery-iframe-transport"]
 	path = assets/js/plugins/jquery-iframe-transport
+	url = git@github.com:iwyg/jquery-iframe-transport.git
+[submodule "dev/js/plugins/jquery-iframe-transport"]
+	path = dev/js/plugins/jquery-iframe-transport
 	url = git://github.com/iwyg/jquery-iframe-transport.git
