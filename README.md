@@ -39,13 +39,19 @@ preview (if available).
 ## Dependencies
 
 Filemanager has two hard Dependencies
-- [Require js for Symphony CMS][1]
-- [Backbone js for Symphony CMS][2]
+
+ - [Require js for Symphony CMS][1]
+ - [Backbone js for Symphony CMS][2]
 
 so if you want to use filemanager, install these extensions first
 
 [1]: https://github.com/iwyg/sym_requirejs
 [2]: https://github.com/iwyg/sym_backbonejs
+
+## Roadmap
+
+ - Fix fileupload issues for legacy Browsers 
+ - Improve error handling on moving, creating and deleting files ans directories 
    
 
 
