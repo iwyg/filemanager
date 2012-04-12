@@ -10,10 +10,10 @@ Class extension_filemanager extends Extension
 
 
 		if(!class_exists('extension_sym_requirejs')) {
-			$alert = new Alert('Please make sure extension require js is installed', Alert::ERROR);
+			Symphony::Engine()->Page->Alert = new Alert('Please make sure extension require js is installed', Alert::ERROR);
 		}
 		if(!class_exists('extension_sym_backbonejs')) {
-			$alert = new Alert('Please make sure extension backbone js is installed', Alert::ERROR);
+			Symphony::Engine()->Page->Alert = new Alert('Please make sure extension backbone js is installed', Alert::ERROR);
 		}
 	}
 	public function about() 
@@ -21,8 +21,8 @@ Class extension_filemanager extends Extension
 		return array(
 			'name' => 'Filemanager',
 			'type'	=> 'field',
-			'version' => 'beta 1.1',
-			'release-date' => '2012-04-12',
+			'version' => 'dev 1.2',
+			'release-date' => '2012-04-11',
 			'author' => array(
 				'name' => 'Thomas Appel',
 				'email' => 'mail@thomas-appel.com',
@@ -79,7 +79,7 @@ Class extension_filemanager extends Extension
 	{
 		if (!Symphony::Configuration()->get('filemanager')) {
 			Symphony::Configuration()->set('mimetypes', 'application/pdf image/jpeg image/png text/*', 'filemanager');
-			Symphony::Configuration()->set('ignore', base64_encode('/(^\..*)/i'), 'filemanager');
+			Symphony::Configuration()->set('ignore', base64_encode('^\..*'), 'filemanager');
 			//Symphony::Configuration()->set('ignore', '/\..*/i', 'filemanager');
 		}
 
@@ -167,6 +167,20 @@ Class extension_filemanager extends Extension
 			$context['settings']['filemanager']['ignore'] = base64_encode($context['settings']['filemanager']['ignore']);
 		}
 	}	
+	/**
+	 * @see http://symphony-cms.com/learn/api/2.2/toolkit/extension/#update
+	 */
+	public function update($previousVersion) {
+		$previousVersion = preg_replace('/^\w+\s?/i', '', $previousVersion);
 
+		if(version_compare($previousVersion, '1.2', '<')) {
+			// sanitatize broken ignore regexp form beta 1.1 release
+			$ignore = base64_decode(Symphony::Configuration()->get('ignore','filemanager'));
+			$ignore = preg_replace('/(\/i?|\(|\))/i', '', $ignore);
+
+			Symphony::Configuration()->set('ignore', base64_encode($ignore), 'filemanager');
+			Administration::instance()->saveConfig();	
+		}
+	}
 }
 ?>
