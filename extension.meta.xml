@@ -2,6 +2,7 @@
 <extension id="filemanager" status="released" xmlns="http://symphony-cms.com/schemas/extension/1.0">
 	<name>Filemanager</name>
 	<description>Select, upload, move and delete files.</description>
+	<url type="discuss">http://symphony-cms.com/discuss/thread/86549/</url>
 	<repo type="github">https://github.com/iwyg/filemanager</repo>
 	<types>
 		<type>field</type>
@@ -15,6 +16,10 @@
 	<releases>
 		<release version="beta 1.0" date="2012-04-11" min="2.2.5">
 			- initial release
+		</release>
+		<release version="beta 1.1" date="2012-04-12" min="2.2.5">
+			- fixed directory update behaviour
+			- deprecated field setting that would cause an error 
 		</release>
 	</releases>
 </extension>
