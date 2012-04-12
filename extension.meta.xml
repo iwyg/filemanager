@@ -2,6 +2,7 @@
 <extension id="filemanager" status="released" xmlns="http://symphony-cms.com/schemas/extension/1.0">
 	<name>Filemanager</name>
 	<description>Select, upload, move and delete files.</description>
+	<url type="discuss">http://symphony-cms.com/discuss/thread/86549/</url>
 	<repo type="github">https://github.com/iwyg/filemanager</repo>
 	<types>
 		<type>field</type>
