@@ -109,11 +109,11 @@ Class extension_filemanager extends Extension
 		return true;
 	}
 
-	public function __appendAssets($context) 
-	{
+	/**
+	 * apend needed css an js files to the document head
+	 */
+	public function __appendAssets($context) {
 		$callback = Symphony::Engine()->getPageCallback();
-
-
 		// Append styles for publish area
 		if($callback['driver'] == 'publish') {
 		}
@@ -123,6 +123,9 @@ Class extension_filemanager extends Extension
 		}
 	}
 
+	/**
+	 * set fields for preference page
+	 */
 	public function __appendPreferences(&$context) {
 		$group = new XMLElement('fieldset');
 		$group->setAttribute('class', 'settings');
@@ -158,10 +161,9 @@ Class extension_filemanager extends Extension
 
 		$context['wrapper']->appendChild($group);
 	}	
-	public function save(&$context) 
-	{
+
+	public function save(&$context) {
 		if (!empty($context['settings']['filemanager']['ignore'])) {
-		//	print_r( base64_encode('/\..*/i'));
 			$context['settings']['filemanager']['ignore'] = base64_encode($context['settings']['filemanager']['ignore']);
 		}
 	}	

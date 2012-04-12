@@ -52,14 +52,10 @@ Class fieldFilemanager extends Field {
 		$fields = array();
 
 		$fields['field_id'] = $id;
-		$fields['schema'] = ($this->get('schema') == NULL) ? 'foo' : $this->get('schma');
 		$fields['destination'] = $this->get('destination');
 		$fields['exclude_dirs'] = is_array($this->get('exclude_dirs')) ? implode(',', $this->get('exclude_dirs')) : '';
-		//$fields['ignore'] = is_array($this->get('ignore')) ? implode(' ', $this->get('ignore')) : 'foo';
 		$fields['ignore_files'] = $this->get('ignore_files');
 		$fields['limit_files'] = intval(trim($this->get('limit_files')));
-		//$fields['validator'] = ($fields['validator'] == 'custom' ? NULL : $this->get('validator'));
-		//$fields['allowed_types'] = ($fields['allowed_types'] == 'custom' ? NULL : $this->get('allowed_types'));
 		$fields['allowed_types'] = $this->get('allowed_types');
 		$fields['allow_dir_upload_files'] = ($this->get('allow_dir_upload_files') ? 1 : 0);
 		$fields['allow_file_move'] = ($this->get('allow_file_move') ? 1 : 0);
@@ -69,8 +65,6 @@ Class fieldFilemanager extends Field {
 		$fields['allow_dir_create'] = ($this->get('allow_dir_create') ? 1 : 0);
 		$fields['unique_file_name'] = ($this->get('unique_file_name') ? 1 : 0);
 		$fields['select_uploaded_files'] = ($this->get('select_uploaded_files') ? 1 : 0);
-
-		//$fields['maxsize'] = ($fields['maxsize'] == 'custom' ? NULL : $this->get('maxsize'));
 
 		Symphony::Database()->query("DELETE FROM `tbl_fields_".$this->handle()."` WHERE `field_id` = '$id' LIMIT 1");
 		return Symphony::Database()->insert($fields, 'tbl_fields_' . $this->handle());

@@ -16,9 +16,6 @@
 		});
 
 		Files = Backbone.Collection.extend({
-			parse: function (rawData) {
-				return rawData;
-			},
 			model: File
 		});
 
@@ -53,12 +50,13 @@
 				delete this._setSub;
 			}
 
-			function _selfRemove(silent, collection) {
+			function _selfRemove(silent, collection, options) {
+				options = options || {};
 				collection = this.collection || collection;
-				collection.remove(this, {silent: silent});
+				collection.remove(this, _.extend(options, {silent: silent}));
 			}
 
-			function _clearSubDirs(collection, dir) {
+			function _clearSubDirs(collection, dir, oldc, options) {
 				var files;
 				if (dir === this) {
 					files = this.get('files');
@@ -67,9 +65,21 @@
 					}
 					if (this.get('subdirs')) {
 						_.each(this.get('subdirs'), function (dir) {
-							_selfRemove.call(dir, false, collection);
+							_selfRemove.call(dir, false, collection, options);
 						});
 					}
+				}
+			}
+
+			function _getSubDirs(res) {
+				var dir = this,
+				subdirs = dir.get('subdirs');
+
+				if (subdirs) {
+					_.each(subdirs, function (d) {
+						res.push(d);
+						_getSubDirs.call(d, res);
+					});
 				}
 			}
 
@@ -80,6 +90,7 @@
 					path: null,
 					state: 'close'
 				},
+
 				initialize: function () {
 					var that = this;
 					this._setParent = _.bind(_setParent, this);
@@ -90,11 +101,29 @@
 					this.on('change:state', _.bind(_reportState, this));
 					this.set('state', this.collection.getSchemeStateByPath(this));
 				},
+
+				/**
+				 * parse raw server response
+				 * checks if the response has files and turns them into a collection
+				 * @param {Object} response response Object from the server
+				 * @return {Object} all subdir nested Models
+				 */
 				parse: function (response) {
 					if (response.files && _.isArray(response.files)) {
 						response.files = new Files(response.files);
 					}
 					return response;
+				},
+
+				/**
+				 * get all nested Subdirectories
+				 * @param {Boolean} self include this directory in result array
+				 * @return {Array} all subdir nested Models
+				 */
+				getSubDirs: function (self) {
+					var res = self ? [this] : [];
+					_getSubDirs.call(this, res);
+					return res;
 				}
 			});
 		} ());
@@ -158,13 +187,22 @@
 			}
 
 			function _prepareUpdateResponse(dir, resp) {
-				var res;
+				var res,
+				removeDirs = dir.getSubDirs(true);
+
 				resp.directory._parent = dir.get('_parent');
 				resp.directory.id = dir.id;
-				//this.remove(dir.get('subdirs'));
-				this.remove(dir, {silent: true});
+				resp.directory.cid = dir.cid;
+
+				// subdirs will automatically remove them self when an remove
+				// event is triggered. We won't notify any one else than the
+				// subdirs itself, so we remove them all together with option
+				// silent
+				this.remove(removeDirs, {silent: true});
 				res = this.parse(resp);
-				//console.log(res, 'parse');
+				//console.log(_.clone(removeDirs), 'removefirs');
+				//console.log(_.clone(res), 'res');
+				//console.log(this.models, 'models');
 				this.add(res, {parse: true});
 			}
 
@@ -253,6 +291,12 @@
 					return file.get(id);
 				},
 
+
+				/**
+				 * retrieve File Models be their pathname
+				 * @param {Mixed} fnames string or array containing pathnames
+				 * @return {Array} returns found file models
+				 */
 				getByFileName: function (fnames) {
 					var files = this.getFiles(),
 					result = [];
@@ -271,6 +315,11 @@
 					return _.flatten(result);
 				},
 
+				/**
+				 * Update attributes of a directory
+				 * @param {Backbone.Model instance} dir Directory which should
+				 * be uodated
+				 */
 				updateDir: function (dir) {
 					_update.call(this, {
 						'select': dir.get('path')
@@ -279,6 +328,12 @@
 					 .fail();
 				},
 
+				/**
+				 * Create a new directory on the server
+				 * @param {String} name name for new directory
+				 * @param {Backbone.Model instance} parent Directory in which
+				 * the new one will be created
+				 */
 				createDir: function (name, parent) {
 					parent = this.get(parent.id) || undefined;
 					if (!parent) {
@@ -300,6 +355,12 @@
 					});
 				},
 
+				/**
+				 * Moves a file or directory model to a new location
+				 * @param {Object} conf the configuration object containing
+				 * a file and a type property
+				 *
+				 */
 				moveItem: function (conf) {
 					var that = this,
 					source = this.get(conf.source),
@@ -320,7 +381,7 @@
 						success: function () {
 							if (conf.type === 'file') {
 								item.collection.remove(item);
-								that.updateDir(source);
+								//that.updateDir(source);
 							} else {
 								that.remove(source);
 							}
@@ -332,6 +393,12 @@
 
 				},
 
+				/**
+				 * Delete a directory or file from its collection
+				 * @param {Backbone.Model instance} file the model to be
+				 * removd
+				 * @param {String} type accepts 'file' or 'dir'
+				 */
 				deleteItem: function (file, type) {
 					var url = this.url.replace(/listing\/$/, 'edit/'),
 					col = this;

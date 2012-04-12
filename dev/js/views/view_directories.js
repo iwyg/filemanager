@@ -243,7 +243,7 @@
 				return this;
 			}
 
-			function _removeItem(model) {
+			function _removeItem(model, cols, options) {
 				var isDir = /dir/.test(model.id);
 				if (!isDir) {
 					this.trigger('select', 'remove', model.toJSON());

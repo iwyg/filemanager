@@ -16,7 +16,7 @@
 		window.jQuery = oldJquery;
 		oldJquery = null;
 		$17.noConflict();
-		Backbone.noConflict();
+		//Backbone.noConflict();
 		_.noConflict();
 		var $ = $17;
 
@@ -142,8 +142,9 @@
 				window.selectView = selectView;
 				window.dirTreeView = dirTreeView;
 				dirTreeView.on('update', function () {
-					// quickfix
-					// TODO; fix dirTreeView.collection update
+					// wait until collection is fully pupulated
+					// TODO; fix add deferred to handle this instead of
+					// a timeout
 					setTimeout(function () {
 						var paths = selectView.collection.pluck('path');
 						var files = dirTreeView.collection.getByFileName(paths),
@@ -151,12 +152,12 @@
 						dirTreeView.selectById(fids);
 
 						//console.log(files);
-						//console.log(paths);
 						//console.log(fids);
+
+						// also update file ids on selectview collection
 						selectView.collection.each(function (file) {
 							var f = dirTreeView.collection.getByFileName(file.get('path'));
 							f = f[0];
-							//console.log(f, 'updated selection', file.get('path'));
 							if (f) {
 								file.set('id', f.id);
 								file.id = f.id;
@@ -164,21 +165,6 @@
 						});
 						selectView.render();
 					}, 0);
-					// also update file ids on selectview collection
-					/*
-					setTimeout(function () {
-						selectView.collection.each(function (file) {
-							var f = dirTreeView.collection.getByFileName(file.get('path'));
-							f = f[0];
-							//console.log(f, 'updated selection', file.get('path'));
-							if (f) {
-								file.set('id', f.id);
-								file.id = f.id;
-							}
-						});
-						selectView.render();
-					}, 100);
-				   */
 				});
 				selectView.on('prepoulate', _.bind(dirTreeView.selectById, dirTreeView));
 				selectView.on('removedselected', _.bind(dirTreeView.unselectById, dirTreeView));

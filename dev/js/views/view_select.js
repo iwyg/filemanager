@@ -1,4 +1,5 @@
 (function (define) {
+	var O = 0;
 	define(['jquery', 'underscore', 'backbone', 'collections/col_select', 'modules/mod_sysmessage', 'templates/_templates'], function ($, _, Backbone, Selection, SysMessage, templates) {
 		function _selectError() {
 			var response = {
