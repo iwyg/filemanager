@@ -249,7 +249,10 @@
 				},
 
 				setSchemeState: function (model, state) {
-					_schemes[this.cid][model.get('path')].state = model.get('state') ? model.get('state') : 'close';
+					var path = model.get('path');
+					if (_schemes[this.cid][path]) {
+						_schemes[this.cid][path].state = model.get('state') ? model.get('state') : 'close';
+					}
 				},
 				getSchemeStateByPath: function (model) {
 					if (_schemeExists(this.cid) && _schemes[this.cid][model.get('path')]) {
