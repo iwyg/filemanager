@@ -352,13 +352,26 @@
 			}
 
 			function _itemSetDroppable() {
-				var target = this.$el.find('.droppable:not(.ui-droppable)');
+				var dirtree = this,
+				target = this.$el.find('.droppable:not(.ui-droppable)');
+
 				target.droppable({
 					drop: _.bind(_moveItemTo, this),
 					greedy: true,
 					tolerance: 'intersect',
 					hoverClass: 'dropover',
-					scope: 'moveable'
+					scope: 'moveable',
+					over: function (event, ui) {
+						var parent = $(this).parent();
+						if (!parent.hasClass('open')) {
+							$(this).on('dropout', function (event, ui) {
+								console.log('closing');
+								dirtree.closeDir(parent);
+							});
+							dirtree.openDir(parent);
+						}
+					},
+
 				});
 				target.on('destroyed', _destroyDroppable);
 				return this;
