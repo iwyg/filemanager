@@ -1,33 +1,32 @@
 (function (jOuery, Symphony, require) {
 
-	function dashString(string) {
-		return string.replace(/(\s+)(.)/g, function ($0, $1, $2) {
-			return '-' + $2;
-		}).toLowerCase();
-	}
-
 	var oldJquery = jQuery; // cache the original Symphony jQuery instance and re-add it later
-	require(['jquery', 'underscore', 'backbone', 'views/view_upload',
-			'views/view_directories',
-			'views/view_select',
-			'modules/mod_sysmessage',
-			'jqueryui', 'plugins/jquery-event-destroyed'], function ($17, _, Backbone, UploadView, TreeView, SelectView, SysMessage) {
+
+	require([
+		'jquery',
+		'underscore',
+		'backbone',
+		'views/view_upload',
+		'views/view_directories',
+		'views/view_select',
+		'modules/mod_sysmessage',
+		'jqueryui',
+		'plugins/jquery-event-destroyed'
+	], function ($17, _, Backbone, UploadView, TreeView, SelectView, SysMessage) {
+
+		var $, listings_base, upload_base, CoreSettings, mod;
 
 		window.jQuery = oldJquery;
 		oldJquery = null;
 		$17.noConflict();
-		//Backbone.noConflict();
+		Backbone.noConflict();
 		_.noConflict();
-		var $ = $17;
-
-		//window.$ = $17;
-		//window._ = _;
-		//window.Backbone = Backbone;
+		$ = $17;
 
 		Backbone.emulateHTTP = true;
 
-		var listings_base = Symphony.Context.get('root') + '/symphony/extension/filemanager/settings/',
-		upload_base = Symphony.Context.get('root') + '/symphony/extension/filemanager/upload/',
+		listings_base = Symphony.Context.get('root') + '/symphony/extension/filemanager/settings/';
+		upload_base = Symphony.Context.get('root') + '/symphony/extension/filemanager/upload/';
 
 		CoreSettings = Backbone.Model.extend({
 			url: listings_base,
@@ -40,21 +39,16 @@
 			}
 		});
 
-		var mod = new CoreSettings();
-
-		//console.log(mod.deferred.done(function () {
-		//	console.log(mod.toJSON(), 'settigns');
-		//}));
-		// FILES SELECT
-		// ==================================================================
-
 
 		// DOMREADY
 		// ==================================================================
 		$(function () {
 			var form = $('form'),
 			container = $('#filemanager-container'),
-			wrapper = $('#filemanager');
+			wrapper = $('#filemanager'),
+			max_size = parseInt($('input[name=MAX_FILE_SIZE]').val(), 10);
+
+			mod = new CoreSettings();
 
 			wrapper.addClass('loading');
 
@@ -70,13 +64,31 @@
 			}
 
 
-			//console.log(dirs);
-			var max_size = parseInt($('input[name=MAX_FILE_SIZE]').val(), 10);
 
 			mod.deferred.done(function (settings) {
 				//	console.log(settings, 'settings');
-				var fileSettings = {};
-				var dirSettings = {};
+				var fileSettings = {},
+				dirSettings = {},
+				upload,
+				selectContainer = $('#filemanager-files-select-container'),
+				//fieldname = selectContainer.find('input[name=fieldname]').val();
+				fieldname = settings.element_name,
+
+				dirTreeView = new TreeView({
+					el: '#filemanager-dir-listing-body',
+					tagName: 'ul',
+					className: 'root-dir dir',
+					dirSettings: dirSettings,
+					fileSettings: fileSettings,
+					field_id: settings.field_id,
+					baseName: settings.element_name //the field name we are postign to
+				}),
+
+				selectView = new SelectView({
+					dirtree: dirTreeView,
+					el: selectContainer.find('ul').get(0),
+					fieldname: fieldname
+				});
 
 				_.each(settings, function (val, key) {
 					if (key.match(/^allow_file_.*/)) {
@@ -87,29 +99,10 @@
 					}
 				});
 
-				var dirTreeView = new TreeView({
-					el: '#filemanager-dir-listing-body',
-					tagName: 'ul',
-					className: 'root-dir dir',
-					dirSettings: dirSettings,
-					fileSettings: fileSettings,
-					field_id: settings.field_id,
-					baseName: settings.element_name //the field name we are postign to
-				});
 
 				if (settings.allow_dir_move) {
 					dirTreeView.$el.addClass('draggable');
 				}
-
-				var selectContainer = $('#filemanager-files-select-container'),
-				//fieldname = selectContainer.find('input[name=fieldname]').val();
-				fieldname = settings.element_name;
-
-				var selectView = new SelectView({
-					dirtree: dirTreeView,
-					el: selectContainer.find('ul').get(0),
-					fieldname: fieldname
-				});
 
 				if (settings.limit_files) {
 					selectView.collection.addSetting('limit', parseInt(settings.limit_files, 10));
@@ -118,7 +111,7 @@
 
 				if (settings.allow_dir_upload_files) {
 
-					var upload = new UploadView({
+					upload = new UploadView({
 						el: '#filemanager-fileupload',
 						field_id: settings.field_id
 					});
@@ -132,7 +125,10 @@
 					upload.on('uploaddestroy', _.bind(dirTreeView.enableTask, dirTreeView, 'upload'));
 					upload.on('fileuploaded', _.bind(dirTreeView.collection.updateDir, dirTreeView.collection));
 
-					dirTreeView.on('upload', _.bind(upload.createUpload, upload)).on('toggle', function () {
+					// trigger an upload creation
+					dirTreeView
+						.on('upload', _.bind(upload.createUpload, upload))
+						.on('toggle', function () {
 						//dirs._setSchemeState, dirs)
 					});
 				}
@@ -146,8 +142,8 @@
 					// TODO; fix add deferred to handle this instead of
 					// a timeout
 					setTimeout(function () {
-						var paths = selectView.collection.pluck('path');
-						var files = dirTreeView.collection.getByFileName(paths),
+						var paths = selectView.collection.pluck('path'),
+						files = dirTreeView.collection.getByFileName(paths),
 						fids = _.pluck(files, 'id');
 						dirTreeView.selectById(fids);
 
@@ -188,4 +184,3 @@
 	});
 
 } (this.jQuery, this.Symphony, this.require));
-
