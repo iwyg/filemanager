@@ -16,7 +16,7 @@
 		window.jQuery = oldJquery;
 		oldJquery = null;
 		$17.noConflict();
-		//Backbone.noConflict();
+		Backbone.noConflict();
 		_.noConflict();
 		var $ = $17;
 
