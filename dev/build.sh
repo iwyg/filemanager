@@ -11,5 +11,5 @@ cp -r images ../build/images
 
 cd ../
 rm -rf assets
-cp -r build assets
-#ln -s build assets
+#cp -r build assets
+ln -s build assets
