@@ -1,1 +1,606 @@
-(function(a,b,c){c(["jquery","underscore","backbone","collections/col_directories","templates/_templates","modules/mod_sysmessage","modules/mod_byteconverter"],function(a,c,d,e,f,g,h){function m(a,c){b.Message.fade("silence",0),b.Message.post(a,c),b.Message.fade("silence",4e3),b.Message.timer()}var i,j,k,l;k=function(){function g(){var a=b.Context.get("root"),c=/image\/.*/.test(this.model.get("type"))?"/image/1/0/150"+this.model.get("src").substr((a+"/workspace").length):"/extensions/filemanager/assets/images/file-preview.png";return a+c}function e(a){a.preventDefault(),a.stopPropagation(),this.close()}return d.View.extend({events:{"click.meta .close":e},initialize:function(){this._rendered=!1,this.$el.on("destroyed",c.bind(this.remove,this))},render:function(){var a,b;if(this._rendered)return this;a=c.extend(this.model.toJSON(),{preview:g.call(this),size:h(this.model.get("size"))+" ("+this.model.get("size")+")"}),b=f.meta(a),this.el.innerHTML=b,this._rendered=!0;return this},open:function(){if(!this._rendered){this.render(),this.open();return this}this.$el.insertAfter(a("#file-"+this.options.parentView.model.id)),this.delegateEvents(),this.$el.slideDown();return this},close:function(a){var b=this;this.$el.slideUp(function(){a?b.$el.remove():(b.$el.detach(),b.undelegateEvents())})},remove:function(){this.undelegateEvents(),this.trigger("remove")}})}(),k.makeView=function(){if(this instanceof d.View)return new k({parentView:this,tagName:"li",model:this.model,id:"meta-for-"+this.model.id,className:"meta-view",idPrefix:"meta-for-"});throw"makeView called with wrong context"},i=function(){function a(a){a===this.model&&this._metaView&&this._metaView.close(!0)}return d.View.extend({initialize:function(){this.model.collection.on("remove",c.bind(a,this))},render:function(a){a=a||{};var b=this,d=f.files(c.extend(this.model.toJSON(),{settings:a}));this.el.innerHTML+=d,setTimeout(function(){b.$el.find("#preview-"+b.model.id).on("click.file",c.bind(b.showMetaInfo,b))},0)},showMetaInfo:function(a){a.preventDefault(),a.stopPropagation(),this._metaView||(this._metaView=k.makeView.call(this)),this._metaView.open()}})}(),j=function(){function g(){var b={},d=this.$el.find(".toolbar:first");c.each(a,function(a){var c=d.find("."+a);c.length&&(b[a]=c)}),this._tasks=b}function e(a,b){this._tasks[a]&&this._tasks[a].addClass("disabled")}function b(a,b){this._tasks[a]&&this._tasks[a].removeClass("disabled")}var a="upload create move delete".split(" ");return d.View.extend({events:{},initialize:function(){var a=this;this.fileViews=[],this.on("enabletask",c.bind(b,this)).on("disabletask",c.bind(e,this))},render:function(a,b,d){var e=this,h=c.clone(a),j,k=this.model.get("parent"),l=this.model.get("files"),m;this.$el.html(f.dirs(c.extend(this.model.toJSON(),{settings:c.extend(h,b)}))),m=this.$el.find("#sub-"+this.model.id),l&&(l.on("remove",c.bind(e.model.collection.trigger,e.model.collection,"remove")),l.each(function(a){var c=new i({el:m,model:a});e.fileViews.push(c),c.render(b)})),j=k?document.getElementById("sub-"+k.id):document.getElementById("dir-list-root"),j&&!d&&this.$el.appendTo(j),g.call(this),this.model.get("state")==="open"&&this.$el.addClass(this.model.get("state"))}})}(),l=function(){function u(){this.$el.find(".draggable:not(.ui-draggable)").trigger("mouseenter").end().find(".droppable:not(.ui-droppable)").trigger("mouseenter")}function t(){var b=this,d=this.$el.find(".droppable:not(.ui-droppable)");d.droppable({drop:c.bind(n,this),greedy:!0,tolerance:"intersect",hoverClass:"dropover",scope:"moveable",over:function(c,d){var e=a(this).parent();e.hasClass("open")||(a(this).on("dropout",function(a,c){console.log("closing"),b.closeDir(e)}),b.openDir(e))}}),d.on("destroyed",r);return this}function s(){var a=this.$el.find(".draggable:not(.ui-draggable)");a.draggable({revert:!0,revertDuration:120,cursor:"move",axis:"y",handle:".move",opacity:.7,snap:!0,zIndex:2700,scope:"moveable"}),a.on("destroyed",q);return this}function r(){a(this).droppable("destroy")}function q(){a(this).draggable("destroy")}function p(b){b.preventDefault(),b.stopPropagation();var d;if(!!/droppable/.test(b.target.className)){d=a(b.target).add(".droppable"),d.droppable({drop:c.bind(n,this),greedy:!0,tolerance:"intersect",hoverClass:"dropover",scope:"moveable"});return this}}function o(b){b.preventDefault(),b.stopPropagation();var c;if(!!/draggable/.test(b.target.className)){c=a(b.target),c.draggable({revert:!0,revertDuration:120,cursor:"move",axis:"y",handle:".move",opacity:.7,snap:!0,zIndex:2700,scope:"moveable"});return this}}function n(b,c){b.preventDefault(),b.stopPropagation();var d=c.draggable,e=/file-/.test(d[0].className)?"file":"dir",f=a(b.target).parent()[0].id,g=e==="file"?d.parents().filter("li.dir")[0].id:d.parent()[0].id,h=e==="file"?d[0].id.substr(5):undefined;this.collection.moveItem({type:e,destination:f,source:g,file:h})}function m(a){a=a instanceof d.Model?a:this.collection.get(a.directory.id);return this.renderPart(a)}function l(a,b){var c=b.find("input[type=text]").val();this.collection.createDir(c,a).always(function(){b.off("click",".confirm"),b.remove()}).always(function(a){var b=new g(null,a)})}function k(a,b,c){var d=/dir/.test(a.id);d||this.trigger("select","remove",a.toJSON());return i.call(this,a.id,d?"dir":"file")}function i(b,c){if(!this instanceof d.View)throw"function called with wrong context";var e=c==="file"?a("#file-"+b):a("#"+b),f=a([e,e.find(".dir-header")]).filter(function(){return this.data("draggable")||this.data("droppable")});this.dirViews[b]&&delete this.dirViews[b],e.detach(),setTimeout(function(){e.remove()},100);return this}function h(b,c){var d=a(b.target),e=d.parent();c==="add"?e.addClass("selected"):c==="remove"&&e.removeClass("selected"),this.trigger("select",c,this.getFile(e).toJSON())}return d.View.extend({events:{"click.dritree .toolbar":"tasks","click.dirtree .dir-header":"toggleDir","click.dirtree .file:not(.selected) > .text":"select","click.dirtree .file.selected > .text":"unselect","click.dirtree .file > .toolbar > .delete":"deleteFile","click.dirtree .dir-header > .toolbar > .delete":"deleteDir","click.dirtree .dir-header > .toolbar > .create":"createDir"},initialize:function(){this.collection=new e,this.collection.addSetting("field_id",this.options.field_id),this.collection.populate(),this.collection.deferred.done(c.bind(this.render,this)),this.collection.on("add",c.bind(this.renderPart,this)),this.collection.on("remove",c.bind(k,this))},tasks:function(b){var c=a(b.target).parents().filter("li").find("ul")[0].id.substr(4),d=b.target.className.split(" ")[1];this.trigger(d,this.collection.get(c));return!1},select:function(a){h.call(this,a,"add")},unselect:function(a){h.call(this,a,"remove")},selectById:function(a){this.filesById(a).addClass("selected");return this},unselectById:function(a){this.filesById(a).removeClass("selected");return this},filesById:function(a){return this.$el.find(c.isArray(a)?"#file-"+a.join(", #file-"):"#file-"+a)},getFile:function(a){var b=a.parent()[0].id.substr(4);return this.collection.getFile(a[0].id.split("file-")[1],b)},confirm:function(a){return confirm(a)},deleteDir:function(c){var d=this.collection.get(a(c.target).parents().filter(".dir")[0].id),e=b.Language.get(g.confirm_directory_deletion,{dir:d.get("name"),dir2:d.get("name"),dircount:d.get("subdirs")?d.get("subdirs").length:0,filecount:d.get("files")?d.get("files").models.length:0});this.confirm(e)&&this.collection.deleteItem(d,"dir")},deleteFile:function(c){var d=a(c.target),e=d.parents().filter(".file"),f=e.parent(),h=this.getFile(e),i=b.Language.get(g.confirm_file_deletion,{file:"test"});this.confirm(i)&&this.collection.deleteItem(h,"file")},createDir:function(b){var d=a(b.target),e=this.collection.get(d.parents().filter(".dir")[0].id),g=a(f.newdir({parent:e.get("path"),level:~~e.get("level")+1}));a("#sub-"+e.id).prepend(g),this.openDir(d.parents().filter(".dir")),g.on("click",".add",c.bind(l,this,e,g)),g.on("click",".cancel",function(){g.remove()})},toggleDir:function(b){var c,d,e,f,e;b.preventDefault(),b.stopPropagation(),c=a(b.target).parents().filter(".dir:not(#dir-list-root)").first(),d=c.find("> .sub-dir"),f=c.hasClass("open")?"close":"open",e=f==="open"?"openDir":"closeDir",this[e](c)},openDir:function(a){a.find("> .sub-dir").slideDown(),a.addClass("open"),this.collection.get(a[0].id).set("state","open")},closeDir:function(a){a.find("> .sub-dir").slideUp(),a.removeClass("open"),this.collection.get(a[0].id).set("state","close")},enableTask:function(a,b){this.dirViews[b.id].trigger("enabletask",a)},disableTask:function(a,b){this.dirViews[b.id].trigger("disabletask",a)},renderPart:function(a){var b,d=this.dirViews[a.id]?!0:!1;d?(b=this.dirViews[a.id],b.model=a):(b=new j({tagName:"li",id:a.id,className:"dir level-"+a.get("level"),model:a}),this.dirViews[a.id]=b),b.render(this.options.dirSettings,this.options.fileSettings,d),d&&c.isArray(a.get("subdirs"))&&c.each(a.get("subdirs"),c.bind(m,this)),d&&this.trigger("update"),s.call(this),t.call(this)},render:function(a){var b=this;this.dirViews={},this.el.innerHTML=f.dirtree({name:this.options.baseName}),this.collection.each(c.bind(this.renderPart,this))}})}();return l})})(this,this.Symphony,this.define)
+(function (window, Symphony, define) {
+	define(['jquery', 'underscore', 'backbone', 'collections/col_directories', 'templates/_templates', 'modules/mod_sysmessage', 'modules/mod_byteconverter'], function ($, _, Backbone, Dirs, templates, SysMessage, convertBytes) {
+
+		var FileView, DirView, MetaView, TreeView;
+
+		function sysMessage(message, type) {
+			Symphony.Message.fade('silence', 0);
+			Symphony.Message.post(message, type);
+			Symphony.Message.fade('silence', 4000);
+			Symphony.Message.timer();
+		}
+
+		MetaView = (function () {
+			function _close(event) {
+				event.preventDefault();
+				event.stopPropagation();
+				this.close();
+			}
+
+			function _renderPreviewImage() {
+				var siteRoot = Symphony.Context.get('root'),
+				fileRoot = /image\/.*/.test(this.model.get('type')) ? '/image/1/0/150' + this.model.get('src').substr((siteRoot + '/workspace').length) : '/extensions/filemanager/assets/images/file-preview.png';
+				return siteRoot + fileRoot;
+			}
+
+			return Backbone.View.extend({
+				events: {
+					'click.meta .close': _close
+				},
+				initialize: function () {
+					this._rendered = false;
+					this.$el.on('destroyed', _.bind(this.remove, this));
+				},
+				render: function () {
+					var data, compiled;
+					if (this._rendered) {
+						return this;
+					}
+
+					data = _.extend(this.model.toJSON(), {
+						preview: _renderPreviewImage.call(this),
+						//lastmod: new Date(this.model.get('lastmod')),
+						size: convertBytes(this.model.get('size')) + ' (' + this.model.get('size') + ')'
+					});
+					compiled = templates.meta(data);
+
+					this.el.innerHTML = compiled;
+					this._rendered = true;
+					return this;
+
+				},
+				open: function () {
+					if (!this._rendered) {
+						this.render();
+						this.open();
+						return this;
+					}
+					this.$el.insertAfter($('#file-' + this.options.parentView.model.id));
+					this.delegateEvents();
+					this.$el.slideDown();
+					this._open = true;
+					this.trigger('open', this);
+					return this;
+
+				},
+				close: function (destroy) {
+					var that = this;
+					this._open = false;
+					this.$el.slideUp(function () {
+						if (destroy) {
+							that.$el.remove();
+							return;
+						}
+						that.undelegateEvents();
+					});
+					this.trigger('close', this);
+				},
+				remove: function () {
+					this.undelegateEvents();
+					this.trigger('remove');
+				}
+			});
+		} ());
+
+		MetaView.makeView = function () {
+			if (! (this instanceof Backbone.View)) {
+				throw ('makeView called with wrong context');
+			}
+			return new MetaView({
+				parentView: this,
+				tagName: 'li',
+				model: this.model,
+				id: 'meta-for-' + this.model.id,
+				className: 'meta-view',
+				idPrefix: 'meta-for-'
+			});
+		};
+		// SINGLE FILE
+		// ==================================================================
+
+		FileView = (function () {
+			function _fileSelfRemove(model) {
+				var meta, dirPath;
+				if (model === this.model) {
+					if (this._metaView) {
+						meta = this._metaView;
+						dirPath = model.get('dir').get('path');
+						this._metaView.close(true);
+					}
+				}
+			}
+
+			function _metaViewPersistance(dir) {
+				var meta, thisPath = this.model.get('path'), file,
+				fileExists = dir.model.collection.getByFileName(thisPath);
+
+				if (this._metaView && fileExists && fileExists.length) {
+					console.log(fileExists);
+					meta = this._metaView;
+					file = $('#file-' + fileExists[0].id);
+					meta.$el.insertAfter(file);
+					meta.open();
+				}
+				return false;
+
+				// check if file still exists;
+
+			}
+
+			return Backbone.View.extend({
+				initialize: function () {
+					this.model.collection.on('remove', _.bind(_fileSelfRemove, this));
+					//this.model.get('dir').collection.on('update', _.bind(_metaViewPersistance, this));
+				},
+				render: function (settings) {
+					settings = settings || {};
+					var view = this,
+					compiled = templates.files(_.extend(this.model.toJSON(), {
+						settings: settings
+					}));
+					this.el.innerHTML += compiled;
+
+					setTimeout(function () {
+						view.$el.find('#preview-' + view.model.id).on('click.file', _.bind(view.showMetaInfo, view));
+					}, 0);
+				},
+
+				showMetaInfo: function (event) {
+
+					event.preventDefault();
+					event.stopPropagation();
+
+					var dirView = this.dirView, meta, open, close, percist;
+
+					if (!this._metaView) {
+						meta = this._metaView = MetaView.makeView.call(this);
+					}
+					percist = _.bind(_metaViewPersistance, this);
+					open = function () {
+						dirView.on('update', percist);
+					}
+					close = function () {
+						dirView.off('update', percist);
+					};
+					meta
+						.on('open', open)
+						.on('close', close);
+					meta.open();
+					//var model = parseInt(e.target.id.split('preview-'), 10);
+				}
+
+			});
+		}());
+
+		// SINGLE DIRECTORY
+		// ==================================================================
+		DirView = (function () {
+			var _tasks = 'upload create move delete'.split(' ');
+
+			function _enableTask(task, dir) {
+				this._tasks[task] && this._tasks[task].removeClass('disabled');
+			}
+
+			function _disableTask(task, dir) {
+				this._tasks[task] && this._tasks[task].addClass('disabled');
+			}
+
+			function _setTasks() {
+				var a = {},
+				tb = this.$el.find('.toolbar:first');
+				_.each(_tasks, function (task) {
+					var n = tb.find('.' + task);
+					if (n.length) {
+						a[task] = n;
+					}
+				});
+				this._tasks = a;
+			}
+
+			return Backbone.View.extend({
+				events: {
+					//	'click.dirview  .dir-header:first': '_toggle'
+				},
+
+				initialize: function () {
+					var dir = this;
+					this.fileViews = [];
+					this.on('enabletask', _.bind(_enableTask, this)).on('disabletask', _.bind(_disableTask, this));
+				},
+
+				render: function (dirSettings, fileSettings, update) {
+
+					var that = this,
+					settings = _.clone(dirSettings),
+					parent,
+					pm = this.model.get('parent'),
+					files = this.model.get('files'),
+					ul;
+
+					this.$el.html(templates.dirs(_.extend(this.model.toJSON(), {
+						settings: _.extend(settings, fileSettings)
+					})));
+
+					ul = this.$el.find('#sub-' + this.model.id);
+
+					if (files) {
+						files.on('remove', _.bind(that.model.collection.trigger, that.model.collection, 'remove'));
+						files.each(function (file) {
+							var fv = new FileView({
+								el: ul,
+								model: file
+							});
+							fv.dirView = that;
+							that.fileViews.push(fv);
+							fv.render(fileSettings);
+						});
+					}
+
+					parent = pm ? document.getElementById('sub-' + pm.id) : document.getElementById('dir-list-root');
+					parent && ! update && this.$el.appendTo(parent);
+					_setTasks.call(this);
+
+					this.model.get('state') === 'open' && this.$el.addClass(this.model.get('state'));
+
+					if (update) {
+						console.log('update dirview');
+						this.trigger('update', this);
+					}
+
+				}
+			});
+		} ());
+
+		// DIRECTORY TREE
+		// ==================================================================
+		TreeView = (function () {
+			// private
+			function _select(e, type) {
+				var target = $(e.target);
+				var fileNode = target.parent();
+				if (type === 'add') {
+					fileNode.addClass('selected');
+				} else if (type === 'remove') {
+					fileNode.removeClass('selected');
+				}
+				this.trigger('select', type, this.getFile(fileNode).toJSON());
+			}
+
+			function _removeItemNode(id, type) {
+				if (!this instanceof Backbone.View) {
+					throw ('function called with wrong context');
+				}
+				var node = type === 'file' ? $('#file-' + id) : $('#' + id),
+				moveable = $([node, node.find('.dir-header')]).filter(function () {
+					return this.data('draggable') || this.data('droppable');
+				});
+
+				if (this.dirViews[id]) {
+					delete this.dirViews[id];
+				}
+				node.detach();
+				setTimeout(function () {
+					node.remove();
+				},
+				100);
+				return this;
+			}
+
+			function _removeItem(model, cols, options) {
+				var isDir = /dir/.test(model.id);
+				if (!isDir) {
+					this.trigger('select', 'remove', model.toJSON());
+				}
+				return _removeItemNode.call(this, model.id, isDir ? 'dir': 'file');
+			}
+
+			function _createDir(parentModel, mask) {
+				var name = mask.find('input[type=text]').val();
+				this.collection.createDir(name, parentModel).always(function () {
+					mask.off('click', '.confirm');
+					mask.remove();
+				}).always(function (resp) {
+					var msg = new SysMessage(null, resp);
+				});
+
+			}
+
+			function _renderSubDirsOnUpdate(sub) {
+				sub = sub instanceof Backbone.Model ? sub: this.collection.get(sub.directory.id);
+				return this.renderPart(sub);
+			}
+
+			function _moveItemTo(event, ui) {
+				event.preventDefault();
+				event.stopPropagation();
+				var movedItem = ui.draggable,
+				type = /file-/.test(movedItem[0].className) ? 'file': 'dir',
+				destination = $(event.target).parent()[0].id,
+				// the directory the item gets moved to
+				source = type === 'file' ? movedItem.parents().filter('li.dir')[0].id: movedItem.parent()[0].id,
+				file = type === 'file' ? movedItem[0].id.substr(5) : undefined;
+
+				this.collection.moveItem({
+					type: type,
+					destination: destination,
+					source: source,
+					file: file
+				});
+			}
+
+			// deprecated
+			function _itemDelegateMoveable(event) {
+				event.preventDefault();
+				event.stopPropagation();
+				var target;
+				if (!/draggable/.test(event.target.className)) {
+					return;
+				}
+
+				target = $(event.target);
+				target.draggable({
+					revert: true,
+					revertDuration: 120,
+					cursor: 'move',
+					axis: 'y',
+					handle: '.move',
+					opacity: 0.7,
+					snap: true,
+					zIndex: 2700,
+					scope: 'moveable'
+				});
+				return this;
+			}
+
+			// deprecated
+			function _itemDelegateDroppable(event) {
+				event.preventDefault();
+				event.stopPropagation();
+				var target;
+				if (!/droppable/.test(event.target.className)) {
+					return;
+				}
+
+				target = $(event.target).add('.droppable');
+				target.droppable({
+					drop: _.bind(_moveItemTo, this),
+					greedy: true,
+					tolerance: 'intersect',
+					hoverClass: 'dropover',
+					scope: 'moveable'
+				});
+				return this;
+			}
+			function _destroyDraggable() {
+				$(this).draggable('destroy');
+			}
+			function _destroyDroppable() {
+				$(this).droppable('destroy');
+			}
+			function _itemSetDraggable() {
+				var target = this.$el.find('.draggable:not(.ui-draggable)');
+				target.draggable({
+					revert: true,
+					revertDuration: 120,
+					cursor: 'move',
+					axis: 'y',
+					handle: '.move',
+					opacity: 0.7,
+					snap: true,
+					zIndex: 2700,
+					scope: 'moveable'
+				});
+				target.on('destroyed', _destroyDraggable);
+				return this;
+			}
+
+			function _itemSetDroppable() {
+				var dirtree = this,
+				target = this.$el.find('.droppable:not(.ui-droppable)');
+
+				target.droppable({
+					drop: _.bind(_moveItemTo, this),
+					greedy: true,
+					tolerance: 'intersect',
+					hoverClass: 'dropover',
+					scope: 'moveable',
+					over: function (event, ui) {
+						var parent = $(this).parent();
+						if (!parent.hasClass('open')) {
+							$(this).on('dropout', function (event, ui) {
+								console.log('closing');
+								dirtree.closeDir(parent);
+							});
+							dirtree.openDir(parent);
+						}
+					},
+
+				});
+				target.on('destroyed', _destroyDroppable);
+				return this;
+			}
+			// deprecated
+			function _ensureDelegates() {
+				this.$el.find('.draggable:not(.ui-draggable)').trigger('mouseenter').end().find('.droppable:not(.ui-droppable)').trigger('mouseenter');
+			}
+
+			return Backbone.View.extend({
+				events: {
+					//'click .dir-toggle':  'toggleDir',
+					'click.dritree .toolbar': 'tasks',
+					'click.dirtree .dir-header': 'toggleDir',
+					'click.dirtree .file:not(.selected) > .text': 'select',
+					'click.dirtree .file.selected > .text': 'unselect',
+					'click.dirtree .file > .toolbar > .delete': 'deleteFile',
+					'click.dirtree .dir-header > .toolbar > .delete': 'deleteDir',
+					'click.dirtree .dir-header > .toolbar > .create': 'createDir',
+					//'mouseenter.dirtree .draggable:not(.ui-draggable)': _itemDelegateMoveable,
+					//'mouseover.dirtree .droppable:not(.ui-droppable)': _itemDelegateDroppable
+				},
+
+				initialize: function () {
+					this.collection = new Dirs();
+					this.collection.addSetting('field_id', this.options.field_id);
+					this.collection.populate();
+					this.collection.deferred.done(_.bind(this.render, this));
+					//this.collection.on('itemdelete', _.bind(_removeItemNode, this));
+					this.collection.on('add', _.bind(this.renderPart, this));
+					this.collection.on('remove', _.bind(_removeItem, this));
+					//this.on('update', _.bind(_ensureDelegates, this));
+				},
+
+				tasks: function (e) {
+					var parentId = $(e.target).parents().filter('li').find('ul')[0].id.substr(4),
+					task = e.target.className.split(' ')[1];
+					this.trigger(task, this.collection.get(parentId));
+					return false;
+				},
+
+				select: function (e) {
+					_select.call(this, e, 'add');
+				},
+
+				unselect: function (e) {
+					_select.call(this, e, 'remove');
+				},
+
+				selectById: function (id) {
+					this.filesById(id).addClass('selected');
+					return this;
+				},
+
+				unselectById: function (id) {
+					this.filesById(id).removeClass('selected');
+					return this;
+				},
+
+				filesById: function (ids) {
+					return this.$el.find(_.isArray(ids) ? ('#file-' + ids.join(', #file-')) : '#file-' + ids);
+				},
+
+				getFile: function (node) {
+					var id = node.parent()[0].id.substr(4);
+					return this.collection.getFile(node[0].id.split('file-')[1], id);
+				},
+				confirm: function (message) {
+					return confirm(message);
+				},
+
+				deleteDir: function (event) {
+					var dir = this.collection.get($(event.target).parents().filter('.dir')[0].id);
+					var message = Symphony.Language.get(SysMessage.confirm_directory_deletion, {
+						'dir': dir.get('name'),
+						'dir2': dir.get('name'),
+						'dircount': dir.get('subdirs') ? dir.get('subdirs').length: 0,
+						'filecount': dir.get('files') ? dir.get('files').models.length: 0
+					});
+
+					if (this.confirm(message)) {
+						this.collection.deleteItem(dir, 'dir');
+					}
+				},
+
+				deleteFile: function (event) {
+					var t = $(event.target),
+					fileNode = t.parents().filter('.file'),
+					parentNode = fileNode.parent(),
+					file = this.getFile(fileNode);
+
+					var message = Symphony.Language.get(SysMessage.confirm_file_deletion, {
+						'file': 'test'
+					});
+
+					if (this.confirm(message)) {
+						this.collection.deleteItem(file, 'file');
+						//_select.call(this, {target: t.parent()[0]}, 'remove');
+					}
+				},
+
+				createDir: function (event) {
+					var target = $(event.target),
+					dir = this.collection.get(target.parents().filter('.dir')[0].id),
+					compiled = $(templates.newdir({
+						parent: dir.get('path'),
+						level: ~~dir.get('level') + 1
+					}));
+					$('#sub-' + dir.id).prepend(compiled);
+					this.openDir(target.parents().filter('.dir'));
+					compiled.on('click', '.add', _.bind(_createDir, this, dir, compiled));
+					compiled.on('click', '.cancel', function () {
+						compiled.remove();
+					});
+				},
+
+				toggleDir: function (event) {
+					var target, subdir, toggle, trigger, toggle;
+					event.preventDefault();
+					event.stopPropagation();
+
+					target = $(event.target).parents().filter('.dir:not(#dir-list-root)').first();
+					subdir = target.find('> .sub-dir');
+					trigger = target.hasClass('open') ? 'close': 'open';
+					toggle = trigger === 'open' ? 'openDir': 'closeDir';
+
+					this[toggle](target);
+					//this.trigger('toggle', trigger);
+				},
+
+				openDir: function (node) {
+					node.find('> .sub-dir').slideDown();
+					node.addClass('open');
+					this.collection.get(node[0].id).set('state', 'open');
+				},
+
+				closeDir: function (node) {
+					node.find('> .sub-dir').slideUp();
+					node.removeClass('open');
+					this.collection.get(node[0].id).set('state', 'close');
+				},
+
+				enableTask: function (task, dir) {
+					this.dirViews[dir.id].trigger('enabletask', task);
+				},
+
+				disableTask: function (task, dir) {
+					this.dirViews[dir.id].trigger('disabletask', task);
+				},
+
+				renderPart: function (model) {
+					var dir, update = this.dirViews[model.id] ? true: false;
+
+					if (!update) {
+						dir = new DirView({
+							tagName: 'li',
+							id: model.id,
+							className: 'dir level-' + model.get('level'),
+							model: model
+						});
+						this.dirViews[model.id] = dir;
+					} else {
+						dir = this.dirViews[model.id];
+						dir.model = model;
+					}
+					dir.render(this.options.dirSettings, this.options.fileSettings, update);
+					if (update && _.isArray(model.get('subdirs'))) {
+						_.each(model.get('subdirs'), _.bind(_renderSubDirsOnUpdate, this));
+					}
+					update && this.trigger('update', dir);
+
+					_itemSetDraggable.call(this);
+					_itemSetDroppable.call(this);
+				},
+
+				render: function (model) {
+					var view = this;
+					this.dirViews = {};
+					this.el.innerHTML = templates.dirtree({
+						name: this.options.baseName
+					});
+					this.collection.each(_.bind(this.renderPart, this));
+				}
+			});
+		} ());
+
+		return TreeView;
+	});
+} (this, this.Symphony, this.define));

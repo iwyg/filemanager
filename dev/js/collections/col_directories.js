@@ -5,18 +5,23 @@
 		File, Files, Directory, Directories;
 
 		File = Backbone.Model.extend({
-			initialize: function () {
-				this.set({
-					'id': _.uniqueId()
-				},
-				{
-					silent: true
-				});
+			initialize: function (attributes, options) {
+				if (options.dir) {
+					this.set({dir: options.dir}, {silent: true});
+				}
+				this.set({'id': _.uniqueId()}, {silent: true});
 			}
 		});
 
 		Files = Backbone.Collection.extend({
-			model: File
+			model: File,
+
+			getByFileName: function (fnames) {
+				fnames = _.isArray(fnames) ? fnames : fnames.split();
+				return _.filter(this.models, function (file) {
+					return _.indexOf(fnames, file.get('path')) >= 0;
+				});
+			}
 		});
 
 		Directory = (function () {
@@ -46,8 +51,8 @@
 					//parent.get('subdirs').pop();
 					parent.get('subdirs').push(this);
 				}
-				this.collection.off('add reset', this._setSub);
-				delete this._setSub;
+				//this.collection.off('add', this._setSub);
+				//delete this._setSub;
 			}
 
 			function _selfRemove(silent, collection, options) {
@@ -91,15 +96,20 @@
 					state: 'close'
 				},
 
-				initialize: function () {
+				initialize: function (data, options) {
 					var that = this;
-					this._setParent = _.bind(_setParent, this);
-					this._setSub = _.bind(_setSub, this);
-					this.collection.on('add reset', this._setParent);
-					this.collection.on('add reset', this._setSub);
+					//this._setParent = _.bind(_setParent, this);
+					//this._setSub = _.bind(_setSub, this);
 					this.collection.on('remove', _.bind(_clearSubDirs, this, this.collection));
+						//.on('add reset', this._setParent)
+						//.on('add reset', this._setSub)
+
+
 					this.on('change:state', _.bind(_reportState, this));
+					this.on('change:parent', _.bind(_setSub, this));
 					this.set('state', this.collection.getSchemeStateByPath(this));
+					//_setParent.call(this);
+					//_setSub.call(this);
 				},
 
 				/**
@@ -109,8 +119,11 @@
 				 * @return {Object} all subdir nested Models
 				 */
 				parse: function (response) {
+					var files;
 					if (response.files && _.isArray(response.files)) {
-						response.files = new Files(response.files);
+						files = new Files();
+						files.add(response.files, {dir: this});
+						response.files = files;
 					}
 					return response;
 				},
@@ -124,6 +137,12 @@
 					var res = self ? [this] : [];
 					_getSubDirs.call(this, res);
 					return res;
+				},
+				getByFileName: function (fnames) {
+					if (this.get('files')) {
+						return this.get('files').getByFileName(fnames);
+					}
+					return [];
 				}
 			});
 		} ());
@@ -145,7 +164,7 @@
 				});
 
 			}
-
+			/*
 			function _parse(dir, res, isroot) {
 				var that = this, uuid, subdir;
 
@@ -162,6 +181,31 @@
 					while (dir.subdirs.length) {
 						subdir = dir.subdirs.shift();
 						subdir.directory._parent = uuid;
+						_parse.call(this, subdir, res);
+					}
+				}
+
+				return res;
+			}
+		   */
+			function _parse(dir, res, isroot) {
+				var that = this, uuid, subdir;
+
+				if (dir.directory) {
+					return _parse.call(this, dir.directory, res);
+				}
+
+				uuid = dir.id ? dir.id : 'dir' + _.uniqueId();
+				dir._parent = dir._parent;
+				//dir.parent = dir.parent;
+				dir.id = uuid;
+				res.push(dir);
+
+				if (dir.subdirs) {
+					while (dir.subdirs.length) {
+						subdir = dir.subdirs.shift();
+						subdir.directory._parent = uuid;
+						//subdir.directory.parent = dir;
 						_parse.call(this, subdir, res);
 					}
 				}
@@ -198,12 +242,11 @@
 				// event is triggered. We won't notify any one else than the
 				// subdirs itself, so we remove them all together with option
 				// silent
+
 				this.remove(removeDirs, {silent: true});
 				res = this.parse(resp);
-				//console.log(_.clone(removeDirs), 'removefirs');
-				//console.log(_.clone(res), 'res');
-				//console.log(this.models, 'models');
 				this.add(res, {parse: true});
+				this.trigger('update', this.get(dir.id));
 			}
 
 			function _schemeExists(id) {
@@ -211,7 +254,7 @@
 			}
 
 			return General.extend({
-				url: Symphony.WEBSITE + '/symphony/extension/filemanager/listing/',
+				url: Symphony.Context.get('root') + '/symphony/extension/filemanager/listing/',
 
 				model: Directory,
 
@@ -219,6 +262,10 @@
 				// ===========================================================================
 				initialize: function () {
 					this.cid = this.cid || 'c' + _.uniqueId();
+					this.on('reset', function () {
+					});
+					this.on('add', function () {
+					});
 					// Assign the Deferred issued by fetch() as a property
 				},
 
@@ -232,7 +279,20 @@
 				},
 
 				parse: function (response) {
-					return _parse.call(this, response, []);
+
+					var dirs = this, parsed =  _parse.call(this, response, []),
+					out = _.map(parsed, function (dir) {
+						dir = new Directory(dir, {collection: dirs, parse: true});
+						return dir;
+					});
+					_.each(out, function (dir) {
+						var parentId = dir.get('_parent'),
+						parent = _.find(out, function (parent) {
+							return parent.get('id') === parentId;
+						});
+						dir.set({parent: parent});
+					});
+					return out;
 				},
 
 				// utilities:
@@ -342,10 +402,10 @@
 					if (!parent) {
 						return false;
 					}
-					var url = this.url.replace(/listing\/$/, 'edit/');
-					var conf = {
+					var url = this.url.replace(/listing\/$/, 'edit/'),
+					conf = {
 						mkdir: name,
-						in : parent.get('path'),
+						withinIn : parent.get('path'),
 						type: 'create'
 					};
 

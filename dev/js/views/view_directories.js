@@ -1,36 +1,70 @@
 (function (window, Symphony, define) {
 	define(['jquery', 'underscore', 'backbone', 'collections/col_directories', 'templates/_templates', 'modules/mod_sysmessage', 'modules/mod_byteconverter'], function ($, _, Backbone, Dirs, templates, SysMessage, convertBytes) {
 
-		var FileView, DirView, MetaView, TreeView;
+		var FileView, DirView, MetaView, TreeView, metaStates = {};
 
-		function sysMessage(message, type) {
-			Symphony.Message.fade('silence', 0);
-			Symphony.Message.post(message, type);
-			Symphony.Message.fade('silence', 4000);
-			Symphony.Message.timer();
-		}
-
+		/** ## MetaView
+		 * @class MetaView
+		 * @augments Backbone.View
+		 * @constructor
+		 */
 		MetaView = (function () {
+			/**
+			 * @private
+			 * @api private
+			 */
 			function _close(event) {
 				event.preventDefault();
 				event.stopPropagation();
 				this.close();
 			}
 
+			/**
+			 * @private
+			 * @api private
+			 */
 			function _renderPreviewImage() {
 				var siteRoot = Symphony.Context.get('root'),
 				fileRoot = /image\/.*/.test(this.model.get('type')) ? '/image/1/0/150' + this.model.get('src').substr((siteRoot + '/workspace').length) : '/extensions/filemanager/assets/images/file-preview.png';
 				return siteRoot + fileRoot;
 			}
 
+			/**
+			 * @private
+			 * @api private
+			 */
+			function _switchSelected(type) {
+				if (type === 'add') {
+					this.$el.addClass('file-selected');
+				} else if (type === 'remove') {
+					this.$el.removeClass('file-selected');
+				}
+			}
+
 			return Backbone.View.extend({
+
 				events: {
 					'click.meta .close': _close
 				},
+
+				/**
+				 * @name MetaView#initialize
+				 */
 				initialize: function () {
+					var switchSelected;
+
 					this._rendered = false;
 					this.$el.on('destroyed', _.bind(this.remove, this));
+
+					switchSelected = _.bind(_switchSelected, this);
+					this.options.parentView
+						.on('select', switchSelected)
+						.on('unselect', switchSelected);
 				},
+
+				/**
+				 * @name MetaView#render
+				 */
 				render: function () {
 					var data, compiled;
 					if (this._rendered) {
@@ -49,29 +83,55 @@
 					return this;
 
 				},
-				open: function () {
+
+				/**
+				 * @name MetaView#open
+				 */
+				open: function (hard) {
+					var metaView = this,
+					fileNode = $('#file-' + this.options.parentView.model.id);
+
 					if (!this._rendered) {
 						this.render();
-						this.open();
+						this.open(hard);
 						return this;
 					}
-					this.$el.insertAfter($('#file-' + this.options.parentView.model.id));
+					this.$el.insertAfter(fileNode);
 					this.delegateEvents();
-					this.$el.slideDown();
+					!hard ? this.$el.slideDown() : this.$el.css({display: 'block'});
+					this._open = true;
+					this.trigger('open', this);
+					/*
+					if (fileNode.hasClass('selected')) {
+						setTimeout(function () {
+							_switchSelected.call(metaView, 'add');
+						}, 100);
+					}*/
+				    if (this.options.parentView.model.get('selected')) {
+						_switchSelected.call(metaView, 'add');
+				    }
 					return this;
-
 				},
+
+				/**
+				 * @name MetaView#close
+				 */
 				close: function (destroy) {
 					var that = this;
+					this._open = false;
 					this.$el.slideUp(function () {
 						if (destroy) {
 							that.$el.remove();
 							return;
 						}
-						that.$el.detach();
 						that.undelegateEvents();
 					});
+					!destroy && this.trigger('close', this);
 				},
+
+				/**
+				 * @name MetaView#remove
+				 */
 				remove: function () {
 					this.undelegateEvents();
 					this.trigger('remove');
@@ -79,6 +139,15 @@
 			});
 		} ());
 
+		/**
+		 * Used to create a new MetaView Instance form a FileView Instance Context.
+		 * Must be called with a FileView Instance as context.
+		 *
+		 * Example: var metaView = MetaView.makeView.call(fileView);
+		 *
+		 * @name MetaView#makeView
+		 * @static
+		 */
 		MetaView.makeView = function () {
 			if (! (this instanceof Backbone.View)) {
 				throw ('makeView called with wrong context');
@@ -92,20 +161,28 @@
 				idPrefix: 'meta-for-'
 			});
 		};
-		// SINGLE FILE
-		// ==================================================================
 
+		/** ## SINGLE FILE
+		 * @augments Backbone.View
+		 * @class FileView
+		 * @constructor
+		 */
 		FileView = (function () {
 			function _fileSelfRemove(model) {
+				var meta, dirPath;
 				if (model === this.model) {
 					if (this._metaView) {
+						meta = this._metaView;
+						dirPath = model.get('dir').get('path');
 						this._metaView.close(true);
 					}
 				}
 			}
+
 			return Backbone.View.extend({
 				initialize: function () {
 					this.model.collection.on('remove', _.bind(_fileSelfRemove, this));
+					//this.model.get('dir').collection.on('update', _.bind(_metaViewPersistance, this));
 				},
 				render: function (settings) {
 					settings = settings || {};
@@ -117,7 +194,24 @@
 
 					setTimeout(function () {
 						view.$el.find('#preview-' + view.model.id).on('click.file', _.bind(view.showMetaInfo, view));
-					}, 0);
+					},
+					0);
+				},
+
+				setMetaView: function () {
+					var file = this.model.get('path'),
+					dirView = this.dirView,
+					id;
+
+					if (!this._metaView) {
+						id = dirView.model.collection.cid;
+						this._metaView = MetaView.makeView.call(this);
+						this._metaView.on('open', function () {
+							metaStates[id][file] = true;
+						}).on('close', function () {
+							delete metaStates[id][file];
+						});
+					}
 				},
 
 				showMetaInfo: function (event) {
@@ -125,18 +219,20 @@
 					event.preventDefault();
 					event.stopPropagation();
 
-					if (!this._metaView) {
-						this._metaView = MetaView.makeView.call(this);
-					}
+					this.setMetaView();
 					this._metaView.open();
-					//var model = parseInt(e.target.id.split('preview-'), 10);
 				}
 
 			});
-		}());
+		} ());
 
-		// SINGLE DIRECTORY
-		// ==================================================================
+// ==================================================================
+
+		/** ## SINGLE DIRECTORY VIEW
+		 * @class DirView
+		 * @constructor
+		 * @augments Backbone.View
+		 */
 		DirView = (function () {
 			var _tasks = 'upload create move delete'.split(' ');
 
@@ -168,6 +264,7 @@
 				initialize: function () {
 					var dir = this;
 					this.fileViews = [];
+					this._files = {};
 					this.on('enabletask', _.bind(_enableTask, this)).on('disabletask', _.bind(_disableTask, this));
 				},
 
@@ -193,6 +290,8 @@
 								el: ul,
 								model: file
 							});
+							fv.dirView = that;
+							that._files[file.get('path')] = fv;
 							that.fileViews.push(fv);
 							fv.render(fileSettings);
 						});
@@ -204,25 +303,57 @@
 
 					this.model.get('state') === 'open' && this.$el.addClass(this.model.get('state'));
 
+					if (update) {
+						this.trigger('update', this);
+					}
+
+				},
+
+				getFileByPath: function (path) {
+					return this._files[path];
+				},
+				getSubDirs: function () {
+					var subs = this.model.get('subdirs');
 				}
 			});
 		} ());
 
-		// DIRECTORY TREE
-		// ==================================================================
+		/** ## DIRECTORY TREE VIEW
+		 * @augments Backbone.View
+		 * @constructor
+		 * @class TreeView
+		 */
 		TreeView = (function () {
-			// private
+			/**
+			 * Handles click event when file node gets selected
+			 * an triggers a select event and an select or unselect event on
+			 * the FileView instance
+			 *
+			 * @private
+			 */
 			function _select(e, type) {
-				var target = $(e.target);
-				var fileNode = target.parent();
+				var target = $(e.target),
+				fileNode = target.parent(),
+				fileModel = this.getFile(fileNode),
+
+				event = type === 'add' ? 'select' : 'unselect',
+				selected = type === 'add' ? true : false;
+
 				if (type === 'add') {
 					fileNode.addClass('selected');
 				} else if (type === 'remove') {
-					fileNode.removeClass('selected');
+					fileNode.removeClass('selected', selected);
 				}
-				this.trigger('select', type, this.getFile(fileNode).toJSON());
+				this.trigger('select', type, fileModel.toJSON());
+				fileModel.set('selected', selected);
+				// getting the fileView instance and trigger an select or
+				// unselect event:
+				this.getDirViewByModel(fileModel.get('dir')).getFileByPath(fileModel.get('path')).trigger(event, type);
 			}
 
+			/**
+			 * @private
+			 */
 			function _removeItemNode(id, type) {
 				if (!this instanceof Backbone.View) {
 					throw ('function called with wrong context');
@@ -243,6 +374,9 @@
 				return this;
 			}
 
+			/**
+			 * @private
+			 */
 			function _removeItem(model, cols, options) {
 				var isDir = /dir/.test(model.id);
 				if (!isDir) {
@@ -251,6 +385,9 @@
 				return _removeItemNode.call(this, model.id, isDir ? 'dir': 'file');
 			}
 
+			/**
+			 * @private
+			 */
 			function _createDir(parentModel, mask) {
 				var name = mask.find('input[type=text]').val();
 				this.collection.createDir(name, parentModel).always(function () {
@@ -262,11 +399,17 @@
 
 			}
 
+			/**
+			 * @private
+			 */
 			function _renderSubDirsOnUpdate(sub) {
 				sub = sub instanceof Backbone.Model ? sub: this.collection.get(sub.directory.id);
 				return this.renderPart(sub);
 			}
 
+			/**
+			 * @private
+			 */
 			function _moveItemTo(event, ui) {
 				event.preventDefault();
 				event.stopPropagation();
@@ -285,7 +428,10 @@
 				});
 			}
 
-			// deprecated
+			/**
+			 * @private
+			 * @deprecated
+			 */
 			function _itemDelegateMoveable(event) {
 				event.preventDefault();
 				event.stopPropagation();
@@ -309,7 +455,10 @@
 				return this;
 			}
 
-			// deprecated
+			/**
+			 * @private
+			 * @deprecated
+			 */
 			function _itemDelegateDroppable(event) {
 				event.preventDefault();
 				event.stopPropagation();
@@ -328,12 +477,22 @@
 				});
 				return this;
 			}
+
+			/**
+			 * @private
+			 */
 			function _destroyDraggable() {
 				$(this).draggable('destroy');
 			}
+			/**
+			 * @private
+			 */
 			function _destroyDroppable() {
 				$(this).droppable('destroy');
 			}
+			/**
+			 * @private
+			 */
 			function _itemSetDraggable() {
 				var target = this.$el.find('.draggable:not(.ui-draggable)');
 				target.draggable({
@@ -351,6 +510,9 @@
 				return this;
 			}
 
+			/**
+			 * @private
+			 */
 			function _itemSetDroppable() {
 				var dirtree = this,
 				target = this.$el.find('.droppable:not(.ui-droppable)');
@@ -365,7 +527,6 @@
 						var parent = $(this).parent();
 						if (!parent.hasClass('open')) {
 							$(this).on('dropout', function (event, ui) {
-								console.log('closing');
 								dirtree.closeDir(parent);
 							});
 							dirtree.openDir(parent);
@@ -376,9 +537,42 @@
 				target.on('destroyed', _destroyDroppable);
 				return this;
 			}
-			// deprecated
+
+			/**
+			 * @private
+			 * @deprecated
+			 */
 			function _ensureDelegates() {
 				this.$el.find('.draggable:not(.ui-draggable)').trigger('mouseenter').end().find('.droppable:not(.ui-droppable)').trigger('mouseenter');
+			}
+
+			/**
+			 * Runs each time a Directory gets updated
+			 * Determines weather a MetaView Instance was opend or not before
+			 * the update
+			 *
+			 * @private
+			 * @api private
+			 */
+			function _handleMetaStates(model) {
+				var fnames = _.keys(metaStates[this.collection.cid]),
+				f,
+				meta,
+				files = [],
+
+				dir = this.getDirViewByModel(model);
+
+				if (!fnames.length) {
+					return;
+				}
+
+				_.each(fnames, function (path) {
+					f = dir.getFileByPath(path);
+					if (f) {
+						f.setMetaView();
+						f._metaView.open(true);
+					}
+				});
 			}
 
 			return Backbone.View.extend({
@@ -397,12 +591,15 @@
 
 				initialize: function () {
 					this.collection = new Dirs();
+					this.dirViews = {};
 					this.collection.addSetting('field_id', this.options.field_id);
 					this.collection.populate();
 					this.collection.deferred.done(_.bind(this.render, this));
 					//this.collection.on('itemdelete', _.bind(_removeItemNode, this));
 					this.collection.on('add', _.bind(this.renderPart, this));
 					this.collection.on('remove', _.bind(_removeItem, this));
+					this.collection.on('update', _.bind(_handleMetaStates, this));
+					metaStates[this.collection.cid] = {};
 					//this.on('update', _.bind(_ensureDelegates, this));
 				},
 
@@ -522,6 +719,10 @@
 					this.dirViews[dir.id].trigger('disabletask', task);
 				},
 
+				/**
+				 * Renders a directory branch
+				 * @param {Object: Backbone.Model Instance} model the directory model
+				 */
 				renderPart: function (model) {
 					var dir, update = this.dirViews[model.id] ? true: false;
 
@@ -541,19 +742,73 @@
 					if (update && _.isArray(model.get('subdirs'))) {
 						_.each(model.get('subdirs'), _.bind(_renderSubDirsOnUpdate, this));
 					}
-					update && this.trigger('update');
+					update && this.trigger('update', dir);
 
 					_itemSetDraggable.call(this);
 					_itemSetDroppable.call(this);
 				},
 
-				render: function (model) {
+				/**
+				 * starts the initial render process.
+				 * This is nomaly done once
+				 */
+				render: function () {
 					var view = this;
-					this.dirViews = {};
 					this.el.innerHTML = templates.dirtree({
 						name: this.options.baseName
 					});
 					this.collection.each(_.bind(this.renderPart, this));
+				},
+				/**
+				 * Fetches all DirView instances
+				 * from a given DirView instance
+				 *
+				 * @param {DirView Instance} dir
+				 * @param {Boolean} deep pass true to get all nested subdirs
+				 * @return {Array} all DirView instances that are subdirs of the given DirView
+				 * @api public
+				 */
+				getSubdirsFromView: function (dir, deep) {
+					var tree = this,
+					subdirs = dir.model.get('subdirs'),
+					res = [];
+
+					if (subdirs) {
+						_.each(subdirs, function (d) {
+							if (tree.dirViews[d.id]) {
+								res.push(tree.dirViews[d.id]);
+								if (deep && d.get('subdirs')) {
+									res.push.apply(res, tree.getSubdirsFromView(tree.dirViews[d.id], true));
+								}
+							}
+						});
+					}
+					return res;
+				},
+				/**
+				 * get a DirView Instance form
+				 * by passing in a directory model
+				 *
+				 * @name TreeView#getDirViewByModel
+				 * @param {Object:Directory Instance} dir a given directory model
+				 * @return {Mixed} DirView Instance or undefined
+				 * @api public
+				 */
+				getDirViewByModel: function (dir) {
+					return this.dirViews[dir.id];
+				},
+
+				/**
+				 * get a DirView Instance form
+				 * by passing in a directory id
+				 *
+				 * @name TreeView#getDirViewById
+				 * @param {String} id directory id
+				 * @return {Mixed} DirView Instance or undefined
+				 * @api public
+				 */
+				getDirViewById: function (id) {
+					return this.dirViews[id];
 				}
 			});
 		} ());
