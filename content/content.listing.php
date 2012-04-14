@@ -115,7 +115,9 @@ Class contentExtensionFilemanagerListing extends contentExtensionFilemanagerSett
 
 		$ignore = base64_decode(Symphony::Configuration()->get('ignore', 'filemanager'));
 		$ignore = explode(' ', ((strlen($ignore) > 0 && strlen($ignore_files) > 0) ? $ignore . ' ' : $ignore) . $ignore_files);
-		$ignore = sizeof($ignore) > 0 ? '/(' . implode('|', $ignore) . ')/i' : '';
+
+		$ignore = sizeof($ignore) > 0 ? '/(' . implode('|', preg_replace('/(\/i?|\(|\))/i', '', $ignore)) . ')/i' : null;
+
 		$excl = $this->sanitizePath(explode(',', FILEMANAGER_EXCLUDE_DIRS));
 
 		//print_r($ignore);
@@ -143,4 +145,3 @@ Class contentExtensionFilemanagerListing extends contentExtensionFilemanagerSett
 
 
 }
-?>

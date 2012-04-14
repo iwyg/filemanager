@@ -14,8 +14,11 @@
 		</author>
 	</authors>
 	<releases>
-		<release version="beta 1.0" date="2012-04-11" min="2.2.5">
-			- initial release
+		<release version="dev 1.3" date="2012-04-14" min="2.2.5">
+			- file upload for legacy browser (iframe-transport mode)
+			- Metaviews now retain their states when a directory node gets updated
+			- Fixed some possible pitfalls in case PECL extension `finfo_open` is not available
+			- Fixed some possible putfalls in case of a broken default file igniore regexp fragment			
 		</release>
 	</releases>
 </extension>

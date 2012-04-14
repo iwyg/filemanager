@@ -91,10 +91,12 @@
 		 *
 		 * @see build()
 		 */
-		function view() 
+		function view($override=false) 
 		{
 			//$this->_Result = preg_replace("/(^[\r\n]*|[\r\n]+)[\s\t]*[\r\n\']+/", "",json_encode($this->_Result));
-			$this->_Result = preg_replace('/\r+/mi', '',json_encode($this->_Result));
+			if (!$override) {
+				$this->_Result = preg_replace('/\r+/mi', '',json_encode($this->_Result));
+			}
 			return $this->_Result;
 		}
 

@@ -155,7 +155,7 @@ Class contentExtensionFilemanagerEdit extends contentExtensionFilemanagerSetting
 	public function createDir() {
 
 		$name = $_POST['mkdir'];
-		$dest_path = WORKSPACE  . $_POST['in'] . '/';
+		$dest_path = WORKSPACE  . $_POST['within'] . '/';
 
 		if (is_dir($dest_path . $name) || file_exists($dest_path . $name)) {
 			$this->handleGeneralError(array('error' => array('message' => 'directory {$file} already exists', 'context' => array('file' => $name, 'path' => $dest_path))));
@@ -204,4 +204,3 @@ Class contentExtensionFilemanagerEdit extends contentExtensionFilemanagerSetting
 	}
 
 }
-?>
