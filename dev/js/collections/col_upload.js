@@ -101,11 +101,12 @@
 			_ulQueue = {};
 
 			function _validateType(mime) {
-				var escaped = '(' + this.settings.allowed_types.join('|') + ')', filter;
-				escaped = escaped.replace(/\/\*/g, '/.*');
-				filter = new RegExp(escaped);
 
-				if (!mime.match(filter)) {
+				// var escaped = '(' + this.settings.allowed_types.join('|') + ')', filter;
+				// escaped = escaped.replace(/\/\*/g, '/.*');
+				// filter = new RegExp(escaped);
+
+				if (!mime.match(this.settings.allowed_types)) {
 					return false;
 				}
 				return true;
@@ -121,15 +122,23 @@
 			function _parse(data) {
 				var collection = this, list = [],
 				files = _.toArray(data[0].files);
+				// if files property doesn't exsits, browser doesn't support
+				// File API, so we're faking it:
+				if (!files.length) {
+					files.push({
+						name: data[0].value.replace(/^.*\\/, '')
+					});
+				}
 
 				_.each(files, function (file, it, ofiles) {
 					var d =  _.clone(collection.model.prototype.defaults);
-
-					if (!_validateType.call(collection, file.type)) {
+					// if browser doesn't support file API, validate file site
+					// and type on the server
+					if (file.type && !_validateType.call(collection, file.type)) {
 						files[it] = null;
 						files.splice(it, 1);
 						collection.trigger('invalidtype', file.name || file.fileName, file.type);
-					} else if (!_validateFileSize.call(collection, file.size)) {
+					} else if (file.size && !_validateFileSize.call(collection, file.size)) {
 						files[it] = null;
 						files.splice(it, 1);
 						collection.trigger('filesizeexceeds', file.name || file.fileName, file.size);

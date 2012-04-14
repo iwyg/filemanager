@@ -45,6 +45,12 @@ Class contentExtensionFilemanagerSettings extends JSONPage
 		}
 		$max_upload_size = Symphony::Configuration()->get('max_upload_size', 'admin'); 
 		$this->_settings['max_upload_size'] = $max_upload_size ? intval($max_upload_size) : 0;
+
+		$exp_allowed_types = '(' . implode('|', explode(' ', $this->get('allowed_types'))) . ')';
+		$exp_allowed_types = preg_replace('/\/\*/i', '/.*', $exp_allowed_types);
+
+		$this->_settings['allowed_types'] = preg_replace('/\//', '\\\/',$exp_allowed_types);
+
 		if ($add) $this->_Result = $this->convertSettings($this->_settings);
 	}
 
@@ -90,4 +96,3 @@ Class contentExtensionFilemanagerSettings extends JSONPage
 	}
 
 }
-?>
