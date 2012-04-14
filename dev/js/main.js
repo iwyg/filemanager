@@ -116,7 +116,7 @@
 						field_id: settings.field_id
 					});
 
-					upload.collection.addSetting('allowed_types', settings.allowed_types.split(' '), true);
+					upload.collection.addSetting('allowed_types', new RegExp(settings.allowed_types), true);
 					upload.collection.addSetting('max_file_size', settings.max_upload_size || max_size);
 					upload.collection.addSetting('field_id', settings.field_id);
 					upload.collection.url = upload_base;
