@@ -705,7 +705,7 @@
 
 	.meta-view {	
 		position: relative;
-		top: -12px;
+		margin-top: -12px;
 		display: none;
 		.wrapper:after, &:before {
 			left: 50%;
@@ -721,6 +721,18 @@
 		&:before {
 			bottom: 0;
 			border-bottom: 12px solid @dir_tree_bg;
+		}
+		&.file-selected {
+			background: #5273C0;	
+		}
+		&.file-selected:nth-child(even) {
+			background: lighten(#5273C0, 1%);	
+		}
+		&.file-selected:before {
+			border-bottom: 12px solid #5273C0;
+		}
+		&.file-selected:nth-child(even):before {
+			border-bottom: 12px solid lighten(#5273C0, 1%);
 		}
 		.wrapper {
 			height: 228px;
