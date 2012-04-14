@@ -118,8 +118,8 @@ Class DirectoryTools extends DirectoryIterator
 		$fpath = $file->getPathname();
 		$path = $this->trimPath($fpath);
 
-		$grp = posix_getgrgid($file->getGroup());
-		$own = posix_getpwuid($file->getOwner());
+		$grp = function_exists('posix_getgrgid') ? posix_getgrgid($file->getGroup()) : array('name' => 'undefined');
+		$own = function_exists('posix_getpwuid') ? posix_getpwuid($file->getOwner()) : array('name' => 'undefined');
 
 		//$finfo = finfo_open(FILEINFO_MIME_TYPE); 
 		$perm = fileperms($file->getPathname());
@@ -137,7 +137,7 @@ Class DirectoryTools extends DirectoryIterator
 			'group'		=> $grp['name'],
 			'lastmod'	=> date('Y/m/d h:m:s', $file->getMTime()),
 			'inode'		=> $file->getInode(),
-			'perms'		=> substr(sprintf('%o', fileperms(($fpath))), -4),
+			'perms'		=> @substr(@sprintf('%o', fileperms(($fpath))), -4),
 		);
 	}
 
