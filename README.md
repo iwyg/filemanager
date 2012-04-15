@@ -48,10 +48,17 @@ so if you want to use filemanager, install these extensions first
 [1]: https://github.com/iwyg/sym_requirejs
 [2]: https://github.com/iwyg/sym_backbonejs
 
+## Pitfalls 
+
+As for this developmentrelease, filemanager won't work correctly on none \*nix
+selver-environments. Please dont't use it if your webserver runs on a windows
+system.
+
 ## Roadmap
 
  - Fix fileupload issues for legacy Browsers 
  - Improve error handling on moving, creating and deleting files ans directories 
+ - Fix path handling for none \*nix system
    
 
 
