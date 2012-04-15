@@ -50,7 +50,7 @@ so if you want to use filemanager, install these extensions first
 
 ## Pitfalls 
 
-As for this developmentrelease, filemanager won't work correctly on none \*nix
+As for this beta-release, filemanager won't work correctly on none \*nix
 selver-environments. Please dont't use it if your webserver runs on a windows
 system.
 
