@@ -1,1 +1,0 @@
-(function(){exports.escape=function(a){return String(a).replace(/&(?!\w+;)/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}})()

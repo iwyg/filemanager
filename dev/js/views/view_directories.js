@@ -101,15 +101,16 @@
 					!hard ? this.$el.slideDown() : this.$el.css({display: 'block'});
 					this._open = true;
 					this.trigger('open', this);
-					/*
+					console.log(fileNode[0].className, fileNode.hasClass('selected'));
 					if (fileNode.hasClass('selected')) {
-						setTimeout(function () {
-							_switchSelected.call(metaView, 'add');
-						}, 100);
-					}*/
-				    if (this.options.parentView.model.get('selected')) {
+						_switchSelected.call(this, 'add');
+					} else if (this.options.parentView.model.get('selected')) {
 						_switchSelected.call(metaView, 'add');
 				    }
+					console.log(metaView.options.parentView.model);
+					setTimeout(function () {
+						console.log(metaView.options.parentView.model.get('selected'));
+					}, 2000);
 					return this;
 				},
 

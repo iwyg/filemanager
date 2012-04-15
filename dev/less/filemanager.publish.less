@@ -706,6 +706,7 @@
 	.meta-view {	
 		position: relative;
 		margin-top: -12px;
+		padding-bottom: 2px;
 		display: none;
 		.wrapper:after, &:before {
 			left: 50%;
@@ -719,7 +720,7 @@
 			border-right: 12px solid transparent;
 		}
 		&:before {
-			bottom: 0;
+			bottom: 2px;
 			border-bottom: 12px solid @dir_tree_bg;
 		}
 		&.file-selected {
@@ -741,6 +742,7 @@
 			background: #353530;
 			padding-bottom: 12px;
 			margin-top: 12px;
+			.border-radius(6px);
 
 			.box-shadow-inset(0, 2px, 12px, 0, rgba(0, 0, 0, 0.6));
 
