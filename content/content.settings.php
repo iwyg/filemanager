@@ -1,4 +1,11 @@
 <?php 
+/**
+ * @package content
+ * @author thomas appel <mail@thomas-appel.com>
+
+ * Displays <a href="http://opensource.org/licenses/gpl-3.0.html">GNU Public License</a>
+ * @license http://opensource.org/licenses/gpl-3.0.html GNU Public License
+ */ 
 
 require_once(EXTENSIONS . '/filemanager/lib/class.jsonpage.php');
 require_once(TOOLKIT . '/class.fieldmanager.php');
@@ -93,6 +100,10 @@ Class contentExtensionFilemanagerSettings extends JSONPage
 	public static function save($id) {
 		$f_mng = new FieldManager(Administration::instance());
 		return $f_mng->fetch($id)->commit();
+	}
+
+	public function sanitizePathFragment($path) {
+		return preg_replace('/(\/|\\\)/i', DIRECTORY_SEPARATOR, $path);
 	}
 
 }

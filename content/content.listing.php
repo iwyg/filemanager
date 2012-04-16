@@ -1,5 +1,11 @@
-
 <?php 
+/**
+ * @package content
+ * @author thomas appel <mail@thomas-appel.com>
+
+ * Displays <a href="http://opensource.org/licenses/gpl-3.0.html">GNU Public License</a>
+ * @license http://opensource.org/licenses/gpl-3.0.html GNU Public License
+ */ 
 require_once(TOOLKIT . '/class.general.php');
 require_once(EXTENSIONS . '/filemanager/content/content.settings.php');
 require_once(EXTENSIONS . '/filemanager/lib/class.directorytools.php');
@@ -118,18 +124,21 @@ Class contentExtensionFilemanagerListing extends contentExtensionFilemanagerSett
 
 		$ignore = sizeof($ignore) > 0 ? '/(' . implode('|', preg_replace('/(\/i?|\(|\))/i', '', $ignore)) . ')/i' : null;
 
-		$excl = $this->sanitizePath(explode(',', FILEMANAGER_EXCLUDE_DIRS));
 
-		//print_r($ignore);
+		$excl = $this->sanitizePath(explode(',', preg_replace('/\//im', DIRECTORY_SEPARATOR, FILEMANAGER_EXCLUDE_DIRS)));
+
 
 		array_shift($excl);
 
 		$exclude = array_merge($excl, $this->sanitizePath(explode(',', $this->get('exclude_dirs'))));
 
-		$dirs = new DirectoryTools($base_dir, $ignore, $exclude, $nesting);
-
-		$dir_tree = $dirs->getDirectoryTree(true);
-		$this->_Result = $dir_tree;
+		try {
+			$dirs = new DirectoryTools($base_dir, $ignore, $exclude, $nesting);
+			$dir_tree = $dirs->getDirectoryTree(true);
+			$this->_Result = $dir_tree;
+		} catch (Exception $e) {
+			$this->handleGeneralError(array('error' => array('message' => 'Cannot resolve directory structure for {$root}', 'context' => array('root' => $base_dir))));	
+		}
 
 	}
 
@@ -140,7 +149,7 @@ Class contentExtensionFilemanagerListing extends contentExtensionFilemanagerSett
 			}
 			return $path;
 		} 
-		return WORKSPACE . substr($path, strlen('/WORKSPACE'));
+		return FILEMANAGER_WORKSPACE . substr($path, strlen(DIRECTORY_SEPARATOR . 'WORKSPACE'));
 	}
 
 

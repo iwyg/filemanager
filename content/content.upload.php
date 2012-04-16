@@ -1,4 +1,11 @@
 <?php 
+/**
+ * @package content
+ * @author thomas appel <mail@thomas-appel.com>
+
+ * Displays <a href="http://opensource.org/licenses/gpl-3.0.html">GNU Public License</a>
+ * @license http://opensource.org/licenses/gpl-3.0.html GNU Public License
+ */ 
 
 require_once(TOOLKIT . '/class.fieldmanager.php');
 require_once(EXTENSIONS . '/filemanager/lib/class.upload.php');
@@ -17,20 +24,20 @@ Class contentExtensionFilemanagerUpload extends contentExtensionFilemanagerSetti
 	}
 	/**
 	 * Validate uploaded file for mimetype and filesize
-	 * @param {String} $tempname uploaded file
+	 * @param string $tempname uploaded file
 	 */
-	public function validateUploadedFile($tempname) {
+	public function validateUploadedFile($tempname, $file) {
 		$max_upload_size = intval($this->get('max_upload_size'));
 		$allowed_types =  '/' . $this->get('allowed_types') . '/i';
 		$mime_type = DirectoryTools::getMimeType($tempname);
 
 		if (!preg_match($allowed_types, $mime_type)) {
-			$this->handleGeneralError(array('error' => array('message' => 'file type not allowed', 'context' => array('file' => $file))));
+			$this->handleGeneralError(array('error' => array('message' => 'file type {$mimetype} not allowed', 'context' => array('mimetype' => $mime_type))));
 			return false;
 		}
 		if (filesize($tempname) > $max_upload_size) {
-			$this->handleGeneralError(array('error' => array('message' => 'file size limit exceeds', 'context' => array('file' => $file))));
-			return true;
+			$this->handleGeneralError(array('error' => array('message' => 'file size ({$f_size}) limit exceeds allowed size', 'context' => array('f_size' => filesize($tempname)))));
+			return false;
 		}
 		return true;
 	}
@@ -53,15 +60,15 @@ Class contentExtensionFilemanagerUpload extends contentExtensionFilemanagerSetti
 
 
 		$unique = intval($this->get('unique_file_name'), 10) == 1;
-		$dest = $data['destination'] . '/';
+		$dest = $this->sanitizePathFragment($data['destination']) . DIRECTORY_SEPARATOR;
 		$results = array();
 
 		if (is_array($data['file'])) {
 			foreach($data['file'] as $i => $file) {
-				if (!$this->validateUploadedFile($file['tmp_name'])) {
+				if (!$this->validateUploadedFile($file['tmp_name'], $file['name'])) {
 					return false;	
 				}
-				if (!is_dir(WORKSPACE . $dest)) {
+				if (!is_dir(FILEMANAGER_WORKSPACE . $dest)) {
 					// invalid destination error
 					$this->handleGeneralError(array('error' => array('message' => 'invalid destination: {$dir}', 'context' => array('dir' => $dest))));	
 					return false;
@@ -69,13 +76,13 @@ Class contentExtensionFilemanagerUpload extends contentExtensionFilemanagerSetti
 
 				$new_file = $unique ? DirectoryTools::getUniqueName($file['name']) : $file['name'];
 
-				if (is_file(WORKSPACE . $dest . $new_file)) {
+				if (is_file(FILEMANAGER_WORKSPACE . $dest . $new_file)) {
 					// file exists error 					
 					$this->handleGeneralError(array('error' => array('message' => 'file {$file} already exists', 'context' => array('file' => $new_file))));	
 					return false;
 				}
 
-				if (General::uploadFile(WORKSPACE . $dest, $new_file, $file['tmp_name'])) {
+				if (General::uploadFile(FILEMANAGER_WORKSPACE . $dest, $new_file, $file['tmp_name'])) {
 					$results[] = array(
 						'file' => 'ok',
 						'name' => $new_file,
@@ -93,7 +100,7 @@ Class contentExtensionFilemanagerUpload extends contentExtensionFilemanagerSetti
 	public function success($data) {
 		$this->_Result = $data;
 	}
-	public function getHttpPath ($path) {
+	public function getHttpPath($path) {
 		return URL . '/workspace' . $path;
 	}
 }

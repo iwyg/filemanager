@@ -1,8 +1,16 @@
 <?php 
+/**
+ * @package content
+ * @author thomas appel <mail@thomas-appel.com>
+
+ * Displays <a href="http://opensource.org/licenses/gpl-3.0.html">GNU Public License</a>
+ * @license http://opensource.org/licenses/gpl-3.0.html GNU Public License
+ */ 
 
 require_once(TOOLKIT . '/class.fieldmanager.php');
 require_once(EXTENSIONS . '/filemanager/content/content.settings.php');
 require_once(EXTENSIONS . '/filemanager/lib/class.directorytools.php');
+
 
 Class contentExtensionFilemanagerEdit extends contentExtensionFilemanagerSettings
 {
@@ -39,7 +47,7 @@ Class contentExtensionFilemanagerEdit extends contentExtensionFilemanagerSetting
 	}
 
 	public function deleteItem() {
-		$file = General::sanitize(WORKSPACE . $_POST['file']);
+		$file = General::sanitize(FILEMANAGER_WORKSPACE . $_POST['file']);
 		if (!file_exists($file)) {
 			$this->handleGeneralError(array(
 				'error' => 'can\'t delete unknown ' . ($_POST['dataType'] == 'file' ? 'file' : 'directory') . ' ' . $_POST['file']
@@ -68,7 +76,7 @@ Class contentExtensionFilemanagerEdit extends contentExtensionFilemanagerSetting
 			return;
 		}
 		*/
-		$new_file = WORKSPACE . $fn;	
+		$new_file = FILEMANAGER_WORKSPACE . $fn;	
 		if ($this->moveFile($destDir, $dstfn, $new_file)) {
 			$this->_Result = array(
 				'success' => array(
@@ -155,7 +163,7 @@ Class contentExtensionFilemanagerEdit extends contentExtensionFilemanagerSetting
 	public function createDir() {
 
 		$name = $_POST['mkdir'];
-		$dest_path = WORKSPACE  . $_POST['within'] . '/';
+		$dest_path = FILEMANAGER_WORKSPACE . $this->sanitizePathFragment($_POST['within']) . DIRECTORY_SEPARATOR;
 
 		if (is_dir($dest_path . $name) || file_exists($dest_path . $name)) {
 			$this->handleGeneralError(array('error' => array('message' => 'directory {$file} already exists', 'context' => array('file' => $name, 'path' => $dest_path))));
@@ -167,11 +175,24 @@ Class contentExtensionFilemanagerEdit extends contentExtensionFilemanagerSetting
 				'message' => 'Directory {$dir} successfully created in {$path}',
 				'context' => array(
 					'dir' => $name,
-					'path' => substr($dest_path, strlen(WORKSPACE . '/'))
+					'path' => substr($dest_path, strlen(FILEMANAGER_WORKSPACE . DIRECTORY_SEPARATOR)),
+					'destination' => $dest_path . $name,
+					'destination_path' => $dest_path,
+					'oo_within' => $_POST['within'],
+					'within' => $this->sanitizePathFragment($_POST['within'])
 				)
 			));
 		} catch (Exception $e) {
-			$this->catchedExceptionHanlder($e);
+			$this->handleGeneralError(array('error' => array(
+				'message' => 'Failed createing Directory {$dir} in {$path}',
+				'context' => array(
+					'dir' => $name,
+					'path' => substr($dest_path, strlen(FILEMANAGER_WORKSPACE . DIRECTORY_SEPARATOR)),
+					'destination' => $dest_path . $name,
+					'destination_path' => $dest_path
+				)
+			)));
+			//$this->catchedExceptionHanlder($e);
 		}
 		return false; 
 	}

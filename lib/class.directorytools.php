@@ -1,10 +1,18 @@
 <?php
+/**
+ * @package lib
+ * @author thomas appel <mail@thomas-appel.com>
 
-//$is_win = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
+ * Displays <a href="http://opensource.org/licenses/gpl-3.0.html">GNU Public License</a>
+ * @license http://opensource.org/licenses/gpl-3.0.html GNU Public License
+ */ 
+
+
 
 /**
  * A Class providing some methods and utilities needed for filemanager
  */ 
+//$is_win = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
 Class DirectoryTools extends DirectoryIterator 
 {
 	private $level = 0;
@@ -34,7 +42,7 @@ Class DirectoryTools extends DirectoryIterator
 		$result = array();
 		$subit;
 		foreach ($it as $key => $child) {
-			if ($child->isDot() || (!is_null($this->_ignore) ? preg_match($this->_ignore, $child->getBasename()) : false)) {
+			if ($child->isDot() || (!is_null($this->_ignore) ? preg_match($this->_ignore, $this->getSanitizedBasename($child)) : false)) {
 				continue;
 			}
 			//$name = $child->getBasename();
@@ -48,8 +56,8 @@ Class DirectoryTools extends DirectoryIterator
 				$nextlvl = $this->directoryIteratorToArray($subit, $this->_ignore);
 				$dir = array(
 					'directory' => array(
-						'name' => $child->getBasename(),
-						'path' => $this->trimPath($child->getPathname()),
+						'name' =>  $this->getSanitizedBasename($child),
+						'path' =>  $this->trimPath($this->getSanitizedPathname($child)),
 						'level' => $this->_level	
 					)
 					
@@ -93,6 +101,7 @@ Class DirectoryTools extends DirectoryIterator
 	 */
 	public function isExcludedPath($path_name) {
 
+
 		$exclude = false;
 		if (is_array($this->_exclude)) {
 			foreach($this->_exclude as $path) {
@@ -122,13 +131,15 @@ Class DirectoryTools extends DirectoryIterator
 		$own = function_exists('posix_getpwuid') ? posix_getpwuid($file->getOwner()) : array('name' => 'undefined');
 
 		//$finfo = finfo_open(FILEINFO_MIME_TYPE); 
-		$perm = fileperms($file->getPathname());
+		$perm = @fileperms($file->getPathname());
+		$fbase = $this->getSanitizedBasename($file);
+		#$fbase = $file->getBasename();
 
 
 		return array(
-			'file'		=> $file->getBasename(),
+			'file'		=> $fbase,
 			'src'		=> URL . '/workspace' . $path, 
-			'cssclass'	=> preg_replace('/.*[\.*$]/i', 'file file-$1', $file->getBasename()),
+			'cssclass'	=> preg_replace('/.*[\.*$]/i', 'file file-$1', $fbase),
 			'path'		=> $path,
 			'type'		=> DirectoryTools::getMimeType($fpath),
 			'suffix'	=> $file->getExtension(),
@@ -191,6 +202,17 @@ Class DirectoryTools extends DirectoryIterator
 	 * @param string $file filepath
 	 * @return string
 	 */
+	
+	public function getSanitizedPathname(&$file) {
+		// fix path normalization on none *nix systems
+		return preg_replace('/\\\/i', '/', $file->getPathname());	
+	}
+
+	public function getSanitizedBasename(&$file) {
+		// fix path normalization on none *nix systems
+		return preg_replace('/\\\/i', '/', $file->getBasename());	
+	}
+
 	public static function getMimeType(&$file) {
 		if (function_exists('finfo_open')) {
 			return finfo_file(finfo_open(FILEINFO_MIME_TYPE), $file);
