@@ -1,0 +1,728 @@
+/**
+ * @package filemanager
+ * @author thomas appel <mail@thomas-appel.com>
+
+ * Displays <a href="http://opensource.org/licenses/gpl-3.0.html">GNU Public License</a>
+ * @license http://opensource.org/licenses/gpl-3.0.html GNU Public License
+ *//**/
+/* Basic 
+ * ========================================================================== */
+.filemanager-upload-field {
+  position: relative;
+  display: none;
+}
+#filemanager.loading {
+  background: url(assets/loader.gif) no-repeat right 6px;
+}
+#filemanager-container {
+  display: none;
+}
+.filemanager-dir-listing-body {
+  background: #e6e6e5;
+}
+.filemanager-dir-listing-body {
+  overflow: hidden;
+}
+.filemanager {
+  text-align: left !important;
+}
+.filemanager ul,
+.filemanager li,
+.filemanager label {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.filemanager .file,
+.filemanager .dir-header,
+.filemanager li,
+.filemanager li a {
+  display: block;
+}
+.filemanager .file:hover,
+.filemanager .dir-header:hover {
+  background: #dadad8;
+}
+.filemanager .file:hover .toolbar,
+.filemanager .dir-header:hover .toolbar {
+  display: block;
+}
+.filemanager .file:hover .text,
+.filemanager .dir-header:hover .text {
+  cursor: crosshair;
+}
+.filemanager .file.selected {
+  background: #5273C0;
+  color: #fff;
+  border-top: 1px solid #6885c8;
+}
+.filemanager .file.selected:nth-child(even) {
+  background: #5676c1;
+}
+.filemanager .file.selected .text {
+  cursor: pointer;
+  color: #fff;
+}
+.filemanager .file.selected:hover {
+  background: #5979c3;
+}
+.filemanager label {
+  padding: 4px 0;
+}
+.filemanager .filemanager-tree {
+  padding: 0 0 0;
+  margin: 0 0 0 0;
+}
+.filemanager .sub-dir {
+  clear: both;
+  display: none;
+}
+.filemanager .text {
+  padding: 8px 2px;
+  float: left;
+}
+.filemanager .dir-header.dropover {
+  background-color: #d3ebc7;
+}
+.filemanager .dir-header,
+.filemanager .dir-header * {
+  cursor: pointer;
+}
+.filemanager .file,
+.filemanager .dir .dir-header {
+  display: block;
+  overflow: hidden;
+  position: relative;
+}
+.filemanager .file,
+.filemanager .dir-header {
+  border-top: 1px solid #f3f3f2;
+}
+.filemanager .file a,
+.filemanager .dir-header a {
+  text-decoration: none;
+}
+/* ========================================================================== */
+/* Dir and File icons
+ * ========================================================================== */
+.filemanager .file .ui-icon,
+.filemanager .dir .ui-icon,
+.filemanager .file .dir-toggle,
+.filemanager .dir .dir-toggle {
+  margin-top: 2px;
+  width: 26px;
+  height: 26px;
+  display: block;
+  display: inline;
+  float: left;
+  background-repeat: no-repeat;
+  background-image: url(assets/filemanager.icons.v3.png);
+}
+.filemanager .file .file > .ui-icon,
+.filemanager .dir .file > .ui-icon {
+  margin-left: 26px;
+}
+.filemanager .file .ui-icon {
+  background-position: -53px -62px;
+}
+.filemanager .open  > .sub-dir {
+  display: block;
+}
+.filemanager .dir-toggle {
+  margin-top: 4px;
+  background-position: 6px -62px;
+}
+.filemanager .new-dir .dir-toggle {
+  background: none;
+}
+.filemanager .open > .dir-header .ui-icon {
+  background-position: 0 -36px;
+}
+.filemanager .open > .dir-header > .dir-toggle {
+  background-position: 5px -88px;
+}
+.filemanager .dir-header  > .ui-icon,
+.filemanager .dir-header .ui-icon.folder {
+  background-position: -25px -36px;
+}
+/* ========================================================================== */
+/* Level indents:
+ * ========================================================================== */
+.filemanager .level-0 .file > .ui-icon {
+  margin-left: 52px;
+}
+.filemanager .level-0 .dir-toggle {
+  margin-left: 0px;
+}
+.filemanager .level-1 .file > .ui-icon {
+  margin-left: 78px;
+}
+.filemanager .level-1 .dir-toggle {
+  margin-left: 26px;
+}
+.filemanager .level-2 .file > .ui-icon {
+  margin-left: 104px;
+}
+.filemanager .level-2 .dir-toggle {
+  margin-left: 52px;
+}
+.filemanager .level-3 .file > .ui-icon {
+  margin-left: 130px;
+}
+.filemanager .level-3 .dir-toggle {
+  margin-left: 78px;
+}
+.filemanager .level-4 .file > .ui-icon {
+  margin-left: 156px;
+}
+.filemanager .level-4 .dir-toggle {
+  margin-left: 104px;
+}
+.filemanager .level-5 .file > .ui-icon {
+  margin-left: 182px;
+}
+.filemanager .level-5 .dir-toggle {
+  margin-left: 130px;
+}
+.filemanager .level-6 .file > .ui-icon {
+  margin-left: 208px;
+}
+.filemanager .level-6 .dir-toggle {
+  margin-left: 156px;
+}
+.filemanager .level-7 .file > .ui-icon {
+  margin-left: 234px;
+}
+.filemanager .level-7 .dir-toggle {
+  margin-left: 182px;
+}
+.filemanager .level-8 .file > .ui-icon {
+  margin-left: 260px;
+}
+.filemanager .level-8 .dir-toggle {
+  margin-left: 208px;
+}
+.filemanager .level-9 .file > .ui-icon {
+  margin-left: 286px;
+}
+.filemanager .level-9 .dir-toggle {
+  margin-left: 234px;
+}
+.filemanager .level-10 .file > .ui-icon {
+  margin-left: 312px;
+}
+.filemanager .level-10 .dir-toggle {
+  margin-left: 260px;
+}
+.selected-file {
+  background: #E4E4DE;
+  position: relative;
+  overflow: hidden;
+}
+.selected-file:first-child,
+.selected-file:last-child {
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+  -moz-background-clip: padding;
+  -webkit-background-clip: padding-box;
+  background-clip: padding-box;
+}
+.selected-file .remove {
+  color: #fff;
+  cursor: pointer;
+  position: absolute;
+  font-size: 14px;
+  line-height: 14px;
+  top: 50%;
+  margin-top: -9px;
+  right: 6px;
+  width: 17px;
+  height: 17px;
+  border: 1px solid #fff;
+  -webkit-border-radius: 9px;
+  -moz-border-radius: 9px;
+  border-radius: 9px;
+  -moz-background-clip: padding;
+  -webkit-background-clip: padding-box;
+  background-clip: padding-box;
+  overflow: hidden;
+  text-align: center;
+  background: #e1e1e1;
+}
+.selected-file .remove:hover {
+  background: #ff6666;
+}
+.fields {
+  display: block;
+  padding: 0 34px 0 18px;
+}
+.fields .field-holder {
+  display: block;
+  padding: 4px 0;
+  width: 100%;
+  border-bottom: 1px solid #ebebeb;
+  border-top: 1px solid #ffffff;
+}
+.fields .field-holder label {
+  padding: 1px 4px;
+  font-weight: normal;
+}
+.filemanager .selected .toolbar .ui-icon {
+  border-left: 1px solid #5273C0;
+}
+.filemanager .toolbar {
+  display: none;
+  overflow: hidden;
+  float: right;
+  padding: 2px;
+  height: 17px;
+  position: absolute;
+  top: 50%;
+  right: 6px;
+  margin-top: -11px;
+  -webkit-border-radius: 12px;
+  -moz-border-radius: 12px;
+  border-radius: 12px;
+  -moz-background-clip: padding;
+  -webkit-background-clip: padding-box;
+  background-clip: padding-box;
+  background-color: #fff;
+}
+.filemanager .toolbar .ui-icon {
+  cursor: pointer;
+  margin-top: -4px;
+  padding: 0 4px;
+  border-left: 1px solid #e6e6e5;
+}
+.filemanager .toolbar .ui-icon:first-child {
+  border-left: none;
+}
+.filemanager .toolbar .ui-icon.delete {
+  background-position: -102px -116px;
+}
+.filemanager .toolbar .ui-icon.delete:hover {
+  background-position: -102px -38px;
+}
+.filemanager .toolbar .ui-icon.delete.file {
+  background-position: -153px -116px;
+}
+.filemanager .toolbar .ui-icon.delete.file:hover {
+  background-color: transparent;
+  background-position: -153px -38px;
+}
+.filemanager .toolbar .ui-icon.upload {
+  background-position: -74px -116px;
+}
+.filemanager .toolbar .ui-icon.upload:hover {
+  background-position: -74px -38px;
+}
+.filemanager .toolbar .ui-icon.move {
+  background-position: -87px -604px;
+}
+.filemanager .toolbar .ui-icon.move:hover {
+  background-position: -87px -604px;
+}
+.filemanager .toolbar .ui-icon.create {
+  background-position: -128px -116px;
+}
+.filemanager .toolbar .ui-icon.create:hover {
+  background-position: -128px -38px;
+}
+.filemanager .toolbar .ui-icon.preview {
+  background-position: -179px -116px;
+}
+.filemanager .toolbar .ui-icon.preview:hover {
+  background-position: -179px -38px;
+}
+.filemanager .list-row {
+  overflow: hidden;
+}
+.filemanager .file-size {
+  display: block;
+  text-align: right;
+}
+.filemanager .field-container {
+  padding: 12px 0;
+}
+.filemanager .list-head {
+  padding: 4px 6px;
+  border-bottom: 1px solid #ffffff;
+}
+.filemanager .list-head {
+  margin: 12px 0 0 0;
+  background: #E6E6E5;
+}
+.filemanager .list-head .btn {
+  background: #F5F5F4;
+}
+.filemanager .list-head .btn label {
+  font-size: 0.95em;
+  border: 1px solid #EBEBE9;
+  font-weight: normal;
+}
+.filemanager .list-body {
+  border-top: 1px solid #cdcdcb;
+}
+.filemanager .hidden {
+  display: none;
+}
+.filemanager .last {
+  float: right;
+}
+.filemanager .btn {
+  text-indent: -10000em;
+  overflow: hidden;
+  cursor: pointer;
+  display: block;
+  position: relative;
+  background-color: #b6b6b6;
+  width: 46px;
+  height: 20px;
+  margin: 4px;
+  float: left;
+  background-image: url(assets/filemanager.icons.v3.png);
+  background-repeat: no-repeat;
+  -webkit-border-radius: 10px;
+  -moz-border-radius: 10px;
+  border-radius: 10px;
+  -moz-background-clip: padding;
+  -webkit-background-clip: padding-box;
+  background-clip: padding-box;
+  -webkit-box-shadow: inset 0 1px 2px 0 rgba(0, 0, 0, 0.2);
+  -moz-box-shadow: inset 0 1px 2px 0 rgba(0, 0, 0, 0.2);
+  box-shadow: inset 0 1px 2px 0 rgba(0, 0, 0, 0.2);
+}
+.filemanager .btn.last {
+  float: right;
+}
+.filemanager .btn:hover {
+  background-color: #a2a2a2;
+}
+.filemanager .btn.disabled {
+  cursor: default;
+  background-color: #d5d5d5 !important;
+}
+.filemanager .btn.disabled:hover {
+  background-color: #d5d5d5 !important;
+}
+.filemanager .btn.add,
+.filemanager .btn.comfirm {
+  background-color: #98cf7d;
+  background-position: 0 1px;
+}
+.filemanager .btn.add:hover,
+.filemanager .btn.comfirm:hover {
+  background-color: #8cc96e;
+}
+.filemanager .btn.add.small,
+.filemanager .btn.comfirm.small {
+  background-position: -5px 1px;
+}
+.filemanager .btn.remove {
+  background-position: -46px 1px;
+}
+.filemanager .btn.remove.small {
+  background-position: -53px 1px;
+}
+.filemanager .btn.cancel {
+  background-position: -138px 1px;
+}
+.filemanager .btn.cancel.small {
+  background-position: -144px 1px;
+}
+.filemanager .btn.close {
+  background-position: -92px 1px;
+}
+.filemanager .btn.close.small {
+  background-position: -98px 1px;
+}
+.filemanager .btn.start {
+  background-position: -184px 1px;
+}
+.filemanager .btn.start:hover {
+  background-color: #5e96c6;
+}
+.filemanager .btn.start.small {
+  background-position: -190px 1px;
+}
+.filemanager .btn.small {
+  width: 33px;
+}
+.filemanager .btn input[type=file],
+.filemanager .btn input {
+  cursor: pointer;
+  -webkit-opacity: 0;
+  -moz-opacity: 0;
+  -o-opacity: 0;
+  opacity: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+.filemanager canvas {
+  display: block;
+}
+.filemanager .progress {
+  position: relative;
+  top: -8px;
+}
+.filemanager .progress:after {
+  content: '\0020';
+  display: block;
+  clear: both;
+}
+.filemanager .list-column-1,
+.filemanager .list-column-2,
+.filemanager .list-column-3,
+.filemanager .list-column-4,
+.filemanager .list-column-43,
+.filemanager .inner,
+.filemanager .row,
+.filemanager .list-header {
+  zoom: 1;
+}
+.filemanager .list-column-1:before,
+.filemanager .list-column-2:before,
+.filemanager .list-column-3:before,
+.filemanager .list-column-4:before,
+.filemanager .list-column-43:before,
+.filemanager .inner:before,
+.filemanager .row:before,
+.filemanager .list-header:before,
+.filemanager .list-column-1:after,
+.filemanager .list-column-2:after,
+.filemanager .list-column-3:after,
+.filemanager .list-column-4:after,
+.filemanager .list-column-43:after,
+.filemanager .inner:after,
+.filemanager .row:after,
+.filemanager .list-header:after {
+  content: "";
+  display: table;
+}
+.filemanager .list-column-1:after,
+.filemanager .list-column-2:after,
+.filemanager .list-column-3:after,
+.filemanager .list-column-4:after,
+.filemanager .list-column-43:after,
+.filemanager .inner:after,
+.filemanager .row:after,
+.filemanager .list-header:after {
+  clear: both;
+}
+.filemanager .list-column-1,
+.filemanager .list-column-2,
+.filemanager .list-column-3,
+.filemanager .list-column-4,
+.filemanager .list-column-43 {
+  display: inline;
+  float: left;
+}
+.filemanager .list-column-1 .inner,
+.filemanager .list-column-2 .inner,
+.filemanager .list-column-3 .inner,
+.filemanager .list-column-4 .inner,
+.filemanager .list-column-43 .inner {
+  margin-left: 12px;
+  margin-right: 12px;
+  position: relative;
+}
+.filemanager .list-column-1:last-child .inner,
+.filemanager .list-column-2:last-child .inner,
+.filemanager .list-column-3:last-child .inner,
+.filemanager .list-column-4:last-child .inner,
+.filemanager .list-column-43:last-child .inner {
+  margin-right: 0;
+}
+.filemanager .list-column-1:first-child .inner,
+.filemanager .list-column-2:first-child .inner,
+.filemanager .list-column-3:first-child .inner,
+.filemanager .list-column-4:first-child .inner,
+.filemanager .list-column-43:first-child .inner {
+  margin-left: 0;
+}
+.filemanager .bb {
+  border-bottom: 1px solid #e5e5e5;
+}
+.filemanager .bt {
+  border-top: 1px solid #e5e5e5;
+}
+.filemanager .note {
+  color: #666;
+}
+.filemanager .row {
+  padding: 6px 0;
+}
+.filemanager .list-header {
+  padding: 6px 0;
+  margin-bottom: 12px;
+}
+.filemanager .list-row {
+  padding: 22px 0 6px 0;
+}
+.filemanager .list-column-1 {
+  width: 100%;
+}
+.filemanager .list-column-1.stop {
+  min-width: 124px;
+}
+.filemanager .list-column-2 {
+  width: 50%;
+}
+.filemanager .list-column-2.stop {
+  min-width: 74px;
+}
+.filemanager .list-column-3 {
+  width: 33.333333333333336%;
+}
+.filemanager .list-column-4 {
+  width: 25%;
+}
+.filemanager .list-column-43 {
+  width: 75%;
+}
+.filemanager small {
+  padding-top: 0.3em;
+  font-size: 0.8em;
+}
+.filemanager .success .file-name,
+.filemanager .error .file-name {
+  font-weight: bold;
+}
+.filemanager .success .file-name {
+  color: #98cf7d;
+}
+.filemanager .error .file-name {
+  color: red;
+}
+.filemanager .file-name {
+  display: block;
+  white-space: nowrap;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.filemanager .ui-icon.move {
+  margin-left: 0 !important;
+  position: absolute;
+  left: 4px;
+  background-position: -26px -62px !important;
+  cursor: move;
+}
+.filemanager .selected.file .text:after {
+  margin-left: 6px;
+  content: '\0020';
+  display: block;
+  width: 16px;
+  height: 16px;
+  float: right;
+}
+.filemanager .meta-view {
+  position: relative;
+  margin-top: -12px;
+  padding-bottom: 2px;
+  display: none;
+  color: #fff;
+}
+.filemanager .meta-view .wrapper:after,
+.filemanager .meta-view:before {
+  left: 50%;
+  margin-left: -12px;
+  z-index: 1000000;
+  position: absolute;
+  content: '\0020';
+  width: 0;
+  height: 0;
+  border-left: 12px solid transparent;
+  border-right: 12px solid transparent;
+}
+.filemanager .meta-view:before {
+  bottom: 2px;
+  border-bottom: 12px solid #e6e6e5;
+}
+.filemanager .meta-view.file-selected {
+  background: #5273C0;
+}
+.filemanager .meta-view.file-selected:nth-child(even) {
+  background: #5676c1;
+}
+.filemanager .meta-view.file-selected:before {
+  border-bottom: 12px solid #5273C0;
+}
+.filemanager .meta-view.file-selected:nth-child(even):before {
+  border-bottom: 12px solid #5676c1;
+}
+.filemanager .meta-view .wrapper {
+  height: 228px;
+  overflow: visible;
+  position: relative;
+  background: #353530;
+  padding-bottom: 12px;
+  margin-top: 12px;
+  -webkit-border-radius: 6px;
+  -moz-border-radius: 6px;
+  border-radius: 6px;
+  -moz-background-clip: padding;
+  -webkit-background-clip: padding-box;
+  background-clip: padding-box;
+  -webkit-box-shadow: inset 0 2px 12px 0 rgba(0, 0, 0, 0.6);
+  -moz-box-shadow: inset 0 2px 12px 0 rgba(0, 0, 0, 0.6);
+  box-shadow: inset 0 2px 12px 0 rgba(0, 0, 0, 0.6);
+}
+.filemanager .meta-view .wrapper:after {
+  top: -12px;
+  border-bottom: 12px solid #21211e;
+}
+.filemanager .meta-view .btn {
+  background-color: #30302b;
+}
+.filemanager .meta-view .btn:hover {
+  background-color: #252521;
+}
+.filemanager .meta-view .outer {
+  margin: 0 12px;
+}
+.filemanager .meta-view .bb,
+.filemanager .meta-view.bb {
+  border-bottom: 1px dotted #252521;
+}
+.filemanager .meta-view .bt,
+.filemanager .meta-view.bt {
+  border-top: 1px dotted #42423c;
+}
+.filemanager .meta-view .preview-img {
+  padding: 12px;
+  background: #252521;
+}
+.filemanager .meta-view img {
+  display: block;
+  max-width: 100%;
+  margin: auto;
+  width: auto;
+}
+.filemanager .meta-view tbody {
+  padding: 12px;
+}
+.filemanager .meta-view tr {
+  width: 100%;
+  margin: 0 12px;
+}
+.filemanager .meta-view td {
+  background-color: transparent;
+  border: none;
+}
+.filemanager .meta-view td.name {
+  width: 33%;
+}
+.filemanager .new-dir .row {
+  padding: 0;
+}
+.filemanager .new-dir input {
+  margin: 6px 0;
+  padding: 2px;
+  border: none;
+  outline: none;
+  background: #f3f3f2;
+}
+/* ========================================================================== */

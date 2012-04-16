@@ -1,5 +1,16 @@
 <?php 
+	/**
+	 * @package filemanager
+	 * @author thomas appel <mail@thomas-appel.com>
+
+	 * Displays <a href="http://opensource.org/licenses/gpl-3.0.html">GNU Public License</a>
+	 * @license http://opensource.org/licenses/gpl-3.0.html GNU Public License
+	 */ 
+
 	require_once(TOOLKIT . '/class.alert.php');
+
+	define('FILEMANAGER_WORKSPACE', preg_replace('/\//i', DIRECTORY_SEPARATOR , WORKSPACE)); 
+	define('FILEMANAGER_EXCLUDE_DIRS', ',/workspace/events,/workspace/data-sources,/workspace/text-formatters,/workspace/pages,/workspace/utilities,/workspace/translations');
 
 	Class extension_filemanager extends Extension 
 	{
@@ -15,8 +26,8 @@
 			return array(
 				'name' => 'Filemanager',
 				'type'	=> 'field',
-				'version' => 'dev 1.3',
-				'release-date' => '2012-04-14',
+				'version' => 'dev 1.4',
+				'release-date' => '2012-04-17',
 				'author' => array(
 					'name' => 'Thomas Appel',
 					'email' => 'mail@thomas-appel.com',

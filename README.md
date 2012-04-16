@@ -42,16 +42,35 @@ Filemanager has two hard Dependencies
 - [Require js for Symphony CMS][1]
 - [Backbone js for Symphony CMS][2]
 
+so if you want to use filemanager, install these extensions first
+
 ## Pitfalls 
 
-As for this developmentrelease, filemanager won't work correctly on none \*nix
+<del>As for this developmentrelease, filemanager won't work correctly on none \*nix
 selver-environments. Please dont't use it if your webserver runs on a windows
-system.
+system.</del>
 
-so if you want to use filemanager, install these extensions first
+In case you dont't hav PECL extension `finfo_open` installed and the
+deprecated `mime_content_type` is not available on you system, the file
+mimetype checking will fallback to `application/octet-stream`. This means if you want to use the fileupload feature, you may have one choice: 
+include `application/octet-stream` in your allowed mimetype settings. The
+result will be that all files get validated serverside as the right mimetype, thought clientside validation will work as expected (depends on the browser. e.g. IE will not).
+
+## Chnagelog
+
+### dev 1.4, 2012-04-17
+
+- added support for multiplatform installations (pathhandling etc.)
+- False error handling for failed uploads
+- There was an error while creating new directories. New directories were always created in the workspace root folder
+
+### dev 1.3, 2012-04-14
+
+- file upload for legacy browser (iframe-transport mode)
+- Metaviews now retain their states when a directory node gets updated
+- Fixed some possible pitfalls in case PECL extension `finfo_open` is not available
+- Fixed some possible putfalls in case of a broken default file igniore regexp fragment			
+   
 
 [1]: https://github.com/iwyg/sym_requirejs
 [2]: https://github.com/iwyg/sym_backbonejs
-   
-
-
