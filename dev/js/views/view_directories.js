@@ -109,16 +109,11 @@
 					!hard ? this.$el.slideDown() : this.$el.css({display: 'block'});
 					this._open = true;
 					this.trigger('open', this);
-					console.log(fileNode[0].className, fileNode.hasClass('selected'));
 					if (fileNode.hasClass('selected')) {
 						_switchSelected.call(this, 'add');
 					} else if (this.options.parentView.model.get('selected')) {
 						_switchSelected.call(metaView, 'add');
 				    }
-					console.log(metaView.options.parentView.model);
-					setTimeout(function () {
-						console.log(metaView.options.parentView.model.get('selected'));
-					}, 2000);
 					return this;
 				},
 
@@ -403,7 +398,6 @@
 					mask.off('click', '.confirm');
 					mask.remove();
 				}).always(function (resp) {
-					console.log('_createDir', resp);
 					var msg = new SysMessage(null, resp);
 				});
 
@@ -585,6 +579,12 @@
 				});
 			}
 
+			function _renderError(response) {
+				var message = new SysMessage(null, response),
+				compiled = templates.dirtree_error({message: message.getMessage()});
+				this.el.innerHTML = compiled;
+			}
+
 			return Backbone.View.extend({
 				events: {
 					//'click .dir-toggle':  'toggleDir',
@@ -604,7 +604,10 @@
 					this.dirViews = {};
 					this.collection.addSetting('field_id', this.options.field_id);
 					this.collection.populate();
-					this.collection.deferred.done(_.bind(this.render, this));
+					this.collection.deferred
+						.done(_.bind(this.render, this))
+						.fail(_.bind(_renderError, this));
+
 					//this.collection.on('itemdelete', _.bind(_removeItemNode, this));
 					this.collection.on('add', _.bind(this.renderPart, this));
 					this.collection.on('remove', _.bind(_removeItem, this));

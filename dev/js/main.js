@@ -173,8 +173,10 @@
 				selectView.on('removedselected', _.bind(dirTreeView.unselectById, dirTreeView));
 				selectView.collection.on('selectionlimitexceed', _.bind(dirTreeView.unselectById, dirTreeView));
 
-				wrapper.removeClass('loading');
-				container.slideDown();
+				dirTreeView.collection.deferred.always(function () {
+					wrapper.removeClass('loading');
+					container.slideDown();
+				});
 
 				$(window).on('beforeunload', function () {
 

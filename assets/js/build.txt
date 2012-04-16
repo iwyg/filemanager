@@ -9,6 +9,7 @@ collections/col_upload.js
 modules/mod_animate_circle.js
 modules/mod_sysmessage.js
 text!templates/dirtree.tpl
+text!templates/dirtree_error.tpl
 text!templates/dirs.tpl
 text!templates/newdir.tpl
 text!templates/files.tpl

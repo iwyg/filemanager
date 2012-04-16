@@ -12,6 +12,9 @@ $about = array(
 $dictionary = array(
 	' files' => ' Dateien',
 	' file' => ' Datei',
+
+	'Cannot resolve directory structure for {$root}' => 'Kann die Verzeichnisstruckur für {$root} nicht auflösen',
+
 	'file type {$mimetype} not allowed' => 'Dateityp {$mimetype} nicht erlaubt',
 
 	'file size ({$f_size}) limit exceeds allowed size' => 'Dateigröße ({$f_size}) überschreitet erlaubte Dateigröße',

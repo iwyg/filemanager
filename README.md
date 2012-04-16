@@ -58,6 +58,10 @@ result will be that all files get validated serverside as the right mimetype, th
 
 ## Changelog
 
+### dev 1.4.2, 2012-04-17
+
+- File ignoring now works as expected
+
 ### dev 1.4, 2012-04-17
 
 - added support for multiplatform installations (pathhandling etc.)

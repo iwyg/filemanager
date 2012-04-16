@@ -18,15 +18,13 @@
 		public function __construct(Array $args) 
 		{
 			parent::__construct($args);
-
-
 		}
 		public function about() 
 		{
 			return array(
 				'name' => 'Filemanager',
 				'type'	=> 'field',
-				'version' => 'dev 1.4',
+				'version' => 'dev 1.4.2',
 				'release-date' => '2012-04-17',
 				'author' => array(
 					'name' => 'Thomas Appel',

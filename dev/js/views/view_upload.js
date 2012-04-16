@@ -80,7 +80,6 @@
 			},
 
 			createItem: function (event, input) {
-				//console.log('item added', input[0], input[0].files);
 				this.collection.addItem(input);
 			},
 

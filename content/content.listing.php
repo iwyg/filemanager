@@ -119,14 +119,15 @@ Class contentExtensionFilemanagerListing extends contentExtensionFilemanagerSett
 		 */
 		$ignore_files =  $this->get('ignore_files');
 
-		$ignore = base64_decode(Symphony::Configuration()->get('ignore', 'filemanager'));
-		$ignore = explode(' ', ((strlen($ignore) > 0 && strlen($ignore_files) > 0) ? $ignore . ' ' : $ignore) . $ignore_files);
+		$ignore = strlen(trim(Symphony::Configuration()->get('ignore', 'filemanager'))) > 0 ? base64_decode(Symphony::Configuration()->get('ignore', 'filemanager')) : null;
 
-		$ignore = sizeof($ignore) > 0 ? '/(' . implode('|', preg_replace('/(\/i?|\(|\))/i', '', $ignore)) . ')/i' : null;
+		if (!is_null($ignore)) {
+			$ignore = explode(' ', ((strlen($ignore) > 0 && strlen($ignore_files) > 0) ? $ignore . ' ' : $ignore) . $ignore_files);
+			$ignore = '/(' . implode('|', preg_replace('/(\/i?|\(|\))/i', '', $ignore)) . ')/i';
+		}
 
 
 		$excl = $this->sanitizePath(explode(',', preg_replace('/\//im', DIRECTORY_SEPARATOR, FILEMANAGER_EXCLUDE_DIRS)));
-
 
 		array_shift($excl);
 
@@ -137,7 +138,7 @@ Class contentExtensionFilemanagerListing extends contentExtensionFilemanagerSett
 			$dir_tree = $dirs->getDirectoryTree(true);
 			$this->_Result = $dir_tree;
 		} catch (Exception $e) {
-			$this->handleGeneralError(array('error' => array('message' => 'Cannot resolve directory structure for {$root}', 'context' => array('root' => $base_dir))));	
+		$this->handleGeneralError(array('error' => array('message' => 'Cannot resolve directory structure for {$root}', 'context' => array('root' => substr($base_dir, strlen(FILEMANAGER_WORKSPACE) - 9)))));	
 		}
 
 	}

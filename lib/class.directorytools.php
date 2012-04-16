@@ -42,7 +42,12 @@ Class DirectoryTools extends DirectoryIterator
 		$result = array();
 		$subit;
 		foreach ($it as $key => $child) {
+			/*
 			if ($child->isDot() || (!is_null($this->_ignore) ? preg_match($this->_ignore, $this->getSanitizedBasename($child)) : false)) {
+				continue;
+			}
+			 */
+			if ($child->isDot()) {
 				continue;
 			}
 			//$name = $child->getBasename();
@@ -71,7 +76,11 @@ Class DirectoryTools extends DirectoryIterator
 				}
 				$result['subdirs'][] = $dir;
 			} else {
-				$result['files'][] = $this->getFileInfo($child);
+				if (!is_null($this->_ignore) && preg_match($this->_ignore, $child->getBasename())) {
+					continue;
+				} else {
+					$result['files'][] = $this->getFileInfo($child);
+				}
 			}
 		}
 		return $result;
