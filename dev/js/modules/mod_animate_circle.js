@@ -1,3 +1,11 @@
+/**
+ * @package filemanager
+ * @author thomas appel <mail@thomas-appel.com>
+
+ * Displays <a href="http://opensource.org/licenses/gpl-3.0.html">GNU Public License</a>
+ * @license http://opensource.org/licenses/gpl-3.0.html GNU Public License
+ */
+
 (function (window, define) {
 	var PI = Math.PI,
 	CIRC = PI * 2,
@@ -91,8 +99,10 @@
 					p: val
 				};
 			},
-			_complete: function () {
-
+			_complete: function (callback) {
+				if (typeof callback === 'function') {
+					setTimeout(callback, 0);
+				}
 			},
 
 			drawFullCircle: function (color) {
@@ -109,13 +119,13 @@
 				this._ao.dequeue();
 			},
 
-			animate: function (to) {
+			animate: function (to, callback) {
 				this._ao[0].p = this._last.pop() || 0;
 				this._ao.stop().animate(
 				this._last.push(to) && this._prop(to), {
 					duration: this.settings.stepTime,
 					step: _.bind(this._step, this),
-					complete: _.bind(this._complete, this)
+					complete: _.bind(this._complete, this, callback)
 				});
 
 			},

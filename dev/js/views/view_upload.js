@@ -1,3 +1,11 @@
+/**
+ * @package filemanager
+ * @author thomas appel <mail@thomas-appel.com>
+
+ * Displays <a href="http://opensource.org/licenses/gpl-3.0.html">GNU Public License</a>
+ * @license http://opensource.org/licenses/gpl-3.0.html GNU Public License
+ */
+
 (function (Symphony, define, window, undefined) {
 
 	define(['jquery', 'underscore', 'backbone', 'collections/col_upload', 'modules/mod_animate_circle', 'modules/mod_sysmessage', 'templates/_templates'], function ($, _, Backbone, upload, AnimatedCircle, SysMessage, templates) {
@@ -157,10 +165,11 @@
 
 			function _onError() {
 				var data = this.$el.data();
-				setTimeout(function () {
-					data.progressIndicator.clearAnimation();
-					data.progressIndicator.drawFullCircle([255, 0, 0]);
-				}, 250);
+				this.$el.addClass('error');
+				data.progressIndicator.clearAnimation();
+				data.progressIndicator.settings.startColor = [255, 0, 0];
+				data.progressIndicator.settings.endColor = [255, 0, 0];
+				data.progressIndicator.drawFullCircle([255, 0, 0]);
 			}
 			function _selfRemove(model) {
 				this.trigger('remove', model);
@@ -222,6 +231,7 @@
 					e.preventDefault();
 					this.trigger('cancel', this.model, this._upld.reject());
 					_itemSetState.call(this, 'cancel', 'start');
+					this.$el.removeClass('success error');
 					_itemOnProgress.call(this, this.$el.data(), 0);
 				},
 

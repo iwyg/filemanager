@@ -1,8 +1,16 @@
+/**
+ * @package filemanager
+ * @author thomas appel <mail@thomas-appel.com>
+
+ * Displays <a href="http://opensource.org/licenses/gpl-3.0.html">GNU Public License</a>
+ * @license http://opensource.org/licenses/gpl-3.0.html GNU Public License
+ */
+
 (function (define, Symphony) {
 	// define Collection
 	// ============================================================================================
 
-	define(['underscore', 'backbone', 'collections/col_general', 'modules/mod_async_upload', 'modules/mod_byteconverter'], function (_, Backbone, General, Upload, convertBytes) {
+	define(['jquery', 'underscore', 'backbone', 'collections/col_general', 'modules/mod_async_upload', 'modules/mod_byteconverter'], function ($, _, Backbone, General, Upload, convertBytes) {
 		var UploadCollection, UploadListItem, UploadList;
 
 		function _onError(dfr, state) {
@@ -218,7 +226,7 @@
 					this.on('remove', _.bind(_flushWaitQueue, this));
 				},
 
-				url: Symphony.WEBSITE + '/symphony/extension/filemanager/upload/',
+				url: Symphony.Context.get('root') + '/symphony/extension/filemanager/upload/',
 
 				model: UploadListItem,
 

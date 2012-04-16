@@ -1,3 +1,11 @@
+/**
+ * @package filemanager
+ * @author thomas appel <mail@thomas-appel.com>
+
+ * Displays <a href="http://opensource.org/licenses/gpl-3.0.html">GNU Public License</a>
+ * @license http://opensource.org/licenses/gpl-3.0.html GNU Public License
+ */
+
 (function (define) {
 	var O = 0;
 	define(['jquery', 'underscore', 'backbone', 'collections/col_select', 'modules/mod_sysmessage', 'templates/_templates'], function ($, _, Backbone, Selection, SysMessage, templates) {

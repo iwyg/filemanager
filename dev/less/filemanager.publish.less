@@ -1,8 +1,9 @@
 @import url(classes.less);
+@import url(license.less);
 @bg_dk_col: #353530;
 @create_color: #98cf7d;
 @dir_tree_bg: #E6E6E5;
-/* ========================================================================== */
+
 
 /* Basic 
  * ========================================================================== */
@@ -660,10 +661,19 @@
 		padding-top: 0.3em;
 		font-size: 0.8em;
 	}
+	.success, .error {
+		.file-name {
+		   font-weight: bold;	
+		}
+	}
 	.success {
 		.file-name {
 			color: @create_color;
-		   font-weight: bold;	
+		}
+	}
+	.error {
+		.file-name {
+			color: red;
 		}
 	}
 	.file-name {

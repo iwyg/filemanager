@@ -1,3 +1,11 @@
+/**
+ * @package filemanager
+ * @author thomas appel <mail@thomas-appel.com>
+
+ * Displays <a href="http://opensource.org/licenses/gpl-3.0.html">GNU Public License</a>
+ * @license http://opensource.org/licenses/gpl-3.0.html GNU Public License
+ */
+
 (function (define, Symphony) {
 	// body
 	define(['jquery', 'underscore', 'backbone', 'collections/col_general'], function ($, _, Backbone, General) {
@@ -405,7 +413,7 @@
 					var url = this.url.replace(/listing\/$/, 'edit/'),
 					conf = {
 						mkdir: name,
-						withinIn : parent.get('path'),
+						within: parent.get('path'),
 						type: 'create'
 					};
 

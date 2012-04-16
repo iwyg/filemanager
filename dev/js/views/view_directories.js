@@ -1,3 +1,11 @@
+/**
+ * @package filemanager
+ * @author thomas appel <mail@thomas-appel.com>
+
+ * Displays <a href="http://opensource.org/licenses/gpl-3.0.html">GNU Public License</a>
+ * @license http://opensource.org/licenses/gpl-3.0.html GNU Public License
+ */
+
 (function (window, Symphony, define) {
 	define(['jquery', 'underscore', 'backbone', 'collections/col_directories', 'templates/_templates', 'modules/mod_sysmessage', 'modules/mod_byteconverter'], function ($, _, Backbone, Dirs, templates, SysMessage, convertBytes) {
 
@@ -395,6 +403,7 @@
 					mask.off('click', '.confirm');
 					mask.remove();
 				}).always(function (resp) {
+					console.log('_createDir', resp);
 					var msg = new SysMessage(null, resp);
 				});
 
