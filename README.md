@@ -56,7 +56,7 @@ mimetype checking will fallback to `application/octet-stream`. This means if you
 include `application/octet-stream` in your allowed mimetype settings. The
 result will be that all files get validated serverside as the right mimetype, thought clientside validation will work as expected (depends on the browser. e.g. IE will not).
 
-## Chnagelog
+## Changelog
 
 ### dev 1.4, 2012-04-17
 
