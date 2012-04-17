@@ -54,8 +54,16 @@ Class contentExtensionFilemanagerEdit extends contentExtensionFilemanagerSetting
 			return false;
 		}
 		if ($this->deleteFile($file)) {
-			$this->_Result = array('success' => 'successfully deleted ' . General::sanitize($_POST['file']));
+			$this->_Result = array(
+				'success' => array(
+					'message' => 'successfully deleted {$file}', 
+					'context' => array(
+						'file' => General::sanitize($_POST['file'])
+					)
+				)
+			);
 		}
+			
 	}
 
 	/**

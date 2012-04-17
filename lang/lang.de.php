@@ -12,6 +12,7 @@ $about = array(
 $dictionary = array(
 	' files' => ' Dateien',
 	' file' => ' Datei',
+	'successfully deleted {$file}' => '{$file} erfolgreich grlöscht',
 
 	'file {$item} successfully moved to {$to}' => 'Date {$item} erfolgreich nach {$to} verschoben',
 

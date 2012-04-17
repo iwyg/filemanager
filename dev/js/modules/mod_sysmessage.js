@@ -14,6 +14,7 @@
 		file_type_invalid: '{$item}: filetype invalid',
 		file_exists: 'file {$file} already exists',
 		file_move_success: 'file {$item} successfully moved to {$to}',
+		file_delete_success: 'successfully deleted {$file}',
 		dir_move_success: 'directory {$item} successfully moved {$to}',
 		directory_exists: 'directory {$file} already exists',
 		directory_created: 'Directory {$dir} successfully created in {$path}',
@@ -84,4 +85,3 @@
 		return SysMessage;
 	});
 }(this.define, this.Symphony));
-
