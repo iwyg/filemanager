@@ -22,7 +22,7 @@ Class extension_filemanager extends Extension
 			'name' => 'Filemanager',
 			'type'	=> 'field',
 			'version' => 'beta 1.3',
-			'release-date' => '2012-04-18',
+			'release-date' => '2012-04-17',
 			'author' => array(
 				'name' => 'Thomas Appel',
 				'email' => 'mail@thomas-appel.com',

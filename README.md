@@ -57,7 +57,7 @@ field Settings
 - `ignore files`: define which files shoud be ignored in the directory listing by default.  
   Don't put in here different regulat expressions but Regexp fragments, e.g. if
 you want to ignore all files with a `.jpg` and  `.gif` extension, write
-`\\.jpe?g$ \\.gif$` which becomes a regular expression that looks like this `/(\\.jpe?g$|\\.gif$)/i`
+`\.jpe?g$ \.gif$` which becomes a regular expression that looks like this `/(\.jpe?g$|\.gif$)/i`
   You can extend this per field in the fields' setting panel 
 
 ### Field Settings
@@ -112,7 +112,7 @@ result will be that all files get validated serverside as the right mimetype, th
 
 ## Changelog
 
-### beta 1.3, 2012-04-18
+### beta 1.3, 2012-04-17
 
 - fixed an error when a directory wasn't accessible (dev 1.4.3)
 - improved error handling (dev 1.4.3)
