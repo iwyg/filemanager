@@ -157,9 +157,13 @@
 				var data = this.$el.data();
 				this.trigger('success', this.model, this._upld.resolve());
 				// quick fix for FF
-				data.progressIndicator.clearAnimation();
-				data.progressIndicator.animate(100);
+				//
+				//data.progressIndicator.clearAnimation();
 				//data.progressIndicator.drawFullCircle(data.progressIndicator.settings.endColor);
+				data.progressIndicator.animate(99);
+				setTimeout(function () {
+					data.progressIndicator.animate(100);
+				}, data.progressIndicator.settings.stepTime);
 				data.progressValue.html('100&#160;%');
 			}
 
