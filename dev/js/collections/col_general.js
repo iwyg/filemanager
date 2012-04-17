@@ -1,6 +1,7 @@
 /**
- * @package filemanager
+ * @package Collections
  * @author thomas appel <mail@thomas-appel.com>
+ * @requires underscore backbone
 
  * Displays <a href="http://opensource.org/licenses/gpl-3.0.html">GNU Public License</a>
  * @license http://opensource.org/licenses/gpl-3.0.html GNU Public License

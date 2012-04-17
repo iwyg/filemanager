@@ -18,7 +18,7 @@ text!templates/upload.tpl
 text!templates/upload_list.tpl
 text!templates/upload_list_item.tpl
 text!templates/meta.tpl
-templates/_templates.js
+templates/templates.js
 views/view_upload.js
 collections/col_directories.js
 views/view_directories.js

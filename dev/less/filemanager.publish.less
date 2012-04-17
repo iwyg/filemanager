@@ -14,6 +14,8 @@
 	display: none;
 }
 .filemanager-dir-listing-body {
+	overflow: hidden;
+	background: @dir_tree_bg;
 	p.error {
 		color: red;
 		padding: 12px;
@@ -27,21 +29,7 @@
 #filemanager-container {
 	display: none;
 }
-.filemanager-dir-listing-body {
-	//background: @bg_dk_col !important;
-	//background: #e2e2de;
-	background: @dir_tree_bg;
-}
-.filemanager-dir-listing-body {
-	overflow: hidden;
-	//background: darken(#E4E4DE, 10%);
-	//.border-radius-select(8px, 2px, 8px , 2px);
-	//border: 2px solid #E4E4DE;
 
-	&> ul {
-		//background: @bg_dk_col !important;
-	}
-}
 .filemanager {
 	ul, li, label {
 		margin: 0;
@@ -144,7 +132,7 @@
 			width: 26px; height: 26px; display: block;
 			display: inline; float: left; 
 			background-repeat: no-repeat;
-			background-image: url(assets/filemanager.icons.v3.png);
+			background-image: url(assets/filemanager.icons.png);
 			//background-image: url(assets/filemanager.icons.svg);
 		}
 		.file > .ui-icon {
@@ -368,6 +356,7 @@
 		background-color: #fff;
 
 		.ui-icon {
+			border: none !important;
 			cursor: pointer;
 			margin-top: -4px;
 			padding: 0 4px;
@@ -387,10 +376,11 @@
 					background-position: -102px -38px;
 				}
 				&.file {
-					background-position: -153px -116px;
+
+					background-position: -153px -116px !important;
 					&:hover {
 						background-color: transparent;
-						background-position: -153px -38px;
+						background-position: -153px -38px !important;
 					}
 				}
 			}
@@ -405,6 +395,9 @@
 				&:hover {
 					background-position: -87px -604px;
 				}
+			}
+			&.readonly {
+				background-position: -87px -604px;
 			}
 			&.create {
 				background-position: -128px -116px;
@@ -486,7 +479,7 @@
 		&.last {
 			float: right;
 		}
-		background-image: url(assets/filemanager.icons.v3.png);
+		background-image: url(assets/filemanager.icons.png);
 		background-repeat: no-repeat;
 		.border-radius(10px);
 		.box-shadow-inset(0, 1px, 2px, 0, rgba(0, 0, 0, 0.2));
@@ -691,16 +684,32 @@
 	}
 	
 	.ui-icon {
-		&.move {
+		border: none;
+		&.move, &.readonly {
 			margin-left: 0 !important;
 			position: absolute;
 			left: 4px;
-			background-position: -26px -62px !important;
+		}
+		&.move {
 			cursor: move;
+			background-position: -26px -62px !important;
+		}
+		&.readonly {
+			background-position: -26px -115px !important;
 		}
 	}
 
 	.selected {
+		.ui-icon {
+			&.file, &.file:hover {
+				border: none;
+				background-position: -105px -62px !important;
+				background-color: transparent;
+			}
+			&.readonly {
+				background-position: -26px -142px !important;
+			}
+		}
 		&.file {
 			.text {
 				&:after {
@@ -709,7 +718,7 @@
 					display: block;
 					width: 16px;
 					height: 16px;
-					//background: url(assets/filemanager.icons.v3.png) no-repeat -82px -97px;
+					//background: url(assets/filemanager.icons.png) no-repeat -82px -97px;
 					float: right;
 				}
 			}
@@ -758,7 +767,7 @@
 			background: #353530;
 			padding-bottom: 12px;
 			margin-top: 12px;
-			.border-radius(6px);
+			.border-radius(2px);
 
 			.box-shadow-inset(0, 2px, 12px, 0, rgba(0, 0, 0, 0.6));
 

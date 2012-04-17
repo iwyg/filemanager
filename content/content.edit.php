@@ -7,16 +7,15 @@
  * @license http://opensource.org/licenses/gpl-3.0.html GNU Public License
  */ 
 
+//require_once(EXTENSIONS . '/firebug_profiler/lib/FirePHPCore/fb.php');
 require_once(TOOLKIT . '/class.fieldmanager.php');
 require_once(EXTENSIONS . '/filemanager/content/content.settings.php');
 require_once(EXTENSIONS . '/filemanager/lib/class.directorytools.php');
 
 
-Class contentExtensionFilemanagerEdit extends contentExtensionFilemanagerSettings
-{
+Class contentExtensionFilemanagerEdit extends contentExtensionFilemanagerSettings {
 
-	public function __construct(&$parent) 
-	{
+	public function __construct(&$parent) {
 		//parent::__construct($parent);
 		if (isset($_POST['type'])) {
 			$this->task($_POST['type']);
@@ -29,23 +28,22 @@ Class contentExtensionFilemanagerEdit extends contentExtensionFilemanagerSetting
 	public function task($type) {
 		switch ($type) {
 		case 'move':
-			// code...
 			$this->moveItem();
 			break;
 		case 'delete':
-			// code...
 			$this->deleteItem();
 			break;
 		case 'create':
-			// code...
 			$this->createDir();
 			break;
-
 		default:
 			break;
 		}
 	}
-
+	
+	/**
+	 * delete a file or a  from the server
+	 */
 	public function deleteItem() {
 		$file = General::sanitize(FILEMANAGER_WORKSPACE . $_POST['file']);
 		if (!file_exists($file)) {
@@ -60,7 +58,10 @@ Class contentExtensionFilemanagerEdit extends contentExtensionFilemanagerSetting
 		}
 	}
 
-
+	/**
+	 *
+	 * move a file to a new location
+	 */
 	public function moveItem() {
 		$fn = $_POST['from'];		
 		$dstfn = General::sanitize(basename(WORKSPACE . $fn));
@@ -82,49 +83,92 @@ Class contentExtensionFilemanagerEdit extends contentExtensionFilemanagerSetting
 				'success' => array(
 					'message' => $_POST['dataType'] == 'file' ? 'file {$item} successfully moved to {$to}' : 'directory {$item} successfully moved {$to}',
 					'context' => array(
-						'to' => $_POST['to'],
-						'item' => $fn
+						'to' => basename($destDir),
+						'item' => basename($new_file)
 					)
 				)
 			);
+		} else {
+			$this->handleGeneralError(
+				array(
+					'error' => array(
+						'message' => 'can\'t move {$file} to {$location}',
+						'context' => array(
+							'file' => basename($new_file),
+							'location' => basename($destDir),
+						)
+					)
+				)
+			);	
 		}
 
 	}
 
-	public function process() 
-	{
+	public function process() {
 		$this->setSettings(false);
 
 		//print_r($this->_settings);
 		//print_r($this->get('allow_dir_upload_files'));
 	}
 
+	/**
+	 * tries to remove a file or directory from the server
+	 *
+	 * @param string $file file or directory to be removed
+	 * @return boolean
+	 */
 	public function deleteFile($file) {
-		if (is_dir($file)) {
-			try {
-				contentExtensionFilemanagerEdit::rrmdir($file);
-				return true;
-
-			} catch (Exception $e) {
-				$this->catchedExceptionHanlder($e);
-			}
-			
+		if (!is_writable($file)) {
+			$this->handleAccessError(basename($file));
+			return false;
 		}
-		if (is_file($file)) {
-			try {
-				unlink($file);
-				return true;
+		if (is_dir($file)) {
+			$parent = dirname($file);
+			// check if we can operate on the parent directory
+			if (!is_writable($parent)) {
+				$this->handleAccessError(basename($parent));
+				return false;
+			}
 
-			} catch (Exception $e) {
-				$this->catchedExceptionHanlder($e);
+			if (contentExtensionFilemanagerEdit::rrmdir($file)) {
+				return true;
+			} else {
+				$this->handleGeneralError(array(
+					'error' => array(
+						'message' => 'can\'t delete directory {$file}',
+						'context' => array(
+							'file' => basename($file)
+						)
+					)
+				));
+			}
+		}
+
+		if (is_file($file)) {
+			if (unlink($file)) {
+				return true;
+			} else {
+
+				$this->handleGeneralError(array(
+					'error' => array(
+						'message' => 'can\'t delete file {$file}',
+						'context' => array(
+							'file' => basename($file)
+						)
+					)
+				));
 			}
 		}
 		return false;
-
 	}
 
 	private function moveFile($dest_path, $dest_file, $source_file) {
 		$new_file = $dest_path . $dest_file;
+		
+		if (!is_readable($dest_path) || !is_writeable($dest_path)) {
+			$this->handleGeneralError();
+			return false;
+		}
 
 		if (!is_dir($dest_path)) {
 			$this->handleGeneralError(array(
@@ -156,19 +200,37 @@ Class contentExtensionFilemanagerEdit extends contentExtensionFilemanagerSetting
 			return true;
 
 		} catch (Exception $e) {
-			$this->catchedExceptionHanlder($e);
+			$this->handleGeneralError(array(
+				'error' => array(
+					'message' => 'can\'t move {$file} to {$location}',
+					'context' => array(
+						'file' => $source_file,
+						'location' => $dest_file,
+					)
+				)
+			));
 		}
 	}
 
+	/**
+	 * attempts to create a new directory
+	 * @return boolean
+	 */ 
 	public function createDir() {
 
 		$name = $_POST['mkdir'];
 		$dest_path = FILEMANAGER_WORKSPACE . $this->sanitizePathFragment($_POST['within']) . DIRECTORY_SEPARATOR;
 
+		if (!is_readable($dest_path) || !is_writeable($dest_path)) {
+			$this->handleAccessError();
+			return false;
+		}
+
 		if (is_dir($dest_path . $name) || file_exists($dest_path . $name)) {
 			$this->handleGeneralError(array('error' => array('message' => 'directory {$file} already exists', 'context' => array('file' => $name, 'path' => $dest_path))));
 			return false;
 		}
+
 		try {
 			mkdir($dest_path . $name);
 			$this->_Result = array('success' => array(
@@ -184,7 +246,7 @@ Class contentExtensionFilemanagerEdit extends contentExtensionFilemanagerSetting
 			));
 		} catch (Exception $e) {
 			$this->handleGeneralError(array('error' => array(
-				'message' => 'Failed createing Directory {$dir} in {$path}',
+				'message' => 'Failed creating Directory {$dir} in {$path}',
 				'context' => array(
 					'dir' => $name,
 					'path' => substr($dest_path, strlen(FILEMANAGER_WORKSPACE . DIRECTORY_SEPARATOR)),
@@ -197,6 +259,21 @@ Class contentExtensionFilemanagerEdit extends contentExtensionFilemanagerSetting
 		return false; 
 	}
 
+	private function handleAccessError($dir) {
+		$this->handleGeneralError(array(
+			'error' => array(
+				'message' => 'Cannot access {$file}', 
+				'context' => array(
+					'file' => basename($dir)
+				)
+			)
+		));
+	}
+
+	/**
+	 * converts a Exception into a message object
+	 * @deprecated
+	 */ 
 	private function catchedExceptionHanlder(&$exception) {
 		$this->handleGeneralError(array('error' => array(
 				'message' => $exception->getMessage(), 
@@ -216,11 +293,17 @@ Class contentExtensionFilemanagerEdit extends contentExtensionFilemanagerSetting
 			$objects = scandir($dir);
 			foreach ($objects as $object) {
 				if ($object != "." && $object != "..") {
-					if (filetype($dir."/".$object) == "dir") contentExtensionFilemanagerEdit::rrmdir($dir."/".$object); else unlink($dir."/".$object);
+					if (filetype($dir."/".$object) == "dir") {
+						if (!contentExtensionFilemanagerEdit::rrmdir($dir."/".$object)) {
+							return false;
+						}
+					} else {
+						unlink($dir."/".$object);
+					}
 				}
 			}
 			reset($objects);
-			rmdir($dir);
+			return rmdir($dir);
 		}
 	}
 

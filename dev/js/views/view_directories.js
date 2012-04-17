@@ -1,5 +1,5 @@
 /**
- * @package filemanager
+ * @package Views
  * @author thomas appel <mail@thomas-appel.com>
 
  * Displays <a href="http://opensource.org/licenses/gpl-3.0.html">GNU Public License</a>
@@ -7,7 +7,7 @@
  */
 
 (function (window, Symphony, define) {
-	define(['jquery', 'underscore', 'backbone', 'collections/col_directories', 'templates/_templates', 'modules/mod_sysmessage', 'modules/mod_byteconverter'], function ($, _, Backbone, Dirs, templates, SysMessage, convertBytes) {
+	define(['jquery', 'underscore', 'backbone', 'collections/col_directories', 'templates/templates', 'modules/mod_sysmessage', 'modules/mod_byteconverter'], function ($, _, Backbone, Dirs, templates, SysMessage, convertBytes) {
 
 		var FileView, DirView, MetaView, TreeView, metaStates = {};
 
@@ -379,6 +379,8 @@
 			}
 
 			/**
+			 * attempts to remove a directory or file
+			 *
 			 * @private
 			 */
 			function _removeItem(model, cols, options) {
@@ -390,20 +392,22 @@
 			}
 
 			/**
+			 * initializes creation of a new directory
+			 *
 			 * @private
 			 */
 			function _createDir(parentModel, mask) {
 				var name = mask.find('input[type=text]').val();
-				this.collection.createDir(name, parentModel).always(function () {
+				this.collection.createDir(name, parentModel).always(function (resp) {
 					mask.off('click', '.confirm');
 					mask.remove();
-				}).always(function (resp) {
 					var msg = new SysMessage(null, resp);
 				});
-
 			}
 
 			/**
+			 * Initialize subdirectory rendering if a parent directory was updated
+			 *
 			 * @private
 			 */
 			function _renderSubDirsOnUpdate(sub) {
@@ -412,6 +416,8 @@
 			}
 
 			/**
+			 * moves an item (File or Directory) to a different location (another directory)
+			 *
 			 * @private
 			 */
 			function _moveItemTo(event, ui) {
@@ -429,6 +435,8 @@
 					destination: destination,
 					source: source,
 					file: file
+				}).always(function (resp) {
+					new SysMessage(null, resp);
 				});
 			}
 
@@ -578,6 +586,11 @@
 					}
 				});
 			}
+			/**
+			 * Renders an error instead of the directory tree structure
+			 *
+			 * @private
+			 */
 
 			function _renderError(response) {
 				var message = new SysMessage(null, response),
@@ -623,36 +636,90 @@
 					return false;
 				},
 
+				/**
+				 * selects an item node
+				 *
+				 * @param {Object} e the event Object
+				 * @api public
+				 */
 				select: function (e) {
 					_select.call(this, e, 'add');
 				},
 
+				/**
+				 * unselects an item node
+				 *
+				 * @param {Object} e the event Object
+				 * @api public
+				 */
 				unselect: function (e) {
 					_select.call(this, e, 'remove');
 				},
 
+				/**
+				 * selects an item node by its model id
+				 *
+				 * @param {String} id model id of file to be slected
+				 * @api public
+				 */
 				selectById: function (id) {
 					this.filesById(id).addClass('selected');
 					return this;
 				},
 
+				/**
+				 * unselects an item node by its model id
+				 *
+				 * @param {String} id model id of file to be unslected
+				 * @api public
+				 */
 				unselectById: function (id) {
 					this.filesById(id).removeClass('selected');
 					return this;
 				},
 
+				/**
+				 * unselects an item node by its model id
+				 *
+				 * @param {Mixed} ids String Number or Array containing the
+				 * filemodel ids to be fetched
+				 * @return {Object} jQuery nodelist
+				 * @api public
+				 */
 				filesById: function (ids) {
 					return this.$el.find(_.isArray(ids) ? ('#file-' + ids.join(', #file-')) : '#file-' + ids);
 				},
 
+				/**
+				 * Fetches a Filemodel given its representing rendered DOM view node
+				 *
+				 * @param {Object} node jQuery DOMnode Object
+				 * @return {Object} Backbone.Model instance
+				 * @api public
+				 */
 				getFile: function (node) {
 					var id = node.parent()[0].id.substr(4);
 					return this.collection.getFile(node[0].id.split('file-')[1], id);
 				},
+
+				/**
+				 * alias to window confirm:
+				 * displays confirm dialog
+				 * @param {string} message the message to be shown
+				 * @return {Boolean}
+				 * @api public
+				 */
 				confirm: function (message) {
 					return confirm(message);
 				},
 
+				/**
+				 * triggers removal of a directory given serverside removeal
+				 * was successful
+				 *
+				 * @param {Object} event the event Object
+				 * @api public
+				 */
 				deleteDir: function (event) {
 					var dir = this.collection.get($(event.target).parents().filter('.dir')[0].id);
 					var message = Symphony.Language.get(SysMessage.confirm_directory_deletion, {
@@ -663,10 +730,19 @@
 					});
 
 					if (this.confirm(message)) {
-						this.collection.deleteItem(dir, 'dir');
+						this.collection.deleteItem(dir, 'dir').always(function (response) {
+							new SysMessage(null, response);
+						});
 					}
 				},
 
+				/**
+				 * triggers removal of a filenode given serverside removeal
+				 * was successful
+				 *
+				 * @param {Object} event the event Object
+				 * @api public
+				 */
 				deleteFile: function (event) {
 					var t = $(event.target),
 					fileNode = t.parents().filter('.file'),
@@ -674,15 +750,25 @@
 					file = this.getFile(fileNode);
 
 					var message = Symphony.Language.get(SysMessage.confirm_file_deletion, {
-						'file': 'test'
+						'file': file.get('name') || file.get('path')
 					});
 
 					if (this.confirm(message)) {
-						this.collection.deleteItem(file, 'file');
+						this.collection.deleteItem(file, 'file').always(function (response) {
+							new SysMessage(null, response);
+						});
 						//_select.call(this, {target: t.parent()[0]}, 'remove');
 					}
 				},
 
+				/**
+				 * triggers the createing of a directorynode given serverside
+				 * creating
+				 * was successful
+				 *
+				 * @param {Object} event the event Object
+				 * @api public
+				 */
 				createDir: function (event) {
 					var target = $(event.target),
 					dir = this.collection.get(target.parents().filter('.dir')[0].id),
@@ -698,6 +784,11 @@
 					});
 				},
 
+				/**
+				 * opens or closes a directory node view
+				 * @param {Object} event the Event Object
+				 * @api public
+				 */
 				toggleDir: function (event) {
 					var target, subdir, toggle, trigger, toggle;
 					event.preventDefault();
@@ -712,12 +803,25 @@
 					//this.trigger('toggle', trigger);
 				},
 
+				/**
+				 * opens a directory node view
+				 *
+				 * @param {Object} node jQuery DOM object the node which should
+				 * be opened
+				 * @api public
+				 */
 				openDir: function (node) {
 					node.find('> .sub-dir').slideDown();
 					node.addClass('open');
 					this.collection.get(node[0].id).set('state', 'open');
 				},
 
+				/**
+				 * closes a directory node view
+				 *
+				 * @param {Object} node jQuery DOM object the node which should
+				 * be closed
+				 */
 				closeDir: function (node) {
 					node.find('> .sub-dir').slideUp();
 					node.removeClass('open');
@@ -735,6 +839,7 @@
 				/**
 				 * Renders a directory branch
 				 * @param {Object: Backbone.Model Instance} model the directory model
+				 * @api public
 				 */
 				renderPart: function (model) {
 					var dir, update = this.dirViews[model.id] ? true: false;
@@ -764,6 +869,8 @@
 				/**
 				 * starts the initial render process.
 				 * This is nomaly done once
+				 *
+				 * @api public
 				 */
 				render: function () {
 					var view = this;

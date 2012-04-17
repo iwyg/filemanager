@@ -1,7 +1,10 @@
 /**
- * @package filemanager
+ * @package Collections
  * @author thomas appel <mail@thomas-appel.com>
-
+ *
+ * @requires jquery underscore backbone collections/col_general
+ * modules/mod_async_upload modules/mod_byteconverter
+ *
  * Displays <a href="http://opensource.org/licenses/gpl-3.0.html">GNU Public License</a>
  * @license http://opensource.org/licenses/gpl-3.0.html GNU Public License
  */

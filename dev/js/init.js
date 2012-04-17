@@ -19,7 +19,7 @@
 				'backbone': '../../../sym_backbonejs/assets/backbone',
 				'text': '../../../sym_requirejs/assets/text'
 			},
-			//urlArgs: Date.now() // add this during development
+			urlArgs: Date.now() // add this during development
 		}, ['main']);
 	}
 

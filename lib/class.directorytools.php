@@ -8,7 +8,7 @@
  */ 
 
 
-
+//require_once(EXTENSIONS . '/firebug_profiler/lib/FirePHPCore/fb.php');
 /**
  * A Class providing some methods and utilities needed for filemanager
  */ 
@@ -47,7 +47,8 @@ Class DirectoryTools extends DirectoryIterator
 				continue;
 			}
 			 */
-			if ($child->isDot()) {
+			// check if directory is accassible
+			if ($child->isDot() || !$child->isReadable()) {
 				continue;
 			}
 			//$name = $child->getBasename();
@@ -59,14 +60,7 @@ Class DirectoryTools extends DirectoryIterator
 
 				$subit = new DirectoryIterator($child->getPathname());
 				$nextlvl = $this->directoryIteratorToArray($subit, $this->_ignore);
-				$dir = array(
-					'directory' => array(
-						'name' =>  $this->getSanitizedBasename($child),
-						'path' =>  $this->trimPath($this->getSanitizedPathname($child)),
-						'level' => $this->_level	
-					)
-					
-				);
+				$dir = $this->_getDirectoryInfo($child);
 				$this->_level--;
 				if (isset($nextlvl['subdirs'])) {
 					$dir['directory']['subdirs'] = $nextlvl['subdirs']; 
@@ -75,11 +69,11 @@ Class DirectoryTools extends DirectoryIterator
 					$dir['directory']['files'] = $nextlvl['files']; 
 				}
 				$result['subdirs'][] = $dir;
-			} else {
+			} elseif ($child->isFile()) {
 				if (!is_null($this->_ignore) && preg_match($this->_ignore, $child->getBasename())) {
 					continue;
 				} else {
-					$result['files'][] = $this->getFileInfo($child);
+					$result['files'][] = $this->_getFileInfo($child);
 				}
 			}
 		}
@@ -131,8 +125,7 @@ Class DirectoryTools extends DirectoryIterator
 	 *  @param DirectoryIterator $file 
 	 *  @return array
 	 */ 
-	public function getFileInfo(DirectoryIterator $file) 
-	{
+	private function _getFileInfo(DirectoryIterator $file) {
 		$fpath = $file->getPathname();
 		$path = $this->trimPath($fpath);
 
@@ -142,7 +135,8 @@ Class DirectoryTools extends DirectoryIterator
 		//$finfo = finfo_open(FILEINFO_MIME_TYPE); 
 		$perm = @fileperms($file->getPathname());
 		$fbase = $this->getSanitizedBasename($file);
-		#$fbase = $file->getBasename();
+
+		$fparts = pathinfo($fbase);
 
 
 		return array(
@@ -151,14 +145,30 @@ Class DirectoryTools extends DirectoryIterator
 			'cssclass'	=> preg_replace('/.*[\.*$]/i', 'file file-$1', $fbase),
 			'path'		=> $path,
 			'type'		=> DirectoryTools::getMimeType($fpath),
-			'suffix'	=> $file->getExtension(),
+			//'suffix'	=> $file->getExtension(),
+			'suffix'    => $fparts['extension'],
 			'size'		=> $file->getSize(),
 			'owner'		=> $own['name'],
 			'group'		=> $grp['name'],
 			'lastmod'	=> date('Y/m/d h:m:s', $file->getMTime()),
 			'inode'		=> $file->getInode(),
 			'perms'		=> @substr(@sprintf('%o', fileperms(($fpath))), -4),
+			'writable'  => $file->isWritable(),
+			'readable'  => $file->isReadable(),
+			'moveable'  => is_writable($file->getPath()),
 		);
+	}
+
+	private function _getDirectoryInfo(DirectoryIterator $child, $root=false) {
+		return array(
+			'directory' => array(
+				'name' =>  !$root ? $this->getSanitizedBasename($child) : basename($this->_baseDir),
+				'path' =>  !$root ? $this->trimPath($this->getSanitizedPathname($child)) : $this->trimPath($this->_baseDir),
+				'level' => $this->_level,
+				'writable' => $child->isWritable(),	
+				'readable' => $child->isReadable(),	
+			)
+		);	
 	}
 
 	/**
@@ -168,11 +178,12 @@ Class DirectoryTools extends DirectoryIterator
 	 * @param boolean $root include or ignore the root directory name
 	 * @return array the directory tree as nested array
 	 */ 
-	public function getDirectoryTree($root = false) 
-	{
+	public function getDirectoryTree($root = false) {
 		$res = $this->directoryIteratorToArray($this);
 		//$this->_level = 0;
 		if ($root) {
+			$dir = $this->_getDirectoryInfo($this, true);
+			/*
 			$dir = array();
 			$dir['directory'] = array(
 
@@ -180,6 +191,7 @@ Class DirectoryTools extends DirectoryIterator
 				'path' => $this->trimPath($this->_baseDir),
 				'level' => $this->_level,
 			);
+			 */
 
 			foreach($res as $k => $v) {
 				$dir['directory'][$k] = $v;

@@ -1,5 +1,5 @@
 /**
- * @package filemanager
+ * @package Views
  * @author thomas appel <mail@thomas-appel.com>
 
  * Displays <a href="http://opensource.org/licenses/gpl-3.0.html">GNU Public License</a>
@@ -8,7 +8,7 @@
 
 (function (Symphony, define, window, undefined) {
 
-	define(['jquery', 'underscore', 'backbone', 'collections/col_upload', 'modules/mod_animate_circle', 'modules/mod_sysmessage', 'templates/_templates'], function ($, _, Backbone, upload, AnimatedCircle, SysMessage, templates) {
+	define(['jquery', 'underscore', 'backbone', 'collections/col_upload', 'modules/mod_animate_circle', 'modules/mod_sysmessage', 'templates/templates'], function ($, _, Backbone, upload, AnimatedCircle, SysMessage, templates) {
 
 		var corf = Backbone.View.extend.call(function () {this.initialize.apply(this, arguments);}, Backbone.Events);
 		corf.extend = Backbone.View.extend;
@@ -157,8 +157,9 @@
 				var data = this.$el.data();
 				this.trigger('success', this.model, this._upld.resolve());
 				// quick fix for FF
-				//data.progressIndicator.animate(100);
-				data.progressIndicator.drawFullCircle(data.progressIndicator.settings.endColor);
+				data.progressIndicator.clearAnimation();
+				data.progressIndicator.animate(100);
+				//data.progressIndicator.drawFullCircle(data.progressIndicator.settings.endColor);
 				data.progressValue.html('100&#160;%');
 			}
 
@@ -166,8 +167,8 @@
 				var data = this.$el.data();
 				this.$el.addClass('error');
 				data.progressIndicator.clearAnimation();
-				data.progressIndicator.settings.startColor = [255, 0, 0];
-				data.progressIndicator.settings.endColor = [255, 0, 0];
+				//data.progressIndicator.settings.startColor = [255, 0, 0];
+				//data.progressIndicator.settings.endColor = [255, 0, 0];
 				data.progressIndicator.drawFullCircle([255, 0, 0]);
 			}
 			function _selfRemove(model) {
@@ -514,4 +515,3 @@
 		return UploadView;
 	});
 }(this.Symphony, this.define, this));
-

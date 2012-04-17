@@ -1,5 +1,5 @@
 /**
- * @package filemanager
+ * @package Views
  * @author thomas appel <mail@thomas-appel.com>
 
  * Displays <a href="http://opensource.org/licenses/gpl-3.0.html">GNU Public License</a>
@@ -8,7 +8,7 @@
 
 (function (define) {
 	var O = 0;
-	define(['jquery', 'underscore', 'backbone', 'collections/col_select', 'modules/mod_sysmessage', 'templates/_templates'], function ($, _, Backbone, Selection, SysMessage, templates) {
+	define(['jquery', 'underscore', 'backbone', 'collections/col_select', 'modules/mod_sysmessage', 'templates/templates'], function ($, _, Backbone, Selection, SysMessage, templates) {
 		function _selectError() {
 			var response = {
 				error: {

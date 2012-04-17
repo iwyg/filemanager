@@ -22,6 +22,7 @@ Class contentExtensionFilemanagerUpload extends contentExtensionFilemanagerSetti
 
 
 	}
+
 	/**
 	 * Validate uploaded file for mimetype and filesize
 	 * @param string $tempname uploaded file
@@ -42,6 +43,9 @@ Class contentExtensionFilemanagerUpload extends contentExtensionFilemanagerSetti
 		return true;
 	}
 
+	/**
+	 * @see content/content.settings.php#process
+	 */ 
 	public function process() {
 		$this->setSettings(false);
 
@@ -49,6 +53,9 @@ Class contentExtensionFilemanagerUpload extends contentExtensionFilemanagerSetti
 		//print_r($this->get('allow_dir_upload_files'));
 	}
 
+	/**
+	 *  try to move uploaded files to detination
+	 */ 
 	public function moveUploadedFiles() {
 		$data = General::getPostData();
 
@@ -68,6 +75,20 @@ Class contentExtensionFilemanagerUpload extends contentExtensionFilemanagerSetti
 				if (!$this->validateUploadedFile($file['tmp_name'], $file['name'])) {
 					return false;	
 				}
+
+				if (!is_writable(FILEMANAGER_WORKSPACE . $dest . $new_file)) {
+					// not writable error
+					$this->handleGeneralError(array(
+						'error' => array(
+							'message' => 'Cannot access {$file}', 
+							'context' => array(
+								'file' => $dest
+							)
+						)
+					));
+					return false;
+				}
+
 				if (!is_dir(FILEMANAGER_WORKSPACE . $dest)) {
 					// invalid destination error
 					$this->handleGeneralError(array('error' => array('message' => 'invalid destination: {$dir}', 'context' => array('dir' => $dest))));	
@@ -97,9 +118,11 @@ Class contentExtensionFilemanagerUpload extends contentExtensionFilemanagerSetti
 			$this->success($results);	
 		}
 	}
+
 	public function success($data) {
 		$this->_Result = $data;
 	}
+
 	public function getHttpPath($path) {
 		return URL . '/workspace' . $path;
 	}

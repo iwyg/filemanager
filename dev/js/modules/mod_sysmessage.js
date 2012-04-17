@@ -1,5 +1,6 @@
 /**
- * @package filemanager
+ * @package Modules
+ * @requires jquery underscore
  * @author thomas appel <mail@thomas-appel.com>
 
  * Displays <a href="http://opensource.org/licenses/gpl-3.0.html">GNU Public License</a>
@@ -12,6 +13,8 @@
 		file_size_exceeds: '{$item} exceeds allowed size',
 		file_type_invalid: '{$item}: filetype invalid',
 		file_exists: 'file {$file} already exists',
+		file_move_success: 'file {$item} successfully moved to {$to}',
+		dir_move_success: 'directory {$item} successfully moved {$to}',
 		directory_exists: 'directory {$file} already exists',
 		directory_created: 'Directory {$dir} successfully created in {$path}',
 		invalid_destination: 'invalid destination: {$dir}',
@@ -20,7 +23,12 @@
 		confirm_directory_deletion: 'Are you shure you want to delete {$dir}? {$dir2} contains {$dircount} directories and {$filecount} files that will be deleted. This step cannot be undone.',
 		file_select_limit_exceed: 'Can\'t select more than {$count} files',
 		unsaved_changes: 'There are unsaved changes. Do you really want to continue?',
-		directory_listing_error: 'Cannot resolve directory structure for {$root}'
+		directory_listing_error: 'Cannot resolve directory structure for {$root}',
+		dir_access_error: 'Cannot access {$file}',
+		dir_creating_error: 'Failed creating Directory {$dir} in {$path}',
+		item_move_error: 'can\'t move {$file} to {$location}',
+		file_delete_error: 'can\'t delete file {$file}',
+		dir_delete_error: 'can\'t delete directory {$file}'
 	},
 
 	msgQueue = [],
