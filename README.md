@@ -45,20 +45,106 @@ Filemanager has two hard Dependencies
 
 so if you want to use filemanager, install these extensions first
 
-[1]: https://github.com/iwyg/sym_requirejs
-[2]: https://github.com/iwyg/sym_backbonejs
+## Configuration 
+
+### Preferences
+
+![Filebrowser View](http://dev.thomas-appel.com/symphony/assets/sym_fm_preferences.png)
+
+- `Defaul MIME types`: define the default Mimetypes that should be allowed for
+  uploading. This will be overwritten if you set `default MIME tyes` on the
+field Settings
+- `ignore files`: define which files shoud be ignored in the directory listing by default.  
+  Don't put in here different regulat expressions but Regexp fragments, e.g. if
+you want to ignore all files with a `.jpg` and  `.gif` extension, write
+`\\.jpe?g$ \\.gif$` which becomes a regular expression that looks like this `/(\\.jpe?g$|\\.gif$)/i`
+  You can extend this per field in the fields' setting panel 
+
+### Field Settings
+
+![Filebrowser View](http://dev.thomas-appel.com/symphony/assets/sym_fm_settings_diroptions.png)
+
+#### `Directory options`: 
+
+Set the rootdirectory within `workspace` and select which directories should be excluded. You can also choose to allow
+moving, removing and/or creating directories
+
+![Filebrowser View](http://dev.thomas-appel.com/symphony/assets/sym_fm_settings_fileuoload_a.png)
+
+#### `Allow fileupload`:
+
+Check this, if you want to allow uploading files. After you save your current
+Section, more options wil become available, as they are: 
+
+![Filebrowser View](http://dev.thomas-appel.com/symphony/assets/sym_fm_settings_fileuoload_b.png)
+
+- `Unique Filenames`: check this, if you want to have unique filesnames
+- `Allowed MIME types`: define the Mimetypes that should be allowed for
+  uploading. This will override the defaults set in preferences for this field.
+
+![Filebrowser View](http://dev.thomas-appel.com/symphony/assets/sym_fm_settings_fileoptions.png)
+
+#### `File options`:
+
+Extend the default filesextensions that should be ignored (see Preferences) and
+set if you want to allow moving files to another location and/or allow deleting
+files.
+
+![Filebrowser View](http://dev.thomas-appel.com/symphony/assets/sym_fm_settings_fselectoptions.png)
+
+#### `Select options`:
+
+Limit the amount of files that can be selected per entry. `0` means unlimited.
+
+
 
 ## Pitfalls 
 
-As for this beta-release, filemanager won't work correctly on none \*nix
-server-environments. Please dont't use it if your webserver runs on a windows
-system.
+<del>As for this developmentrelease, filemanager won't work correctly on none \*nix
+selver-environments. Please dont't use it if your webserver runs on a windows
+system.</del>
+
+In case you dont't hav PECL extension `finfo_open` installed and the
+deprecated `mime_content_type` is not available on you system, the file
+mimetype checking will fallback to `application/octet-stream`. This means if you want to use the fileupload feature, you may have one choice: 
+include `application/octet-stream` in your allowed mimetype settings. The
+result will be that all files get validated serverside as the right mimetype, thought clientside validation will work as expected (depends on the browser. e.g. IE will not).
+
+## Changelog
+
+### beta 1.3, 2012-04-18
+
+- fixed an error when a directory wasn't accessible (dev 1.4.3)
+- improved error handling (dev 1.4.3)
+- replaced some method calls for compatibility reasons (dev 1.4.3)
+- File ignoring now works as expected (dev 1.4.2)
+- added support for multiplatform installations (pathhandling etc.) (dev 1.4)
+- False error handling for failed uploads (dev 1.4)
+- There was an error while creating new directories. New directories were always created in the workspace root folder (dev 1.4)
+- file upload for legacy browser (iframe-transport mode) (dev 1.3)
+- Metaviews now retain their states when a directory node gets updated (dev 1.3)
+- Fixed some possible pitfalls in case PECL extension `finfo_open` is not available (dev 1.3)
+- Fixed some possible putfalls in case of a broken default file ignore regexp fragment (dev 1.3)
+
+### beta 1.2, 2012-04-12
+
+- fixed broken default file-ignore RegExp
+- added update method that will handle broken default regexp form previous verions
+- Filebrowser: Folders now auto open and close when dragging over them
+
+### beta 1.1, 2012-04-11
+
+- fixed directory update behaviour
+- deprecated field setting that would cause an error 
+
+### beta 1, 2012-04-11
+
+- initial release
+
 
 ## Roadmap
 
- - Fix fileupload issues for legacy Browsers 
- - Improve error handling on moving, creating and deleting files ans directories 
- - Fix path handling for none \*nix system
+- Fix fileupload issues for legacy Browsers 
    
-
-
+[1]: https://github.com/iwyg/sym_requirejs
+[2]: https://github.com/iwyg/sym_backbonejs

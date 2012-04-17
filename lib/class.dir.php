@@ -7,4 +7,3 @@
 			return new DirectoryIterator($context);
 		}
 	}
-?>

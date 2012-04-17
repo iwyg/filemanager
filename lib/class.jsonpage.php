@@ -1,6 +1,17 @@
 <?php
 
+	/**
+	 * @package lib
+	 * @author thomas appel <mail@thomas-appel.com>
+
+	 * Displays <a href="http://opensource.org/licenses/gpl-3.0.html">GNU Public License</a>
+	 * @license http://opensource.org/licenses/gpl-3.0.html GNU Public License
+	 */ 
+
+
 	require_once(TOOLKIT . '/class.page.php');
+
+	define('FILEMANAGER_WORKSPACE', preg_replace('/\//i', DIRECTORY_SEPARATOR , WORKSPACE)); 
 
 	Class JSONPage extends AjaxPage{
 
@@ -91,10 +102,12 @@
 		 *
 		 * @see build()
 		 */
-		function view() 
+		function view($override=false) 
 		{
 			//$this->_Result = preg_replace("/(^[\r\n]*|[\r\n]+)[\s\t]*[\r\n\']+/", "",json_encode($this->_Result));
-			$this->_Result = preg_replace('/\r+/mi', '',json_encode($this->_Result));
+			if (!$override) {
+				$this->_Result = preg_replace('/\r+/mi', '',json_encode($this->_Result));
+			}
 			return $this->_Result;
 		}
 

@@ -6,12 +6,39 @@ $about = array(
 		'email' => 'mail@thomas-appel.com',
 		'website' => 'http://thomas-appel.com'
 	),
-	'release-date' => '2012-03-02'
+	'release-date' => '2012-04-17'
 );
 
 $dictionary = array(
 	' files' => ' Dateien',
 	' file' => ' Datei',
+
+	'file {$item} successfully moved to {$to}' => 'Date {$item} erfolgreich nach {$to} verschoben',
+
+	'directory {$item} successfully moved {$to}' => 'Verzeichnis {$item} erfolgreich nach {$to} verschoben',
+
+	'can\'t delete directory {$file}' => 'Kann Verzeichnis {$file} nicht löschen',
+
+	'can\'t delete file {$file}' => 'Kann Datei {$file} nicht löschen',
+	'can\'t move {$file} to {$location}' => 'kann {$file} nicht nach {$location} verschieben',
+
+	'Failed creating Directory {$dir} in {$path}' => 'Kann Verzeichnis {$dir} nicht in {$path} erstellen',
+
+	'Cannot access {$file}' => 'Kann nicht auf {$file} zugreifen',
+
+	'Cannot upload {$file}' => 'Kann Datei {$file} nicht auf den Server laden',
+
+	'Filemanager requires requirejs. Please make sure the extension <a href="https://github.com/iwyg/sym_requirejs">sym_requirejs</a> is installed' => 
+	'Filemanager benötigt requirejs. Bitte stellen Sie sicher das die Extension <a href="https://github.com/iwyg/sym_requirejs">sym_requirejs</a> installiert ist',
+
+	'Filemanager requires backbonejs Please make sure extension <a href="https://github.com/iwyg/sym_backbonejs">sym_backbonejs</a> is installed' => 
+	'Filemanager benötigt backbonejs. Bitte stellen Sie sicher das die Extension <a href="https://github.com/iwyg/sym_backbonejs">sym_backbonejs</a> installiert ist',
+
+	'Cannot resolve directory structure for {$root}' => 'Kann die Verzeichnisstruckur für {$root} nicht auflösen',
+
+	'file type {$mimetype} not allowed' => 'Dateityp {$mimetype} nicht erlaubt',
+
+	'file size ({$f_size}) limit exceeds allowed size' => 'Dateigröße ({$f_size}) überschreitet erlaubte Dateigröße',
 
 	'There are unsaved changes. Do you really want to continue?' => 'Es liegen Änderungen vor die noch nicht gespeichert wurden. Wollen Sie wirklich fortfahren?',
 
