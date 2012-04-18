@@ -112,6 +112,11 @@ result will be that all files get validated serverside as the right mimetype, th
 
 ## Changelog
 
+### beta 1.3.1, 2012-04-18
+
+- success message in file deletion now works as expected
+- fixed an error where the upload progress indicator wouldn't complete animation
+
 ### beta 1.3, 2012-04-17
 
 - fixed an error when a directory wasn't accessible (dev 1.4.3)

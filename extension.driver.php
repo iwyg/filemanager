@@ -1,28 +1,29 @@
 <?php 
+/**
+ * @package filemanager
+ * @author thomas appel <mail@thomas-appel.com>
+
+ * Displays <a href="http://opensource.org/licenses/gpl-3.0.html">GNU Public License</a>
+ * @license http://opensource.org/licenses/gpl-3.0.html GNU Public License
+ */ 
+
 require_once(TOOLKIT . '/class.alert.php');
 
-Class extension_filemanager extends Extension 
-{
+define('FILEMANAGER_WORKSPACE', preg_replace('/\//i', DIRECTORY_SEPARATOR , WORKSPACE)); 
+define('FILEMANAGER_EXCLUDE_DIRS', ',/workspace/events,/workspace/data-sources,/workspace/text-formatters,/workspace/pages,/workspace/utilities,/workspace/translations');
 
-	public function __construct(Array $args) 
-	{
+Class extension_filemanager extends Extension {
+
+	public function __construct(Array $args) { 
 		parent::__construct($args);
-
-
-		if(!class_exists('extension_sym_requirejs')) {
-			//Symphony::Engine()->Page->Alert = new Alert('Please make sure extension require js is installed', Alert::ERROR);
-		}
-		if(!class_exists('extension_sym_backbonejs')) {
-			//Symphony::Engine()->Page->Alert = new Alert('Please make sure extension backbone js is installed', Alert::ERROR);
-		}
 	}
-	public function about() 
-	{
+
+	public function about() {
 		return array(
 			'name' => 'Filemanager',
 			'type'	=> 'field',
-			'version' => 'beta 1.3',
-			'release-date' => '2012-04-17',
+			'version' => 'beta 1.3.1',
+			'release-date' => '2012-04-18',
 			'author' => array(
 				'name' => 'Thomas Appel',
 				'email' => 'mail@thomas-appel.com',
@@ -30,13 +31,12 @@ Class extension_filemanager extends Extension
 			),
 			'description' => 'a workspace filemanager',
 			'compatibility' => array(
-				'2.2' => true
+				'2.2.5' => true
 			)
 		);
 	}
 
-	public function getSubscribedDelegates()
-	{
+	public function getSubscribedDelegates() {
 		return array(
 
 			// Subsection Manager
@@ -55,14 +55,18 @@ Class extension_filemanager extends Extension
 				'delegate' => 'Save',
 				'callback' => 'save'
 			),				
+			array(
+				'page' => '/backend/',
+				'delegate' => 'AppendPageAlert',
+				'callback' => '__checkDependencies'
+			),				
 		);
 	}
 
 	/**
 	 * TODO: Fix error catching
 	 */ 
-	public function uninstall() 
-	{
+	public function uninstall() {
 		/* Drop configuration array */
 		Symphony::Configuration()->remove('filemanager');
 		Administration::instance()->saveConfig();	
@@ -75,8 +79,7 @@ Class extension_filemanager extends Extension
 		return true;
 	}
 
-	public function install() 
-	{
+	public function install() {
 		if (!Symphony::Configuration()->get('filemanager')) {
 			Symphony::Configuration()->set('mimetypes', 'application/pdf image/jpeg image/png text/*', 'filemanager');
 			Symphony::Configuration()->set('ignore', base64_encode('^\..*'), 'filemanager');
@@ -182,5 +185,16 @@ Class extension_filemanager extends Extension
 			Administration::instance()->saveConfig();	
 		}
 	}
+
+	/**
+	 * Append a system alert if dependencies are not isntalled
+	 */
+	public function __checkDependencies(&$context) {
+		if(!class_exists('extension_sym_requirejs')) {
+			Symphony::Engine()->Page->Alert = new Alert(__('Filemanager requires requirejs. Please make sure the extension <a href="https://github.com/iwyg/sym_requirejs">sym_requirejs</a> is installed'), Alert::ERROR);
+		}
+		if(!class_exists('extension_sym_backbonejs')) {
+			Symphony::Engine()->Page->Alert = new Alert(__('Filemanager requires backbonejs Please make sure extension <a href="https://github.com/iwyg/sym_backbonejs">sym_backbonejs</a> is installed'), Alert::ERROR);
+		}
+	}
 }
-?>
