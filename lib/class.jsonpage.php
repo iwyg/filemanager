@@ -15,14 +15,14 @@
 
 	Class JSONPage extends AjaxPage{
 
-		public function __construct(&$parent){
+		public function __construct(){
 
-			$this->_Parent = $parent;
+			//$this->_Parent = $parent;
 			$this->_Result = array();
 
 			$this->addHeaderToPage('Content-Type', 'application/json');
 			$this->_status = self::STATUS_OK;
-			Administration::instance()->Profiler->sample('Page template created', PROFILE_LAP);
+			//Administration::instance()->Profiler->sample('Page template created', PROFILE_LAP);
 		}
 
 		/**

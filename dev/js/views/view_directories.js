@@ -273,7 +273,6 @@
 				},
 
 				render: function (dirSettings, fileSettings, update) {
-
 					var that = this,
 					settings = _.clone(dirSettings),
 					parent,
@@ -301,7 +300,7 @@
 						});
 					}
 
-					parent = pm ? document.getElementById('sub-' + pm.id) : document.getElementById('dir-list-root');
+					parent = pm ? document.getElementById('sub-' + pm.id) : document.getElementById('dir-list-root-' + this.model.collection.cid);
 					parent && ! update && this.$el.appendTo(parent);
 					_setTasks.call(this);
 
@@ -794,7 +793,7 @@
 					event.preventDefault();
 					event.stopPropagation();
 
-					target = $(event.target).parents().filter('.dir:not(#dir-list-root)').first();
+					target = $(event.target).parents().filter('.dir:not(#dir-list-root-' + this.collection.cid + ')').first();
 					subdir = target.find('> .sub-dir');
 					trigger = target.hasClass('open') ? 'close': 'open';
 					toggle = trigger === 'open' ? 'openDir': 'closeDir';
@@ -875,7 +874,8 @@
 				render: function () {
 					var view = this;
 					this.el.innerHTML = templates.dirtree({
-						name: this.options.baseName
+						name: this.options.baseName,
+						cid: this.collection.cid
 					});
 					this.collection.each(_.bind(this.renderPart, this));
 				},

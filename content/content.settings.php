@@ -13,9 +13,10 @@ require_once(TOOLKIT . '/class.fieldmanager.php');
 Class contentExtensionFilemanagerSettings extends JSONPage {
 	static $exclude = array('/workspace/data-sources', '/workspace/events', '/workspace/pages', '/workspace/translations');	
 
-	public function __construct(&$parent) {
+	public function __construct() {
+		parent::__construct();
+
 		GenericExceptionHandler::$enabled = false;
-		parent::__construct($parent);
 		$post = General::getPostData();
 
 		$this->_fid = intval($_GET['field_id'], 10);
@@ -110,8 +111,8 @@ Class contentExtensionFilemanagerSettings extends JSONPage {
 	 * @return mixed  
 	 */
 	public static function getFieldSettings($field_id = NULL, $setting = NULL) {
-		$f_mng = new FieldManager(Administration::instance());
-		return $f_mng->fetch($field_id)->get($setting);
+		$field = FieldManager::fetch($field_id);
+		return $field->get($setting);
 	}
 	
 	/**
@@ -124,15 +125,13 @@ Class contentExtensionFilemanagerSettings extends JSONPage {
 	 * @return void  
 	 */
 	public static function setFieldSettings($field_id = NULL, $attrib = NULL, $val = NULL) {
-		$f_mng = new FieldManager(Administration::instance());
-		$field = $f_mng->fetch($field_id);
+		$field = FieldManager::fetch($field_id);
 		$field->set($attrib, $val);
 		$field->commit();
 	}
 	
 	public static function save($id) {
-		$f_mng = new FieldManager(Administration::instance());
-		return $f_mng->fetch($id)->commit();
+		return FieldManager::fetch($id)->commit();
 	}
 	
 	/**

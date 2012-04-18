@@ -46,6 +46,7 @@
 		Symphony.Language.add(symLang);
 
 		function SysMessage(type, response, parse) {
+			console.log(arguments);
 			this._msgID = O++;
 			parse = typeof parse === 'boolean' ? parse : true;
 			this.type = !type && response.status === 400 ? 'error' : response.success ? 'success' : type;
@@ -68,7 +69,7 @@
 				var time = msgQueue.length > 1 ? 0 : 4000,
 				that = this, msg = msgQueue.shift();
 				msgCache.push(msg);
-				Symphony.Message.fade('silence', 10);
+				//Symphony.Message.fade('silence', 10);
 				Symphony.Message.post(msg, that.type);
 				setTimeout(function () {
 					setTimeout(function () {

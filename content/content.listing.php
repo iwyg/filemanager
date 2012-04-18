@@ -13,11 +13,8 @@ require_once(EXTENSIONS . '/filemanager/lib/class.directorytools.php');
 
 Class contentExtensionFilemanagerListing extends contentExtensionFilemanagerSettings {
 
-	public function __construct(&$parent) {
-		parent::__construct($parent);
-		if (is_array($_POST)) {
-			//print_r($_POST);
-		}
+	public function __construct() {
+		parent::__construct();
 	}
 
 	public function process() {

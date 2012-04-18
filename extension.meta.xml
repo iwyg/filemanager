@@ -10,10 +10,13 @@
 	<authors>
 		<author>
 			<name github="iwyg" symphony="iwyg">Thomas Appel</name>
-			<website>http:/thomas-appel.com</website>
+			<website>thomas-appel.com</website>
 		</author>
 	</authors>
 	<releases>
+		<release version="1.5 dev" date="2012-04-18" min="2.2.5">
+			- Symphony 2.3 compatibility upgrade (note: this version requires Symphony CMS 2.3 or higher)
+		</release>
 		<release version="dev 1.4.3" date="2012-04-18" min="2.2.5">
 			- fixed an error when a directory wasn't accessible
 			- improved error handling

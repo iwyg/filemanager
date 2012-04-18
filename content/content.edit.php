@@ -15,14 +15,13 @@ require_once(EXTENSIONS . '/filemanager/lib/class.directorytools.php');
 
 Class contentExtensionFilemanagerEdit extends contentExtensionFilemanagerSettings {
 
-	public function __construct(&$parent) {
-		//parent::__construct($parent);
+	public function __construct() {
+
 		if (isset($_POST['type'])) {
 			$this->task($_POST['type']);
 		} else {
 			$this->handleGeneralError(array('error' => 'can\'t proceed'));
 		}
-
 	}
 
 	public function task($type) {

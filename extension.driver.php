@@ -14,28 +14,6 @@ define('FILEMANAGER_EXCLUDE_DIRS', ',/workspace/events,/workspace/data-sources,/
 
 Class extension_filemanager extends Extension {
 
-	public function __construct(Array $args) { 
-		parent::__construct($args);
-	}
-
-	public function about() {
-		return array(
-			'name' => 'Filemanager',
-			'type'	=> 'field',
-			'version' => 'dev 1.4.3',
-			'release-date' => '2012-04-18',
-			'author' => array(
-				'name' => 'Thomas Appel',
-				'email' => 'mail@thomas-appel.com',
-				'website' => 'http://thomas-appel.com'
-			),
-			'description' => 'a workspace filemanager',
-			'compatibility' => array(
-				'2.2.5' => true
-			)
-		);
-	}
-
 	public function getSubscribedDelegates() {
 		return array(
 
@@ -83,10 +61,9 @@ Class extension_filemanager extends Extension {
 		if (!Symphony::Configuration()->get('filemanager')) {
 			Symphony::Configuration()->set('mimetypes', 'application/pdf image/jpeg image/png text/*', 'filemanager');
 			Symphony::Configuration()->set('ignore', base64_encode('^\..*'), 'filemanager');
-			//Symphony::Configuration()->set('ignore', '/\..*/i', 'filemanager');
 		}
 
-		Administration::instance()->saveConfig();	
+		Symphony::Configuration()->write();
 
 		Symphony::Database()->query(
 			"CREATE TABLE `tbl_fields_filemanager` (

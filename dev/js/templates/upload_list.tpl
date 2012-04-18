@@ -5,18 +5,18 @@
 	<div class="list-column-2">
 		<div class="list-column-2">
 			<div class="inner">
-				<span class="button btn add">
+				<span class="button add">
 					<input type="file" name="file[]" value="" multiple="multiple"/>
 				</span>	
-				<span class="button btn remove disabled">
+				<span class="button remove disabled">
 				</span>	
 			</div>
 		</div>
 		<div class="list-column-2">
 			<div class="inner">
-				<span class="button btn start disabled">
+				<span class="button start disabled">
 				</span>	
-				<span class="button btn cancel disabled">
+				<span class="button cancel disabled">
 				</span>	
 			</div>
 		</div>
@@ -24,7 +24,7 @@
 	<div class="list-column-2">
 		<div class="inner">
 			<div class="list-column-1">
-				<span class="button btn close last"></span>
+				<span class="btn close last"></span>
 			</div>	
 		</div>
 	</div>

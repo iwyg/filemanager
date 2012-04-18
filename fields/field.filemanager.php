@@ -18,14 +18,20 @@
 		 * @see http://symphony-cms.com/learn/api/2.2.5/toolkit/field/#__construct
 		 */
 
-		static $i = 0;
+		static protected $instance = 0;
+		static protected $field_instance = 0;
 
-		function __construct(&$parent) {
-			parent::__construct($parent);
+		function __construct() {
+			self::$instance++;
+			parent::__construct();
+			
 			$this->_name = __('Filemanager');
 			$this->_required = true;
 			$this->_i = 0;
+		}
 
+		public function getInstance() {
+			return self::$instance;
 		}
 
 		/**
@@ -45,7 +51,7 @@
 		 * @see http://symphony-cms.com/learn/api/2.2.5/toolkit/field/#mustBeUnique
 		 */
 		public function mustBeUnique() {
-			return true;
+			return false;
 		}
 		/**
 		 * @see http://symphony-cms.com/learn/api/2.2.5/toolkit/field/#commit
@@ -259,25 +265,30 @@
 			$this->appendShowColumnCheckbox($div);
 			$wrapper->appendChild($div);
 		}
+
 		// see: http://symphony-cms.com/learn/api/2.2.5/toolkit/field/#displayPublishPanel
-		function displayPublishPanel (&$wrapper, $data=NULL, $flagWithError=NULL, $fieldnamePrefix=NULL, $fieldnamePostfix=NULL, $entry_id=NULL, $fieldnameSuffix=NULL ) 
-		{
+		function displayPublishPanel (&$wrapper, $data=NULL, $flagWithError=NULL, $fieldnamePrefix=NULL, $fieldnamePostfix=NULL, $entry_id=NULL, $fieldnameSuffix=NULL ) {
 
 			parent::displayPublishPanel($wrapper, $data, $flagWithError, $fieldnamePrefix, $fieldnamePostfix, $entry_id, $fieldnameSuffix);
 			$base_name = strtolower($this->_name);
 			$tr = __('test124');
+
+			self::$field_instance++;
+			$instance = self::$field_instance;
+			//$instance = $this->_i;
+			//$instance = $instance++;
 
 			/* ============================================================================================================================== 
 			 * container 
 			 * ============================================================================================================================== */
 
 			$fieldcontainer = new XMLElement('div', NULL, array(
-				'id' => $base_name, 
-				'class' => $base_name . '-container loading ' . $base_name 
+				'id' => $base_name . '-' . $instance, 
+				'class' => 'loading ' . $base_name 
 			));
 			$fieldset = new XMLElement('div', NULL, array(
-				'id' => $base_name . '-container', 
-				'class' =>  'field-container ' 
+				'id' => $base_name . '-container-' . $instance, 
+				'class' =>  $base_name . '-container field-container '
 			));
 
 			$fieldcontainer->appendChild(Widget::Label($this->get('label')));
@@ -287,7 +298,7 @@
 
 
 			$div = new XMLElement('div', NULL, array(
-				'id' => $base_name . '-files-select-container',
+				'id' => $base_name . '-files-select-container-' . $instance,
 				'class' => $base_name . '-files-select-container field-container'		
 			));
 
@@ -303,7 +314,7 @@
 			
 			if ($this->get('allow_dir_upload_files') > 0) {
 				$div = new XMLElement('div', NULL, array(
-					'id' => $base_name . '-fileupload',
+					'id' => $base_name . '-fileupload-' . $instance,
 					'class' => $base_name . '-upload-field field-container'		
 				));
 				/*
@@ -323,24 +334,30 @@
 
 			$label = Widget::Label(__('Filebrowser'));
 			$div = new XMLElement('div', NULL, array(
-				'id' => $base_name . '-dir-listing-container',
+				//'id' => $base_name . '-dir-listing-container',
 				'class' => $base_name . '-dir-listing-container field-container'		
 			));
 
-			$head = new XMLElement('div', NULL, array(
-				'id' => $base_name . '-dir-listing-head',
-				'class' => $base_name . '-dir-listing-head'		
-			));
+			//$head = new XMLElement('div', NULL, array(
+			//	'id' => $base_name . '-dir-listing-head',
+			//	'class' => $base_name . '-dir-listing-head'		
+			//));
 			$body = new XMLElement('div', NULL, array(
-				'id' => $base_name . '-dir-listing-body',
+				'id' => $base_name . '-dir-listing-body-' . $instance,
 				'class' => $base_name . '-dir-listing-body'		
 			));
 
 			$field = Widget::Input('fields[field_id]', $this->get('field_id'), 'hidden');
-			$div->appendChildArray(array($label, $head, $body, $field));
+			//$div->appendChildArray(array($label, $head, $body, $field));
+			$div->appendChildArray(array($label, $body, $field));
 
 			
 			$fieldset->appendChild($div);
+
+			$script = new XMLElement('script');
+			$script->setValue('(function(define, id, instance) {require(["bootstrap"], function (fn) {fn(id, instance);})}(this.define, ' . $this->get('id') . ', ' . $instance . '));');
+
+			$fieldset->appendChild($script);
 
 			$wrapper->appendChild($fieldcontainer);
 		}

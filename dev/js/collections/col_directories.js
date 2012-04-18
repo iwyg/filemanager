@@ -239,9 +239,11 @@
 				});
 			}
 
-			function _prepareUpdateResponse(dir, resp) {
+			function _prepareUpdateResponse(dir, options, resp) {
 				var res,
 				removeDirs = dir.getSubDirs(true);
+
+				options = options || {};
 
 				resp.directory._parent = dir.get('_parent');
 				resp.directory.id = dir.id;
@@ -255,7 +257,7 @@
 				this.remove(removeDirs, {silent: true});
 				res = this.parse(resp);
 				this.add(res, {parse: true});
-				this.trigger('update', this.get(dir.id));
+				!options.silent && this.trigger('update', this.get(dir.id));
 			}
 
 			function _schemeExists(id) {
@@ -392,12 +394,13 @@
 				 * @param {Backbone.Model instance} dir Directory which should
 				 * be uodated
 				 */
-				updateDir: function (dir) {
-					_update.call(this, {
+				updateDir: function (dir, options) {
+					var d = _update.call(this, {
 						'select': dir.get('path')
 					})
-					 .done(_.bind(_prepareUpdateResponse, this, dir))
+					 .done(_.bind(_prepareUpdateResponse, this, dir, options))
 					 .fail();
+					return d;
 				},
 
 				/**
@@ -453,6 +456,7 @@
 						success: function () {
 							if (conf.type === 'file') {
 								item.collection.remove(item);
+								that.trigger('moved', source);
 								//that.updateDir(source);
 							} else {
 								that.remove(source);
@@ -473,7 +477,16 @@
 				 */
 				deleteItem: function (file, type) {
 					var url = this.url.replace(/listing\/$/, 'edit/'),
-					col = this;
+					col = this,
+					directory,
+					canDelete = $.Deferred();
+					console.log(file, 'file');
+					if (type !== 'file') {
+						this.trigger('beforedirectorydelete', canDelete);
+					} else {
+						canDelete.resolve();
+					}
+
 					return $.ajax({
 						url: url,
 						type: 'post',
@@ -488,7 +501,8 @@
 							} else {
 								file.collection.remove(file);
 							}
-							col.trigger('itemdelete', file.get('id'), type);
+							col.trigger('itemdelete', file.get('id'), type); // this will be removed
+							col.trigger('delete', type === 'file' ? file.get('dir') : file.get('parent'));
 						},
 						error: function () {}
 					});

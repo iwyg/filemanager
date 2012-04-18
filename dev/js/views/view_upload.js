@@ -207,6 +207,7 @@
 					//anker = $('<a class="file-name" href="' + this.model.get('src') + '">' + this.model.get('name') + '</a>');
 					//fn.after(anker).remove();
 					this.$el.addClass('success');
+					fn.text(this.model.get('name'));
 					_itemSetState.call(this, 'cancel');
 				},
 
