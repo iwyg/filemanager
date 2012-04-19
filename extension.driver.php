@@ -22,8 +22,8 @@ Class extension_filemanager extends Extension {
 		return array(
 			'name' => 'Filemanager',
 			'type'	=> 'field',
-			'version' => 'beta 1.3.1',
-			'release-date' => '2012-04-18',
+			'version' => 'beta 1.3.2',
+			'release-date' => '2012-04-19',
 			'author' => array(
 				'name' => 'Thomas Appel',
 				'email' => 'mail@thomas-appel.com',

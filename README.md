@@ -112,6 +112,10 @@ result will be that all files get validated serverside as the right mimetype, th
 
 ## Changelog
 
+### beta 1.3.2, 2012-04-19
+
+- fixed a bug, were files selection would save if there a whitespace character in the files' name
+
 ### beta 1.3.1, 2012-04-18
 
 - success message in file deletion now works as expected
