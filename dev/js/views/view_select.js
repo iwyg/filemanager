@@ -6,9 +6,46 @@
  * @license http://opensource.org/licenses/gpl-3.0.html GNU Public License
  */
 
-(function (define) {
-	var O = 0;
+(function (define, Symphony, jQuery) {
+	var O = 0,
+	siteRoot = Symphony.Context.get('root');
+
+
 	define(['jquery', 'underscore', 'backbone', 'collections/col_select', 'modules/mod_sysmessage', 'templates/templates'], function ($, _, Backbone, Selection, SysMessage, templates) {
+		// addapt order callback for horizontal ordering;
+		function _orderHorizontal(event) {
+
+			var object = $(this),
+			item = object.find('.ordering'),
+			top = item.offset().left,
+			bottom = top + item.outerWidth(),
+			position = event.pageX,
+			prev,
+			next;
+
+			// Remove text ranges
+			if (window.getSelection) {
+				window.getSelection().removeAllRanges();
+			}
+
+			// Move item up
+			if (position < top) {
+				prev = item.prev('li');
+				if (prev.length > 0) {
+					item.insertBefore(prev);
+					object.trigger('orderchange', [item]);
+				}
+			}
+
+			// Move item down
+			else if (position > bottom) {
+				next = item.next('li');
+				if (next.length > 0) {
+					item.insertAfter(next);
+					object.trigger('orderchange', [item]);
+				}
+			}
+		}
 		function _selectError() {
 			var response = {
 				error: {
@@ -22,6 +59,17 @@
 			return new SysMessage('error', response, false);
 
 		}
+		function _getThumbURL(model) {
+			console.log(model.get('suffix'));
+			var fileRoot = /(jpe?g|gif|tif?f|bmp|png)/.test(model.get('suffix').toLowerCase()) ? '/image/2/45/45/5' + model.get('src').substr((siteRoot + '/workspace').length) : '/extensions/filemanager/assets/images/file-preview.png';
+			return siteRoot + fileRoot;
+		}
+
+		function _nodeDestroyed() {
+
+		}
+
+		function _setDraggable(node) {}
 
 		var SelectView = Backbone.View.extend({
 
@@ -35,6 +83,10 @@
 				this.dirtree.on('select', _.bind(this.update, this));
 				this.collection.on('add', _.bind(this.addItem, this)).on('remove', _.bind(this.removeItem, this));
 				this.collection.on('selectionlimitexceed', _.bind(_selectError, this));
+				this.template = this.options.mode === 'compact' ? templates.selected_compact: templates.selected_preview;
+				if (this.options.mode === 'compact' && this.options.sortable) {
+					this.$el.parent().on('mousemove.orderable', '.ordering:has(.ordering)', _orderHorizontal);
+				}
 				this.prePopulate();
 			},
 
@@ -44,10 +96,25 @@
 				files = [],
 				models = [];
 
-				fields.each(function () {
-					files.push(this.value);
-				});
+				models = this.dirtree.collection.deferred.done(function () {
+					fields.each(function () {
+						//console.log(this.value);
+						var f = view.dirtree.collection.getByFileName(this.value);
+						//console.log(f, view.dirtree.collection);
+						if (f && f.length) {
+							view.collection.add(f, {
+								silent: true
+							});
+						}
+					});
 
+					view.$el.empty();
+					view.collection.each(_.bind(view.addItem, view));
+					view.trigger('prepoulate', view.collection.pluck('id'));
+					view.$el.symphonyOrderable();
+
+				});
+				/* this won't retain order
 				models = this.dirtree.collection.deferred.done(function () {
 					var collection = view.dirtree.collection.getByFileName(files);
 					view.collection.add(collection, {
@@ -56,6 +123,7 @@
 					view.render();
 					view.trigger('prepoulate', view.collection.pluck('id'));
 				});
+			   */
 			},
 
 			getFiles: function () {
@@ -65,23 +133,34 @@
 			render: function () {
 				var view = this,
 				html = '',
-				template = templates.selected;
+				template = this.template;
 
-				this.collection.each(function (model) {
-					model = model.toJSON();
+				this.collection.each(function (m) {
+					var model = m.toJSON();
 					_.extend(model, {
-						fieldname: view.fieldname
+						fieldname: view.fieldname,
+						thumb: _getThumbURL(m),
+						draggable: view.options.sortable
 					});
 					html += template(model);
 				});
 				this.el.innerHTML = html;
 
 			},
-			addItem: function (file) {
-				file = file.toJSON();
+			addItem: function (f) {
+				console.log(f, 'addITEM');
+				var file = f.toJSON(),
+				id,
+				compiled;
+
 				file.fieldname = this.fieldname;
-				var id = file.id,
-				compiled = templates.selected(file);
+				id = file.id;
+				_.extend(file, {
+					fieldname: this.fieldname,
+					thumb: _getThumbURL(f),
+					draggable: this.options.sortable
+				});
+				compiled = this.template(file);
 				this.$el.append(compiled);
 			},
 			removeFromList: function (e) {
@@ -115,5 +194,4 @@
 
 		return SelectView;
 	});
-} (this.define));
-
+} (this.define, this.Symphony, this.jQuery.noConflict()));

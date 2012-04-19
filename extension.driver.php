@@ -74,6 +74,7 @@ Class extension_filemanager extends Extension {
 				`ignore_files` varchar(255),
 				`limit_files` int(11) default NULL,
 				`allow_file_delete` tinyint(1) default '0',
+				`allow_sort_selected` tinyint(1) default '0',
 				`select_uploaded_files` tinyint(1) default '0',
 				`unique_file_name` tinyint(1) default '0',
 				`allow_file_move` tinyint(1) default '0',
@@ -82,6 +83,7 @@ Class extension_filemanager extends Extension {
 				`allow_dir_create` tinyint(1) default '0',
 				`allow_dir_upload_files` tinyint(1) default '0',
 				`allowed_types` varchar(255),
+				`display_mode` varchar(255),
 				PRIMARY KEY (`id`),
 				KEY `field_id` (`field_id`)
 			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;"

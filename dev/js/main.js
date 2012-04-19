@@ -7,6 +7,8 @@
 
 (function (jOuery, Symphony, require) {
 
+	var oldQ = jQuery;
+
 	require([
 		'fm_settings',
 		'jquery',
@@ -18,36 +20,23 @@
 		'modules/mod_sysmessage',
 		'modules/mod_syncmanager',
 		'jqueryui',
-		'plugins/jquery-event-destroyed'
+		'plugins/jquery-event-destroyed',
+		'orderable'
 	], function (fm_settings, $, _, Backbone, UploadView, TreeView, SelectView, SysMessage, syncManager) {
 
 		var listings_base, upload_base, CoreSettings;
 
 
+		$.noConflict();
 		Backbone.noConflict();
 		_.noConflict();
+		window.jQuery = oldQ.noConflict();
 
 		Backbone.emulateHTTP = true;
 
-		listings_base = Symphony.Context.get('root') + '/symphony/extension/filemanager/settings/';
-		upload_base = Symphony.Context.get('root') + '/symphony/extension/filemanager/upload/';
 
-		CoreSettings = Backbone.Model.extend({
-			url: listings_base,
-			initialize: function () {
-				var that = this;
-				this.deferred = this.fetch({
-					data: {
-						'field_id': $('#filemanager').find('input[name="fields[field_id]"]').val()
-					}
-				});
-			}
-		});
 
-		function Config() {
-			return this;
-		}
-
+		/*
 		function C() {
 			if (typeof this.initialize === 'function') {
 				this.initialize.apply(this, arguments);
@@ -55,10 +44,11 @@
 		}
 		C.prototype = _.extend({}, Backbone.Events);
 		C.extend = Backbone.Model.extend;
+		*/
 
-
-
-
+		function Config() {
+			return this;
+		}
 
 		Config.prototype = {
 			url: fm_settings.root + '/symphony/extension/filemanager/settings/',
@@ -71,29 +61,28 @@
 			set.deferred = new Config().get(set.field_id);
 		});
 
-		function submitForm(form) {
-			var formData = form.serialize();
-			$.ajax({type: 'POST', url: form.attr('action'), data: formData});
-		}
 
 		// DOMREADY
 		// ==================================================================
 		$(function () {
 			var form = $('form'),
-			max_size = parseInt($('input[name=MAX_FILE_SIZE]').val(), 10);
+
+			submitForm = function () {
+				var formData = form.serialize();
+				$.ajax({type: 'POST', url: form.attr('action'), data: formData});
+			};
 
 			_.each(fm_settings.instances, function (manager, name) {
-				console.log('__instance__ :', manager.instance);
 				var wrapper = $('#' + name),
 				container = $('#filemanager-container-' + manager.instance),
 				selectContainer = $('#filemanager-files-select-container-' + manager.instance),
-
 				dirTreeView,
 				selectView,
 				upload;
 
 				wrapper.addClass('loading');
 
+				// setup sections when settings are available
 				manager.deferred.done(function (settings) {
 					var dirSettings = {},
 					fileSettings = {};
@@ -110,7 +99,6 @@
 					});
 
 					// initialize directory listing
-					//
 					dirTreeView = new TreeView({
 						el: '#filemanager-dir-listing-body-' + manager.instance,
 						tagName: 'ul',
@@ -125,10 +113,13 @@
 
 					dirTreeView.collection.on(syncManager.events, syncManager._callback);
 
+					// initialize selected files view
 					selectView = new SelectView({
 						dirtree: dirTreeView,
 						el: selectContainer.find('ul').get(0),
-						fieldname: settings.element_name
+						fieldname: settings.element_name,
+						mode: settings.display_mode,
+						sortable: settings.allow_sort_selected
 					});
 
 					if (settings.allow_dir_move) {
@@ -139,6 +130,7 @@
 						selectView.collection.addSetting('limit', parseInt(settings.limit_files, 10));
 					}
 
+					// initialize upload selction if available
 					if (settings.allow_dir_upload_files) {
 
 						upload = new UploadView({
@@ -147,9 +139,8 @@
 						});
 
 						upload.collection.addSetting('allowed_types', new RegExp(settings.allowed_types), true);
-						upload.collection.addSetting('max_file_size', settings.max_upload_size || max_size);
+						upload.collection.addSetting('max_file_size', settings.max_upload_size);
 						upload.collection.addSetting('field_id', settings.field_id);
-						upload.collection.url = upload_base;
 
 						upload.on('uploadcreate', _.bind(dirTreeView.disableTask, dirTreeView, 'upload'));
 						upload.on('uploaddestroy', _.bind(dirTreeView.enableTask, dirTreeView, 'upload'));
@@ -163,6 +154,7 @@
 						});
 					}
 
+					// setupt events
 					dirTreeView.on('update', function () {
 						// wait until collection is fully pupulated
 						// TODO; fix add deferred to handle this instead of
@@ -188,6 +180,11 @@
 							selectView.render();
 						}, 0);
 					});
+
+					// unselect file if a file is deleted:
+					dirTreeView.collection.on('itemdelete', function () {
+						console.log('item deleted', arguments);
+					});
 					selectView.on('prepoulate', _.bind(dirTreeView.selectById, dirTreeView));
 					selectView.on('removedselected', _.bind(dirTreeView.unselectById, dirTreeView));
 					selectView.collection.on('selectionlimitexceed', dirTreeView.unselectById);
@@ -197,14 +194,19 @@
 						container.slideDown();
 					});
 
-					$(window).on('beforeunload', function () {
+					/*
+					$(window).on('beforeunload.filemanager', function () {
 
 						if (selectView.collection.hasChanges()) {
-							submitForm(form);
+							submitForm();
 							form.submit();
 							return Symphony.Language.get(SysMessage.unsaved_changes);
 						}
 					});
+					form.on('submit', function () {
+						$(window).off('before.filemanager');
+					});
+				   */
 
 				});
 			});
@@ -213,4 +215,4 @@
 
 	});
 
-} (this.jQuery, this.Symphony, this.require));
+} (this.jQuery.noConflict(), this.Symphony, this.require));

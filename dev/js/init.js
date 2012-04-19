@@ -14,13 +14,14 @@
 			'fm_settings': 'settings',
 			'bootstrap': 'bootstrap',
 			'jquery': '../../../../symphony/assets/js/jquery',
+			'orderable': '../../../../symphony/assets/js/symphony.orderable',
 			//'jquery': '//ajax.googleapis.com/ajax/libs/jquery/1/jquery',
 			'jqueryui': 'libs/jquery-ui-1.8.18.custom',
 			'underscore': '../../../sym_backbonejs/assets/underscore',
 			'backbone': '../../../sym_backbonejs/assets/backbone',
 			'text': '../../../sym_requirejs/assets/text'
 		},
-		urlArgs: Date.now() // add this during development
+		//urlArgs: Date.now() // add this during development
 	}, ['main']);
 	console.log('me 1');
 }(this, this.require, this.define, this.Symphony));

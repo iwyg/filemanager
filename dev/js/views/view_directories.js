@@ -9,7 +9,8 @@
 (function (window, Symphony, define) {
 	define(['jquery', 'underscore', 'backbone', 'collections/col_directories', 'templates/templates', 'modules/mod_sysmessage', 'modules/mod_byteconverter'], function ($, _, Backbone, Dirs, templates, SysMessage, convertBytes) {
 
-		var FileView, DirView, MetaView, TreeView, metaStates = {};
+		var FileView, DirView, MetaView, TreeView, metaStates = {},
+		siteRoot = Symphony.Context.get('root');
 
 		/** ## MetaView
 		 * @class MetaView
@@ -32,8 +33,7 @@
 			 * @api private
 			 */
 			function _renderPreviewImage() {
-				var siteRoot = Symphony.Context.get('root'),
-				fileRoot = /image\/.*/.test(this.model.get('type')) ? '/image/1/0/150' + this.model.get('src').substr((siteRoot + '/workspace').length) : '/extensions/filemanager/assets/images/file-preview.png';
+				var fileRoot = /(jpe?g|gif|tif?f|bmp|png)/.test(this.model.get('suffix').toLowerCase()) ? '/image/1/0/150' + this.model.get('src').substr((siteRoot + '/workspace').length) : '/extensions/filemanager/assets/images/file-preview.png';
 				return siteRoot + fileRoot;
 			}
 
