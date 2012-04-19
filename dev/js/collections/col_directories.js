@@ -374,7 +374,7 @@
 					result = [];
 
 					if (!_.isArray(fnames)) {
-						fnames = fnames.split(' ');
+						fnames = fnames.split(',');
 					}
 					_.each(files, function (file) {
 						if (file) {

@@ -58,6 +58,16 @@ result will be that all files get validated serverside as the right mimetype, th
 
 ## Changelog
 
+### dev 1.4.4, 2012-04-19
+
+- fixed a bug, were files selection would save if there a whitespace character in the files' name
+
+### dev 1.4.3, 2012-04-18
+
+- fixed an error when a directory wasn't accessible
+- improved error handling
+- replaced some method calls for compatibility reasons
+
 ### dev 1.4.2, 2012-04-17
 
 - File ignoring now works as expected
