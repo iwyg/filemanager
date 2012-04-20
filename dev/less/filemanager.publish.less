@@ -873,6 +873,27 @@
 		background: darken(@bg_col, 2%);	
 		border-bottom: 1px solid #fff;
 		padding-bottom: 6px;
+
+		.row {
+
+			&.ordering {
+				background: darken(@bg_col, 10%); 
+			}
+
+			position: relative;
+			img {
+				float: left;
+				padding: 0 16px;
+			}
+			a {
+				width: 40%;
+				float: left;
+				position: relative;
+			}
+		}
+	}
+	.ordering, .draggable {
+		cursor: move;
 	}
 	.floatbar {
 		float: left;
@@ -893,6 +914,11 @@
 			margin-top: -7px;
 
 		}
+
+		&.ordering {
+			background: darken(@bg_col, 15%); 
+		}
+
 
 		.floatbar-label {
 			.text-shadow(white, 0, 1px, 0);

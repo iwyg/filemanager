@@ -81,9 +81,12 @@
 				this.dirtree = this.options.dirtree;
 				this.fieldname = this.options.fieldname;
 				this.dirtree.on('select', _.bind(this.update, this));
-				this.collection.on('add', _.bind(this.addItem, this)).on('remove', _.bind(this.removeItem, this));
+				this.collection
+					.on('add', _.bind(this.addItem, this)).on('remove', _.bind(this.removeItem, this));
 				this.collection.on('selectionlimitexceed', _.bind(_selectError, this));
 				this.template = this.options.mode === 'compact' ? templates.selected_compact: templates.selected_preview;
+				this.label = this.$el.parent().find('label');
+
 				if (this.options.mode === 'compact' && this.options.sortable) {
 					this.$el.parent().on('mousemove.orderable', '.ordering:has(.ordering)', _orderHorizontal);
 				}
