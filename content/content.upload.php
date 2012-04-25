@@ -8,7 +8,7 @@
  */ 
 
 require_once(TOOLKIT . '/class.fieldmanager.php');
-require_once(EXTENSIONS . '/filemanager/lib/class.upload.php');
+#require_once(EXTENSIONS . '/filemanager/lib/class.upload.php');
 require_once(EXTENSIONS . '/filemanager/content/content.settings.php');
 require_once(EXTENSIONS . '/filemanager/lib/class.directorytools.php');
 
