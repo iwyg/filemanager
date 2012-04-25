@@ -133,6 +133,9 @@
 		.border-top(#fff); 
 	}
 	.browse {
+		padding-left: 12px; 
+		padding-right: 12px; 
+		background: #fff;
 		overflow: hidden;
 		height: 20px;
 		.border-radius(12px);
@@ -142,11 +145,17 @@
 		}
 	}
 }
-input.search {
-	padding: 0 80px 0 12px;
+input[type=text], input.search {
+	.no-box-shadow();
+	padding: 0 80px 0 0;
 	margin-top: -1px;
 	outline: none;
 	border: none;
+	&:focus {
+		border: none;
+		outline: none;
+		.no-box-shadow();
+	}
 }
 
 .section-body {
@@ -618,6 +627,10 @@ input.search {
 		border: none;
 		background-color: transparent;
 		.no-box-shadow();
+		&:focus {
+			border: none;
+			outline: none;
+		}
 	}
 	.btns {
 		overflow: hidden;
