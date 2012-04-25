@@ -128,30 +128,22 @@
 				models = [];
 
 				models = this.dirtree.collection.deferred.done(function () {
+					var i = 0;
 					fields.each(function () {
 						var f = view.dirtree.collection.getByFileName(this.value);
 						if (f && f.length) {
+							f[0].set({'sorting': i++}, {silent: true});
 							f[0].set('selected', true);
 						}
 					});
 
 					view.$el.empty();
+					view.collection.sort();
 					view.collection.each(_.bind(view.addItem, view));
 					view.trigger('prepoulate', view.collection.pluck('id'));
 					view.toggleState();
 					view.collection.record();
-
 				});
-				/* this won't retain order
-				models = this.dirtree.collection.deferred.done(function () {
-					var collection = view.dirtree.collection.getByFileName(files);
-					view.collection.add(collection, {
-						silent: true
-					});
-					view.render();
-					view.trigger('prepoulate', view.collection.pluck('id'));
-				});
-			   */
 			},
 
 			toggleState: function () {
