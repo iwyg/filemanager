@@ -8,11 +8,10 @@
  */ 
 
 //require_once(EXTENSIONS . '/firebug_profiler/lib/FirePHPCore/fb.php');
-//require_once(EXTENSIONS . '/filemanager/lib/FirePHPCore/fb.php');
-//require_once(TOOLKIT . '/class.fieldmanager.php');
-//require_once(TOOLKIT . '/class.general.php');
+require_once(EXTENSIONS . '/filemanager/lib/FirePHPCore/fb.php');
+require_once(TOOLKIT . '/class.fieldmanager.php');
 require_once(EXTENSIONS . '/filemanager/content/content.settings.php');
-//require_once(EXTENSIONS . '/filemanager/lib/class.directorytools.php');
+require_once(EXTENSIONS . '/filemanager/lib/class.directorytools.php');
 
 
 Class contentExtensionFilemanagerEdit extends contentExtensionFilemanagerSettings {
@@ -74,7 +73,7 @@ Class contentExtensionFilemanagerEdit extends contentExtensionFilemanagerSetting
 	 */
 	public function moveItem() {
 		$fn = $_POST['from'];		
-		$dstfn = General::sanitize(basename(FILEMANAGER_WORKSPACE . $fn));
+		$dstfn = General::sanitize(basename(WORKSPACE . $fn));
 
 		$destDir =  WORKSPACE . $_POST['to'] . '/';
 
@@ -103,8 +102,8 @@ Class contentExtensionFilemanagerEdit extends contentExtensionFilemanagerSetting
 	}
 
 	public function process() {
-		//$this->setSettings(false);
-		parent::process();
+		$this->setSettings(false);
+
 		//print_r($this->_settings);
 		//print_r($this->get('allow_dir_upload_files'));
 	}
