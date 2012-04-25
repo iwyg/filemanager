@@ -7,11 +7,110 @@
  */
 
 (function (window, Symphony, define) {
-	define(['jquery', 'underscore', 'backbone', 'collections/col_directories', 'templates/templates', 'modules/mod_sysmessage', 'modules/mod_byteconverter'], function ($, _, Backbone, Dirs, templates, SysMessage, convertBytes) {
+	define([
+		'jquery',
+		'underscore',
+		'backbone',
+		'collections/col_directories',
+		'templates/templates',
+		'modules/mod_sysmessage',
+		'modules/mod_byteconverter',
+		'modules/mod_helper'
+	], function ($, _, Backbone, Dirs, templates, SysMessage, convertBytes, helper) {
 
-		var FileView, DirView, MetaView, TreeView, metaStates = {},
+		var SearchView, FileView, DirView, MetaView, TreeView, metaStates = {},
 		siteRoot = Symphony.Context.get('root');
 
+		SearchView = (function () {
+			var threshold = 0, trcache;
+
+			function _addSelection(event) {
+				event.preventDefault();
+				var target = $([$(event.target), $(event.target).parents().filter('li')]).filter(function () {
+					return this.hasClass('result-item');
+				}),id;
+				id = target[0][0].id.replace(/result/, 'file');
+				target.addClass('selected');
+				//$('#' + id).find('> .text').trigger('click.dirtree');
+
+				var file = this.collection.getFileById(parseInt(id.substr(5), 10));
+				file.set('selected', true);
+			}
+
+			function _triggerSearch(event) {
+				var target, results, l;
+				threshold++;
+				this.reset();
+				trcache = this.options.threshold;
+				this.options.threshold = 0;
+				threshold = 0;
+				target = event.target;
+				results = this.collection.searchFiles(target.value);
+				l = results.length;
+				this.counter = $(templates.search_count({found: Symphony.Language.get(SysMessage[l === 1 ? 'count_file_found' : 'count_files_found'], {count: l})}));
+				_.each(results, _.bind(this.render, this));
+				this.field.after(this.counter);
+			}
+			function _clearOnEscape(event) {
+				if (event.keyCode !== 27) {
+					return;
+				}
+				this.reset();
+				this.field.val('').blur();
+			}
+			function _clear() {
+				_clearOnEscape.call(this, {keyCode: 27});
+			}
+			function _toggleSelected(model) {
+				var resultNode = $('#result-' + model.id);
+
+				if (resultNode.length) {
+					resultNode[model.get('selected') ? 'addClass' : 'removeClass']('selected');
+				}
+			}
+
+			function _bindEscape(event) {
+				this.field.parent().addClass('active');
+				$(document).on('keyup.searchlist', _.bind(_clearOnEscape, this));
+			}
+
+			function _unbindEscape(event) {
+				this.field.parent().removeClass('active');
+				$(document).off('keyup.searchlist');
+			}
+
+			return Backbone.View.extend({
+				events: {
+					'click.searchlist .result-item:not(.selected)': _addSelection,
+					'keyup.searchlist input[type=text]': _triggerSearch,
+					'focus.searchlist input[type=text]': _bindEscape,
+					'blur.searchlist input[type=text]': _unbindEscape,
+					'click.searchlist .remove': _clear
+				},
+
+				initialize: function () {
+					this.template = templates.search_list;
+					this.list = this.$el.find('.results');
+					this.field = this.$el.find('input[type=text]');
+					this.collection.on('selected', _.bind(_toggleSelected, this));
+				},
+
+				reset: function () {
+					this.options.threshold = trcache;
+					this.list.empty();
+					if (this.counter) {
+						this.counter.remove();
+					}
+				},
+
+				render: function (file) {
+					var f = file.toJSON(), compiled;
+					f.thumb = helper.getThumbURL(file, '/image/2/40/40/5');
+					compiled = this.template(f);
+					this.list.append(compiled);
+				}
+			});
+		}());
 		/** ## MetaView
 		 * @class MetaView
 		 * @augments Backbone.View
@@ -26,15 +125,6 @@
 				event.preventDefault();
 				event.stopPropagation();
 				this.close();
-			}
-
-			/**
-			 * @private
-			 * @api private
-			 */
-			function _renderPreviewImage() {
-				var fileRoot = /(jpe?g|gif|tif?f|bmp|png)/.test(this.model.get('suffix').toLowerCase()) ? '/image/1/0/150' + this.model.get('src').substr((siteRoot + '/workspace').length) : '/extensions/filemanager/assets/images/file-preview.png';
-				return siteRoot + fileRoot;
 			}
 
 			/**
@@ -80,7 +170,7 @@
 					}
 
 					data = _.extend(this.model.toJSON(), {
-						preview: _renderPreviewImage.call(this),
+						preview: helper.getThumbURL(this.model, '/image/1/0/150'),
 						//lastmod: new Date(this.model.get('lastmod')),
 						size: convertBytes(this.model.get('size')) + ' (' + this.model.get('size') + ')'
 					});
@@ -311,7 +401,14 @@
 					}
 
 				},
-
+				getFileViewById: function (id) {
+					var fileView;
+					id = isNaN(id) ? parseInt(id.replace('file-', ''), 10) : id;
+					fileView = _.find(this.fileViews, function (fw) {
+						return fw.model.id === id;
+					});
+					return fileView;
+				},
 				getFileByPath: function (path) {
 					return this._files[path];
 				},
@@ -335,25 +432,24 @@
 			 * @private
 			 */
 			function _select(e, type) {
-				var target = $(e.target),
-				fileNode = target.parent(),
-				fileModel = this.getFile(fileNode),
+				//var target = $(e.target),
+				//fileNode = target.parent(),
+				var fileModel = this.collection.getFileById(parseInt(e.target.id.replace('select-file-', ''), 10)),
 
 				event = type === 'add' ? 'select' : 'unselect',
 				selected = type === 'add' ? true : false;
 
-				if (type === 'add') {
-					fileNode.addClass('selected');
-				} else if (type === 'remove') {
-					fileNode.removeClass('selected', selected);
-				}
 				this.trigger('select', type, fileModel.toJSON());
 				fileModel.set('selected', selected);
 				// getting the fileView instance and trigger an select or
 				// unselect event:
-				this.getDirViewByModel(fileModel.get('dir')).getFileByPath(fileModel.get('path')).trigger(event, type);
+				//this.getDirViewByModel(fileModel.get('dir')).getFileByPath(fileModel.get('path')).trigger(event, type);
 			}
 
+
+			function _selectFile(file) {
+				this[file.get('selected') ? 'selectById' : 'unselectById'](file.id);
+			}
 			/**
 			 * @private
 			 */
@@ -385,7 +481,8 @@
 			function _removeItem(model, cols, options) {
 				var isDir = /dir/.test(model.id);
 				if (!isDir) {
-					this.trigger('select', 'remove', model.toJSON());
+					//this.trigger('select', 'remove', model.toJSON());
+					this.trigger('select', 'remove', model);
 				}
 				return _removeItemNode.call(this, model.id, isDir ? 'dir': 'file');
 			}
@@ -423,17 +520,16 @@
 				event.preventDefault();
 				event.stopPropagation();
 				var movedItem = ui.draggable,
-				type = /file-/.test(movedItem[0].className) ? 'file': 'dir',
+				type = /file/.test(movedItem[0].className) ? 'file': 'dir',
 				destination = $(event.target).parent()[0].id,
 				// the directory the item gets moved to
 				source = type === 'file' ? movedItem.parents().filter('li.dir')[0].id: movedItem.parent()[0].id,
 				file = type === 'file' ? movedItem[0].id.substr(5) : undefined;
-
 				this.collection.moveItem({
 					type: type,
 					destination: destination,
 					source: source,
-					file: file
+					file: type === 'file' ? parseInt(file, 10) : file,
 				}).always(function (resp) {
 					new SysMessage(null, resp);
 				});
@@ -520,7 +616,15 @@
 				target.on('destroyed', _destroyDraggable);
 				return this;
 			}
+			function _dirToggleOpen(el, parent, dirtree) {
+				if (!parent.hasClass('open')) {
+					el.on('dropout.itemdraggover', function (event, ui) {
+						dirtree.closeDir(parent);
+					});
 
+					dirtree.openDir(parent);
+				}
+			}
 			/**
 			 * @private
 			 */
@@ -535,15 +639,17 @@
 					hoverClass: 'dropover',
 					scope: 'moveable',
 					over: function (event, ui) {
-						var parent = $(this).parent();
-						if (!parent.hasClass('open')) {
-							$(this).on('dropout', function (event, ui) {
-								dirtree.closeDir(parent);
-							});
-							dirtree.openDir(parent);
-						}
+						target.on('toggleopen.itemdraggover', function () {
+							var el = $(this), parent = el.parent();
+							_dirToggleOpen(el, parent, dirtree);
+						});
+						setTimeout(function () {
+							target.trigger('toggleopen.itemdraggover', [event, ui]);
+						}, 600);
 					},
-
+					out: function (event, ui) {
+						target.off('toggleopen.itemdraggover');
+					}
 				});
 				target.on('destroyed', _destroyDroppable);
 				return this;
@@ -568,6 +674,7 @@
 			function _handleMetaStates(model) {
 				var fnames = _.keys(metaStates[this.collection.cid]),
 				f,
+				view = this,
 				meta,
 				files = [],
 
@@ -578,10 +685,11 @@
 				}
 
 				_.each(fnames, function (path) {
-					f = dir.getFileByPath(path);
-					if (f) {
-						f.setMetaView();
-						f._metaView.open(true);
+					var fm = view.collection.getByFileName(path),
+					fv = view.getFileViewByModel(fm[0]);
+					if (fv) {
+						fv.setMetaView();
+						fv._metaView.open(true);
 					}
 				});
 			}
@@ -623,8 +731,19 @@
 					//this.collection.on('itemdelete', _.bind(_removeItemNode, this));
 					this.collection.on('add', _.bind(this.renderPart, this));
 					this.collection.on('remove', _.bind(_removeItem, this));
-					this.collection.on('update', _.bind(_handleMetaStates, this));
+					this.collection.on('update', _.debounce(_.bind(_handleMetaStates, this), 0));
+					this.collection.on('selected', _.bind(_selectFile, this));
 					metaStates[this.collection.cid] = {};
+
+					this.searchView = new SearchView({
+						el : templates.search_bar({id: 'search-' + this.cid}),
+						threshold: 3,
+						collection: this.collection
+					});
+
+					this.$el.parent().find('label').after(this.searchView.$el);
+					window['tree' + this.cid] = this;
+
 					//this.on('update', _.bind(_ensureDelegates, this));
 				},
 
@@ -686,7 +805,7 @@
 				 * @api public
 				 */
 				filesById: function (ids) {
-					return this.$el.find(_.isArray(ids) ? ('#file-' + ids.join(', #file-')) : '#file-' + ids);
+					return $(_.isArray(ids) ? ('#file-' + ids.join(', #file-')) : '#file-' + ids);
 				},
 
 				/**
@@ -697,8 +816,9 @@
 				 * @api public
 				 */
 				getFile: function (node) {
-					var id = node.parent()[0].id.substr(4);
-					return this.collection.getFile(node[0].id.split('file-')[1], id);
+					// var id = node.parent()[0].id.substr(4);
+					// return this.collection.getFile(node[0].id.split('file-')[1], id);
+					return this.collection.getFileById(parseInt(node[0].id.split('file-')[1], 10));
 				},
 
 				/**
@@ -755,6 +875,10 @@
 					if (this.confirm(message)) {
 						this.collection.deleteItem(file, 'file').always(function (response) {
 							new SysMessage(null, response);
+						}).done(function () {
+							if (file.get('selected')) {
+								file.set('selected', false);
+							}
 						});
 						//_select.call(this, {target: t.parent()[0]}, 'remove');
 					}
@@ -810,9 +934,11 @@
 				 * @api public
 				 */
 				openDir: function (node) {
-					node.find('> .sub-dir').slideDown();
-					node.addClass('open');
-					this.collection.get(node[0].id).set('state', 'open');
+					if (helper.isjQueryObject(node)) {
+						node.find('> .sub-dir').slideDown();
+						node.addClass('open');
+						this.collection.get(node[0].id).set('state', 'open');
+					}
 				},
 
 				/**
@@ -929,6 +1055,12 @@
 				 */
 				getDirViewById: function (id) {
 					return this.dirViews[id];
+				},
+
+				getFileViewByModel: function (model) {
+					var dirView = this.getDirViewById(model.get('dir').id),
+					fileView = dirView.getFileViewById(model.id);
+					return fileView;
 				}
 			});
 		} ());

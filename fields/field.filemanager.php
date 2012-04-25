@@ -290,6 +290,15 @@
 			$this->appendShowColumnCheckbox($div);
 			$wrapper->appendChild($div);
 		}
+		
+		private function wrapContainerInError(XMLElement &$elemnt, $message = NULL) {
+
+			$error_div = new XMLElement('div', null, array('class' => 'invalid'));
+			$error_p = new XMLElement('p', $message); 
+			$error_div->appendChild($elemnt); 
+			$error_div->appendChild($error_p); 
+			return $error_div;
+		}
 
 		// see: http://symphony-cms.com/learn/api/2.2.5/toolkit/field/#displayPublishPanel
 		function displayPublishPanel(&$wrapper, $data=NULL, $flagWithError=NULL, $fieldnamePrefix=NULL, $fieldnamePostfix=NULL, $entry_id=NULL, $fieldnameSuffix=NULL ) {
@@ -326,8 +335,9 @@
 				'id' => $base_name . '-files-select-container-' . $instance,
 				'class' => $base_name . '-files-select-container field-container'		
 			));
-
-			$label = Widget::Label(__('no files selected'));
+			$l = Widget::Label(__('no files selected'));
+			$label = new XMLElement('div', null, array('class' => 'section-head'));
+			$label->appendChild($l);
 			$field = Widget::Input('fieldname', $this->get('element_name'), 'hidden');
 			$ul = new XMLElement('ul', NULL, array('class' => 'select-list'));
 
@@ -357,7 +367,9 @@
 				$fieldset->appendChild($div);
 			}
 
-			$label = Widget::Label(__('Filebrowser'));
+			$l = Widget::Label(__('Filebrowser'));
+			$label = new XMLElement('div', null, array('class' => 'section-head'));
+			$label->appendChild($l);
 			$div = new XMLElement('div', NULL, array(
 				//'id' => $base_name . '-dir-listing-container',
 				'class' => $base_name . '-dir-listing-container'		
@@ -384,7 +396,12 @@
 
 			$fieldset->appendChild($script);
 
-			$wrapper->appendChild($fieldcontainer);
+			if (is_string($flagWithError) && strlen($flagWithError) > 0) {
+				$wrapper->appendChild($this->wrapContainerInError($fieldcontainer, $flagWithError));
+			} else {
+				$wrapper->appendChild($fieldcontainer);
+			}
+
 		}
 		
 
@@ -399,7 +416,7 @@
 			$span = new XMLElement('span', null, array('class' => 'field-holder')); 
 			$label = new XMLElement('label', basename($path));
 			$span->appendChild($label);
-			$span->appendChild(Widget::Input('fields[' . $this->get('element_name') . '][file][]', $path,'hidden', array('readonly' => 'readonly')));
+			$span->appendChild(Widget::Input('fields[' . $this->get('element_name') . '][file][]', $path,'hidden', array('class' => 'file-selected','readonly' => 'readonly')));
 			$span->appendChild(new XMLElement('span', null, array('class' => 'remove-selected')));
 			$outer_span = new XMLElement('span', null, array('class' => 'fields'));
 
@@ -631,7 +648,6 @@
 		 * TODO: format more verbose output (e.g. list file names)
 		 */ 
 		public function prepareTableValue($data, XMLElement $link = null) {
-
 			$string = '';	
 
 			if (is_array($data)) {
@@ -647,7 +663,8 @@
 					$string = sizeof($files) . __(' files');	
 				} elseif (isset($data['file'])) {
 					if (is_file(WORKSPACE . $data['file'])) {
-						$string =  1 . __(' files');	
+						//$string =  1 . __(' file');	
+						$string = General::sanitize(basename($data['file']));
 					} else {
 						$this->deletFileFormDB($data['file']);
 						$string =  0 . __(' files');	

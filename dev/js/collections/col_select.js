@@ -16,25 +16,62 @@
 			// some dummy data
 			c.push(new Date().getTime());
 		}
+
+		function _diff(ref, other) {
+			var rl = ref.length, ol = other.length,
+			i = 0;
+
+			if (rl !== ol) {
+				return true;
+			}
+
+			for (; i < rl; i++) {
+				if (ref[i] !== other[i]) {
+					return true;
+				}
+			}
+			return false;
+		}
+
 		var Selection = General.extend({
 			initialize: function () {
 				this.cid = 'c' + _.uniqueId();
 				changes[this.cid] = [];
-				this.on('add remove', _.bind(_unsaved, this));
+				//this.on('add remove', _.bind(_unsaved, this));
+			},
+
+			record: function () {
+				changes[this.cid] = this.pluck('path');
+			},
+
+			comparator: function (file) {
+				return file.get('sorting');
+			},
+
+			getDiff: function () {
+				var ref = this.pluck('path');
+				return _diff(changes[this.cid], ref);
 			},
 
 			add: function (models) {
-				var modelsLength = _.isArray(models) ? models.length : 1,
+				var isArray =  _.isArray(models),
+				modelsLength = isArray ? models.length : 1,
 				totalLength = this.models.length + modelsLength,
 				ids;
-
 				if (this.settings.limit && totalLength > this.settings.limit) {
 					ids = _.isArray(models) ? _.pluck(models, 'id') : models.id;
+					if (isArray) {
+						_.each(models, function (file) {
+							file.set('selected', false);
+						});
+					} else {
+						models.set('selected', false);
+					}
 					this.trigger('selectionlimitexceed', ids);
 					return false;
 				}
 
-				add.apply(this, arguments);
+				return add.apply(this, arguments);
 			},
 			hasChanges: function () {
 				return !! changes[this.cid].length;

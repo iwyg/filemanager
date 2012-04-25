@@ -24,7 +24,7 @@
 		'orderable'
 	], function (fm_settings, $, _, Backbone, UploadView, TreeView, SelectView, SysMessage, syncManager) {
 
-		var listings_base, upload_base, CoreSettings;
+		var listings_base, upload_base, CoreSettings, changes = false;
 
 
 		$.noConflict();
@@ -33,9 +33,6 @@
 		window.jQuery = oldQ.noConflict();
 
 		Backbone.emulateHTTP = true;
-
-
-
 		/*
 		function C() {
 			if (typeof this.initialize === 'function') {
@@ -45,7 +42,6 @@
 		C.prototype = _.extend({}, Backbone.Events);
 		C.extend = Backbone.Model.extend;
 		*/
-
 		function Config() {
 			return this;
 		}
@@ -153,45 +149,40 @@
 							//dirs._setSchemeState, dirs)
 						});
 					}
+					// setupt Events
+					// sync selection when directory is updated
+					dirTreeView.collection.on('update', function (dir) {
+						var currentSelected = selectView.collection.pluck('path'),
+						existing = dirTreeView.collection.getByFileName(currentSelected);
 
-					// setupt events
-					dirTreeView.on('update', function () {
-						// wait until collection is fully pupulated
-						// TODO; fix add deferred to handle this instead of
-						// a timeout
-						setTimeout(function () {
-							var paths = selectView.collection.pluck('path'),
-							files = dirTreeView.collection.getByFileName(paths),
-							fids = _.pluck(files, 'id');
-							dirTreeView.selectById(fids);
+						selectView.collection.reset(existing);
 
-							//console.log(files);
-							//console.log(fids);
+						_.each(existing, function (f) {
+							f.set('selected', true);
+						});
 
-							// also update file ids on selectview collection
-							selectView.collection.each(function (file) {
-								var f = dirTreeView.collection.getByFileName(file.get('path'));
-								f = f[0];
-								if (f) {
-									file.set('id', f.id);
-									file.id = f.id;
-								}
-							});
-							selectView.render();
-						}, 0);
+						selectView.render();
+
 					});
+
 
 					// unselect file if a file is deleted:
-					dirTreeView.collection.on('itemdelete', function () {
-						console.log('item deleted', arguments);
-					});
-					selectView.on('prepoulate', _.bind(dirTreeView.selectById, dirTreeView));
-					selectView.on('removedselected', _.bind(dirTreeView.unselectById, dirTreeView));
+					// dirTreeView.collection.on('itemdelete', function () {
+					//	console.log('item deleted', arguments);
+					// });
+					//selectView.on('prepoulate', _.bind(dirTreeView.selectById, dirTreeView));
+					//selectView.on('removedselected', _.bind(dirTreeView.unselectById, dirTreeView));
 					selectView.collection.on('selectionlimitexceed', dirTreeView.unselectById);
 
 					dirTreeView.collection.deferred.always(function () {
 						wrapper.removeClass('loading');
 						container.slideDown();
+					});
+
+					$(window).on('beforeunload.getdiff', function () {
+						if (selectView.collection.getDiff()) {
+							changes = true;
+						}
 					});
 
 					/*
@@ -209,10 +200,22 @@
 				   */
 
 				});
+				var bindunload = _.debounce(function () {
+					$(window).on('beforeunload.filemanager', function () {
+						if (changes) {
+							submitForm();
+							return Symphony.Language.get(SysMessage.unsaved_changes);
+						}
+					});
+				}, 100);
+
+				form.on('submit.filemanager', function () {
+					$(window).off('beforeunload.filemanager');
+				});
+
+				bindunload();
 			});
-
 		});
-
 	});
 
 } (this.jQuery.noConflict(), this.Symphony, this.require));

@@ -15,6 +15,15 @@
 	 * @package lang
 	 */
 	$dictionary = array(
+		'{$count} files found' => 
+		'{$count} Dateien gefunden',		
+
+		'{$count} file found' => 
+		'{$count} Datei gefunden',
+
+		'can\'t delete or move {$dir}. {$dir2} is used by another field' =>
+		'kann {$dir} nicht löschen oder verschieben, da {$dir2} von einem anderen Feld benutz wird',
+
 		'no files Selected' =>
 		'kene dateien ausgewählt',
 
@@ -47,6 +56,9 @@
 
 		'Cannot upload {$file}' =>
 		'Kann Datei {$file} nicht auf den Server laden',
+
+		'{$file} successfully uploaded' => 
+		'{$file} erfolgreich hochgeladen',
 
 		'Filemanager requires requirejs. Please make sure the extension <a href="https://github.com/iwyg/sym_requirejs">sym_requirejs</a> is installed' =>
 		'Filemanager benötigt requirejs. Bitte stellen Sie sicher das die Extension <a href="https://github.com/iwyg/sym_requirejs">sym_requirejs</a> installiert ist',

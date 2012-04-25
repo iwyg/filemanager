@@ -1,7 +1,7 @@
-<% var breadcrump = path.split('/'); breadcrump.shift(); breadcrump = breadcrump.join(' > '); %>
-<li id="upload-<%= id %>">
-<div class="breadcrump list-row note bb"><%= breadcrump %></div>
-<div class="list-header bb bt">
+<% var breadcrump = path.split('/'); breadcrump.shift(); breadcrump.shift(); breadcrump = breadcrump.join(' > '); %>
+<li id="upload-<%= id %>" class="upload-dir">
+<div class="breadcrump note"><%= breadcrump %></div>
+<div class="list-header">
 	<div class="list-column-2">
 		<div class="list-column-2">
 			<div class="inner">
