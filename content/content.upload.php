@@ -15,12 +15,9 @@ require_once(EXTENSIONS . '/filemanager/lib/class.directorytools.php');
 Class contentExtensionFilemanagerUpload extends contentExtensionFilemanagerSettings
 {
 
-	public function __construct(&$parent) 
-	{
+	public function __construct(&$parent) {
 		parent::__construct($parent);
 		$this->moveUploadedFiles();
-
-
 	}
 
 	/**

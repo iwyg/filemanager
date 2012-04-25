@@ -9,9 +9,6 @@
 
 require_once(TOOLKIT . '/class.alert.php');
 
-define('FILEMANAGER_WORKSPACE', preg_replace('/\//i', DIRECTORY_SEPARATOR , WORKSPACE)); 
-define('FILEMANAGER_EXCLUDE_DIRS', ',/workspace/events,/workspace/data-sources,/workspace/text-formatters,/workspace/pages,/workspace/utilities,/workspace/translations');
-
 Class extension_filemanager extends Extension {
 
 	public function __construct(Array $args) { 
@@ -22,8 +19,8 @@ Class extension_filemanager extends Extension {
 		return array(
 			'name' => 'Filemanager',
 			'type'	=> 'field',
-			'version' => 'beta 1.3.2',
-			'release-date' => '2012-04-19',
+			'version' => '1.0.0',
+			'release-date' => '2012-04-25',
 			'author' => array(
 				'name' => 'Thomas Appel',
 				'email' => 'mail@thomas-appel.com',
@@ -83,7 +80,6 @@ Class extension_filemanager extends Extension {
 		if (!Symphony::Configuration()->get('filemanager')) {
 			Symphony::Configuration()->set('mimetypes', 'application/pdf image/jpeg image/png text/*', 'filemanager');
 			Symphony::Configuration()->set('ignore', base64_encode('^\..*'), 'filemanager');
-			//Symphony::Configuration()->set('ignore', '/\..*/i', 'filemanager');
 		}
 
 		Administration::instance()->saveConfig();	
@@ -97,6 +93,7 @@ Class extension_filemanager extends Extension {
 				`ignore_files` varchar(255),
 				`limit_files` int(11) default NULL,
 				`allow_file_delete` tinyint(1) default '0',
+				`allow_sort_selected` tinyint(1) default '0',
 				`select_uploaded_files` tinyint(1) default '0',
 				`unique_file_name` tinyint(1) default '0',
 				`allow_file_move` tinyint(1) default '0',
@@ -105,6 +102,7 @@ Class extension_filemanager extends Extension {
 				`allow_dir_create` tinyint(1) default '0',
 				`allow_dir_upload_files` tinyint(1) default '0',
 				`allowed_types` varchar(255),
+				`display_mode` varchar(255) default 'compact',
 				PRIMARY KEY (`id`),
 				KEY `field_id` (`field_id`)
 			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;"
@@ -174,15 +172,22 @@ Class extension_filemanager extends Extension {
 	 * @see http://symphony-cms.com/learn/api/2.2/toolkit/extension/#update
 	 */
 	public function update($previousVersion) {
-		$previousVersion = preg_replace('/^\w+\s?/i', '', $previousVersion);
+		if (preg_match('/^(dev|beta)/', trim($previousVersion))) {
 
-		if(version_compare($previousVersion, '1.2', '<')) {
-			// sanitatize broken ignore regexp form beta 1.1 release
-			$ignore = base64_decode(Symphony::Configuration()->get('ignore','filemanager'));
-			$ignore = preg_replace('/(\/i?|\(|\))/i', '', $ignore);
+			$previousVersion = preg_replace('/^\w+\s?/i', '', $previousVersion);
+			if(version_compare($previousVersion, '1.2', '<')) {
+				// sanitatize broken ignore regexp form beta 1.1 release
+				$ignore = base64_decode(Symphony::Configuration()->get('ignore','filemanager'));
+				$ignore = preg_replace('/(\/i?|\(|\))/i', '', $ignore);
 
-			Symphony::Configuration()->set('ignore', base64_encode($ignore), 'filemanager');
-			Administration::instance()->saveConfig();	
+				Symphony::Configuration()->set('ignore', base64_encode($ignore), 'filemanager');
+				Administration::instance()->saveConfig();	
+			}
+			
+			if(version_compare($previousVersion, '1.4.5', '<')) {
+				$stats[] = Symphony::Database()->query("ALTER TABLE `sym_fields_filemanager` ADD `allow_sort_selected` tinyint(1) default '0'");
+				$stats[] = Symphony::Database()->query("ALTER TABLE `sym_fields_filemanager` ADD `display_mode` varchar(255) default 'compact'");
+			}
 		}
 	}
 

@@ -14,6 +14,13 @@
 		</author>
 	</authors>
 	<releases>
+		<release version="1.0.0" date="2012-04-25" min="2.2.5">
+			- filemanager field can now hav multiple instances 
+			- added filesearch view 
+			- selections can now be reordered
+			- selection view can now be displayed in two different modes (`preview` and `compact`)  
+			- design changes
+		</release>
 		<release version="beta 1.3.2" date="2012-04-19" min="2.2.5">
 			- fixed a bug, were files selection would save if there a whitespace character in the files' name
 		</release>

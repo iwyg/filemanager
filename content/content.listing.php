@@ -6,8 +6,6 @@
  * Displays <a href="http://opensource.org/licenses/gpl-3.0.html">GNU Public License</a>
  * @license http://opensource.org/licenses/gpl-3.0.html GNU Public License
  */ 
-//require_once(EXTENSIONS . '/firebug_profiler/lib/FirePHPCore/FirePHP.class.php');
-require_once(TOOLKIT . '/class.general.php');
 require_once(EXTENSIONS . '/filemanager/content/content.settings.php');
 require_once(EXTENSIONS . '/filemanager/lib/class.directorytools.php');
 
@@ -15,9 +13,6 @@ Class contentExtensionFilemanagerListing extends contentExtensionFilemanagerSett
 
 	public function __construct(&$parent) {
 		parent::__construct($parent);
-		if (is_array($_POST)) {
-			//print_r($_POST);
-		}
 	}
 
 	public function process() {
@@ -35,7 +30,6 @@ Class contentExtensionFilemanagerListing extends contentExtensionFilemanagerSett
 	 * @return void
 	 */
 	public function getDirectoryListing() {
-
 		$tp = $_GET['select']; // if 'select' is set, update information on a specific subdir on the root path
 
 		$dest_path = !isset($tp) ?  $this->get('destination') : '/workspace' . $tp;
@@ -63,7 +57,7 @@ Class contentExtensionFilemanagerListing extends contentExtensionFilemanagerSett
 
 		$ignore_files =  $this->get('ignore_files');
 
-		$ignore = strlen(trim(Symphony::Configuration()->get('ignore', 'filemanager'))) > 0 ? base64_decode(Symphony::Configuration()->get('ignore', 'filemanager')) : null;
+		$ignore = strlen(trim(Symphony::Configuration()->get('ignore', 'filemanager'))) > 0 ? base64_decode(Symphony::Configuration()->get('ignore', 'filemanager')) : NULL;
 
 		if (!is_null($ignore)) {
 			$ignore = explode(' ', ((strlen($ignore) > 0 && strlen($ignore_files) > 0) ? $ignore . ' ' : $ignore) . $ignore_files);
@@ -77,9 +71,12 @@ Class contentExtensionFilemanagerListing extends contentExtensionFilemanagerSett
 
 		$exclude = array_merge($excl, $this->sanitizePath(explode(',', $this->get('exclude_dirs'))));
 
+		$roots = $this->getRootPaths();
+		$roots = sizeof($roots) > 0 ? $roots : NULL;
+
 
 		try {
-			$dirs = new DirectoryTools($base_dir, $ignore, $exclude, $nesting);
+			$dirs = new DirectoryTools($base_dir, $ignore, $exclude, $roots, $nesting);
 			$this->_Result = $dirs->getDirectoryTree(true);
 
 		} catch (Exception $e) {
@@ -94,22 +91,5 @@ Class contentExtensionFilemanagerListing extends contentExtensionFilemanagerSett
 		}
 
 	}
-
-	/**
-	 * converts relative relative (rel to workspace) path to a full path
-	 * @param mixed $path string or array
-	 *
-	 * @return mixed string or array
-	 */
-	public function sanitizePath($path) {
-		if (is_array($path)) {
-			foreach	($path as $p => $d) {
-				$path[$p] = $this->sanitizePath($d);
-			}
-			return $path;
-		} 
-		return FILEMANAGER_WORKSPACE . substr($path, strlen(DIRECTORY_SEPARATOR . 'WORKSPACE'));
-	}
-
 
 }

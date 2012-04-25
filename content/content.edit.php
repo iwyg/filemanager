@@ -7,22 +7,18 @@
  * @license http://opensource.org/licenses/gpl-3.0.html GNU Public License
  */ 
 
-//require_once(EXTENSIONS . '/firebug_profiler/lib/FirePHPCore/fb.php');
-require_once(TOOLKIT . '/class.fieldmanager.php');
 require_once(EXTENSIONS . '/filemanager/content/content.settings.php');
-require_once(EXTENSIONS . '/filemanager/lib/class.directorytools.php');
-
 
 Class contentExtensionFilemanagerEdit extends contentExtensionFilemanagerSettings {
 
 	public function __construct(&$parent) {
-		//parent::__construct($parent);
+		parent::__construct($parent);
+
 		if (isset($_POST['type'])) {
 			$this->task($_POST['type']);
 		} else {
 			$this->handleGeneralError(array('error' => 'can\'t proceed'));
 		}
-
 	}
 
 	public function task($type) {
@@ -58,7 +54,7 @@ Class contentExtensionFilemanagerEdit extends contentExtensionFilemanagerSetting
 				'success' => array(
 					'message' => 'successfully deleted {$file}', 
 					'context' => array(
-						'file' => General::sanitize($_POST['file'])
+						'file' => basename(General::sanitize($_POST['file']))
 					)
 				)
 			);
@@ -72,11 +68,12 @@ Class contentExtensionFilemanagerEdit extends contentExtensionFilemanagerSetting
 	 */
 	public function moveItem() {
 		$fn = $_POST['from'];		
-		$dstfn = General::sanitize(basename(WORKSPACE . $fn));
+		$dstfn = General::sanitize(basename(FILEMANAGER_WORKSPACE . $fn));
 
 		$destDir =  WORKSPACE . $_POST['to'] . '/';
 
 		$newDest = $destDir . $dstfn;
+
 		/*
 		if (file_exists($newDest) || is_dir($newDest)) {
 			$this->handleGeneralError(array(
@@ -96,25 +93,12 @@ Class contentExtensionFilemanagerEdit extends contentExtensionFilemanagerSetting
 					)
 				)
 			);
-		} else {
-			$this->handleGeneralError(
-				array(
-					'error' => array(
-						'message' => 'can\'t move {$file} to {$location}',
-						'context' => array(
-							'file' => basename($new_file),
-							'location' => basename($destDir),
-						)
-					)
-				)
-			);	
-		}
-
+		} 	
 	}
 
 	public function process() {
-		$this->setSettings(false);
-
+		//$this->setSettings(false);
+		parent::process();
 		//print_r($this->_settings);
 		//print_r($this->get('allow_dir_upload_files'));
 	}
@@ -126,19 +110,26 @@ Class contentExtensionFilemanagerEdit extends contentExtensionFilemanagerSetting
 	 * @return boolean
 	 */
 	public function deleteFile($file) {
+		$bn = basename($file);
 		if (!is_writable($file)) {
 			$this->handleAccessError(basename($file));
 			return false;
 		}
 		if (is_dir($file)) {
+
 			$parent = dirname($file);
+
+			if ($this->isRoot($file)) {
+				return $this->handleRootDirError($file);
+			}
+
 			// check if we can operate on the parent directory
 			if (!is_writable($parent)) {
 				$this->handleAccessError(basename($parent));
 				return false;
 			}
 
-			if (contentExtensionFilemanagerEdit::rrmdir($file)) {
+			if ($this->rrmdir($file) !== false) {
 				return true;
 			} else {
 				$this->handleGeneralError(array(
@@ -172,6 +163,15 @@ Class contentExtensionFilemanagerEdit extends contentExtensionFilemanagerSetting
 
 	private function moveFile($dest_path, $dest_file, $source_file) {
 		$new_file = $dest_path . $dest_file;
+
+		$bn = basename($dest_path);
+
+		if (is_dir($source_file)) {
+			$has_root_dir = $this->scanForRootDirs($source_file);
+			if(is_array($has_root_dir) && sizeof($has_root_dir) > 0) {
+				return $this->handleRootDirError($has_root_dir[0]);
+			}
+		}
 		
 		if (!is_readable($dest_path) || !is_writeable($dest_path)) {
 			$this->handleGeneralError();
@@ -183,7 +183,7 @@ Class contentExtensionFilemanagerEdit extends contentExtensionFilemanagerSetting
 				'error' => array(
 					'message' => 'Directory {$dir} doesn\'t exist',
 					'context' => array(
-						'dir' => basename($dest_path)
+						'dir' => $bn
 					)
 				)
 			));
@@ -267,6 +267,20 @@ Class contentExtensionFilemanagerEdit extends contentExtensionFilemanagerSetting
 		return false; 
 	}
 
+	private function handleRootDirError($dir) {
+		$bn = basename($dir);
+		$this->handleGeneralError(array(
+			'error' => array(
+				'message' => 'can\'t delete or move {$dir}. {$dir2} is used by another field',
+				'context' => array(
+					'dir' => $bn,
+					'dir2' => $bn
+				)
+			)
+		));
+		return false;
+	}
+
 	private function handleAccessError($dir) {
 		$this->handleGeneralError(array(
 			'error' => array(
@@ -291,18 +305,53 @@ Class contentExtensionFilemanagerEdit extends contentExtensionFilemanagerSetting
 			)
 		));
 	}
+
 	
+	public static function listDirs($dir, $dirs = array()) {
+		if (is_dir($dir)) {
+			$dirs[] = $dir;
+			$objects = scandir($dir);
+			foreach($objects as $object) {
+				if ($object != '.' && $object != '..') {
+					if (is_dir($dir."/".$object)) {
+						contentExtensionFilemanagerEdit::listDirs($dir."/".$object, &$dirs);
+					}
+				}
+			}
+			reset($objects);
+		}
+		return $dirs;
+	}
+
+	public function scanForRootDirs($dir) {
+		if (is_dir($dir)) {
+			$dirs = contentExtensionFilemanagerEdit::listDirs($dir);
+			$failed = array();
+			foreach ($dirs as $d) {
+				if ($this->isRoot($d)) {
+					$failed[] = $d;	
+					break;
+				}
+			}
+			return $failed;
+		}
+	}	
 	/**
 	 * recursiv directory deletion
 	 * see : http://www.php.net/manual/de/function.rmdir.php#107233
 	 */
-	public static function rrmdir($dir) {
+	public function rrmdir($dir) {
 		if (is_dir($dir)) {
+			//print_r($this->isRoot($dir) ? 'is root' : 'no root');
+			//print_r($dir);
+			if ($this->isRoot($dir)) {
+				return false;
+			}
 			$objects = scandir($dir);
 			foreach ($objects as $object) {
 				if ($object != "." && $object != "..") {
 					if (filetype($dir."/".$object) == "dir") {
-						if (!contentExtensionFilemanagerEdit::rrmdir($dir."/".$object)) {
+						if (!$this->rrmdir($dir."/".$object)) {
 							return false;
 						}
 					} else {

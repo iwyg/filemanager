@@ -9,16 +9,26 @@
 
 require_once(EXTENSIONS . '/filemanager/lib/class.jsonpage.php');
 require_once(TOOLKIT . '/class.fieldmanager.php');
+require_once(EXTENSIONS . '/filemanager/fields/field.filemanager.php');
 
 Class contentExtensionFilemanagerSettings extends JSONPage {
 	static $exclude = array('/workspace/data-sources', '/workspace/events', '/workspace/pages', '/workspace/translations');	
 
+	protected $_roots = array();
+	protected $_fid = NULL;
+
 	public function __construct(&$parent) {
-		GenericExceptionHandler::$enabled = false;
 		parent::__construct($parent);
+
+		GenericExceptionHandler::$enabled = false;
 		$post = General::getPostData();
 
-		$this->_fid = intval($_GET['field_id'], 10);
+		$this->_roots = $this->sanitizePath($this->_getRootPaths());
+		$this->_fid = isset($_GET['field_id']) ? intval($_GET['field_id'], 10) : NULL;
+
+		if (is_null($this->_fid)) {
+			return;
+		}
 
 		if (isset($post['set'])) {
 			//print_r($post);
@@ -30,6 +40,7 @@ Class contentExtensionFilemanagerSettings extends JSONPage {
 			//contentExtensionFilemanagerSettings::save($this->_fid);	
 		}
 		$this->process();
+
 	
 	}
 
@@ -143,6 +154,47 @@ Class contentExtensionFilemanagerSettings extends JSONPage {
 	 */ 
 	public function sanitizePathFragment($path) {
 		return preg_replace('/(\/|\\\)/i', DIRECTORY_SEPARATOR, $path);
+	}
+
+	/**
+	 * converts relative relative (rel to workspace) path to a full path
+	 * @param mixed $path string or array
+	 *
+	 * @return mixed string or array
+	 */
+	public function sanitizePath($path) {
+		if (is_array($path)) {
+			foreach	($path as $p => $d) {
+				$path[$p] = $this->sanitizePath($d);
+			}
+			return $path;
+		} 
+		return FILEMANAGER_WORKSPACE . substr($path, strlen(DIRECTORY_SEPARATOR . 'WORKSPACE'));
+	}
+	
+	public function getRootPaths() {
+		return $this->_roots;
+	}
+
+	protected function _getRootPaths() {
+		$dest = array();
+		$q = Symphony::Database()->fetch('SELECT `destination` FROM `sym_fields_filemanager`');
+
+		if (isset($q) && is_array($q)) {
+			foreach($q as $d) {
+				if (isset($d['destination'])) {
+					$dest[] = $d['destination'];
+				}
+			}
+		}
+		return $dest;
+	}
+
+	public function isRoot($path, $sanitize=NULL) {
+		if ($sanitize) {
+			$path = $this->sanitizePath($path);
+		}
+		return in_array($path, $this->_roots);
 	}
 
 }
