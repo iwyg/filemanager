@@ -32,6 +32,10 @@
 		_.noConflict();
 		window.jQuery = oldQ.noConflict();
 
+		if (typeof $.fn.symphonyOrderable !== 'function' && typeof oldQ.fn.symphonyOrderable === 'function') {
+			$.fn.symphonyOrderable = oldQ.fn.symphonyOrderable;
+		}
+
 		Backbone.emulateHTTP = true;
 		/*
 		function C() {
