@@ -979,7 +979,7 @@ input.search {
   background-position: -52px -64px;
 }
 .filemanager .file.selected .ui-icon.readonly {
-  background-position: -52px -168px;
+  background-position: 0px -168px;
 }
 .filemanager .file.selected .ui-icon.file {
   background-position: 0px -116px;

@@ -5,6 +5,12 @@
 This development branche is not compatible to Symphony CMS lower than 2.3.
 Go to `extensions/filemanager/dev` and run `build.sh`.
 
+## Notes on Multiple field instances
+
+As a major change, version 1.0.0 now allows you to have multiple filemager
+instances per section. Though keeps its files and folders in sync when, it's
+beste practice not to share the same directories between filemanager fields. 
+
 ## Dependencies
 
 Filemanager has two hard Dependencies
@@ -128,6 +134,7 @@ preview (if available).
 
 ### 1.5 dev, 2012-04-25
 
+- filemanager field can now hav multiple instances 
 - No longer compatible with Symphony CMS < 2.3
 - added filesearch view 
 - selections can now be reordered
