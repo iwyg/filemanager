@@ -7,10 +7,11 @@
 	* @license http://opensource.org/licenses/gpl-3.0.html GNU Public License
 	*/ 
 
+	define('FILEMANAGER_EXCLUDE_DIRS', ',/workspace/events,/workspace/data-sources,/workspace/text-formatters,/workspace/pages,/workspace/utilities,/workspace/translations');
+	define('FILEMANAGER_WORKSPACE', preg_replace('/\//i', DIRECTORY_SEPARATOR , WORKSPACE)); 
+
 	require_once(TOOLKIT . '/fields/field.upload.php');
 	require_once(EXTENSIONS . '/filemanager/lib/class.directorytools.php');
-
-	define('FILEMANAGER_EXCLUDE_DIRS', ',/workspace/events,/workspace/data-sources,/workspace/text-formatters,/workspace/pages,/workspace/utilities,/workspace/translations');
 
 	Class fieldFilemanager extends Field {
 
@@ -18,14 +19,20 @@
 		 * @see http://symphony-cms.com/learn/api/2.2.5/toolkit/field/#__construct
 		 */
 
-		static $i = 0;
+		static protected $instance = 0;
+		static protected $field_instance = 0;
 
-		function __construct(&$parent) {
-			parent::__construct($parent);
+		function __construct() {
+			self::$instance++;
+			parent::__construct();
+			
 			$this->_name = __('Filemanager');
 			$this->_required = true;
 			$this->_i = 0;
+		}
 
+		public function getInstance() {
+			return self::$instance;
 		}
 
 		/**
@@ -45,7 +52,7 @@
 		 * @see http://symphony-cms.com/learn/api/2.2.5/toolkit/field/#mustBeUnique
 		 */
 		public function mustBeUnique() {
-			return true;
+			return false;
 		}
 		/**
 		 * @see http://symphony-cms.com/learn/api/2.2.5/toolkit/field/#commit
@@ -61,11 +68,13 @@
 
 			$fields['field_id'] = $id;
 			$fields['destination'] = $this->get('destination');
+			$fields['display_mode'] = implode(',', $this->get('display_mode'));
 			$fields['exclude_dirs'] = is_array($this->get('exclude_dirs')) ? implode(',', $this->get('exclude_dirs')) : '';
 			$fields['ignore_files'] = $this->get('ignore_files');
 			$fields['limit_files'] = intval(trim($this->get('limit_files')));
 			$fields['allowed_types'] = $this->get('allowed_types');
 			$fields['allow_dir_upload_files'] = ($this->get('allow_dir_upload_files') ? 1 : 0);
+			$fields['allow_sort_selected'] = ($this->get('allow_sort_selected') ? 1 : 0);
 			$fields['allow_file_move'] = ($this->get('allow_file_move') ? 1 : 0);
 			$fields['allow_file_delete'] = ($this->get('allow_file_delete') ? 1 : 0);
 			$fields['allow_dir_move'] = ($this->get('allow_dir_move') ? 1 : 0);
@@ -118,7 +127,7 @@
 			$label = Widget::Label(__('Root Directory'));
 			$label2 = Widget::Label(__('Allowed MIME types'));
 			$label_ignore = Widget::Label(__('Ignore files'));
-			$label_limit = Widget::Label(__('Limit file selection'));
+			$label_limit = Widget::Label(__('Limit file selection'), null, 'column');
 
 
 			$options = array();
@@ -232,20 +241,43 @@
 			/* ============================================================================================================================== */
 			$fieldset = new XMLElement('fieldset');
 			$label = Widget::Label(__('Select options'));
-			$div = new XMLElement('div', NULL, array('class' => 'compact'));
+			$mode_label = Widget::Label(__('display mode'), null, 'column');
+			$div = new XMLElement('div', NULL, array('class' => 'two columns'));
+			$div2 = new XMLElement('div', NULL, array('class' => 'compact'));
+
+			$this->appendCheckbox($div2, 'allow_sort_selected', __('Allow re-ordering selected'));
+
+
+			$selected_display_mode = $this->get('display_mode');
+			$display_mode = !is_null($selected_display_mode) ? $selected_display_mode : 'compact';
+
+			$options = array();
+
+			$options[] = array(__('compact'), $display_mode == 'compact', 'compact');
+			$options[] = array(__('preview'), $display_mode == 'preview', 'preview');
+			
+			$mode_label->appendChild(Widget::Select('fields['.$this->get('sortorder').'][display_mode][]', $options));
+
+			$help = new XMLElement('p', NULL, array('class' => 'help'));
+			$help->setValue(__('Display selected files compact or as thumbnail list'));
+
+			$mode_label->appendChild($help);
 
 			$fieldset->appendChild($label);
+			$div->appendChild($mode_label);
 
 			/* ignore files input: 
 			 * ============================================================================================================================== */
 
 			$help = new XMLElement('p', NULL, array('class' => 'help'));
 			$help->setValue(__('type any valid number'));
+			$label_limit->appendChild($help);
 
-			if(isset($errors['limit'])) $fieldset->appendChild(Widget::wrapFormElementWithError($label_limit, $errors['limit']));
-			else $fieldset->appendChild($label_limit);
-			$fieldset->appendChild($help);
+			if(isset($errors['limit'])) $div->appendChild(Widget::wrapFormElementWithError($label_limit, $errors['limit']));
+			else $div->appendChild($label_limit);
 
+			$fieldset->appendChild($div2);
+			$fieldset->appendChild($div);
 			$wrapper->appendChild($fieldset);
 
 			/* ============================================================================================================================== */
@@ -259,25 +291,39 @@
 			$this->appendShowColumnCheckbox($div);
 			$wrapper->appendChild($div);
 		}
+		
+		private function wrapContainerInError(XMLElement &$elemnt, $message = NULL) {
+
+			$error_div = new XMLElement('div', null, array('class' => 'invalid'));
+			$error_p = new XMLElement('p', $message); 
+			$error_div->appendChild($elemnt); 
+			$error_div->appendChild($error_p); 
+			return $error_div;
+		}
+
 		// see: http://symphony-cms.com/learn/api/2.2.5/toolkit/field/#displayPublishPanel
-		function displayPublishPanel (&$wrapper, $data=NULL, $flagWithError=NULL, $fieldnamePrefix=NULL, $fieldnamePostfix=NULL, $entry_id=NULL, $fieldnameSuffix=NULL ) 
-		{
+		function displayPublishPanel(&$wrapper, $data=NULL, $flagWithError=NULL, $fieldnamePrefix=NULL, $fieldnamePostfix=NULL, $entry_id=NULL, $fieldnameSuffix=NULL ) {
 
 			parent::displayPublishPanel($wrapper, $data, $flagWithError, $fieldnamePrefix, $fieldnamePostfix, $entry_id, $fieldnameSuffix);
 			$base_name = strtolower($this->_name);
 			$tr = __('test124');
+
+			self::$field_instance++;
+			$instance = self::$field_instance;
+			//$instance = $this->_i;
+			//$instance = $instance++;
 
 			/* ============================================================================================================================== 
 			 * container 
 			 * ============================================================================================================================== */
 
 			$fieldcontainer = new XMLElement('div', NULL, array(
-				'id' => $base_name, 
-				'class' => $base_name . '-container loading ' . $base_name 
+				'id' => $base_name . '-' . $instance, 
+				'class' => 'loading ' . $base_name 
 			));
 			$fieldset = new XMLElement('div', NULL, array(
-				'id' => $base_name . '-container', 
-				'class' =>  'field-container ' 
+				'id' => $base_name . '-container-' . $instance, 
+				'class' =>  $base_name . '-container'
 			));
 
 			$fieldcontainer->appendChild(Widget::Label($this->get('label')));
@@ -287,13 +333,14 @@
 
 
 			$div = new XMLElement('div', NULL, array(
-				'id' => $base_name . '-files-select-container',
+				'id' => $base_name . '-files-select-container-' . $instance,
 				'class' => $base_name . '-files-select-container field-container'		
 			));
-
-			$label = Widget::Label(__('Selected files'));
+			$l = Widget::Label(__('no files selected'));
+			$label = new XMLElement('div', null, array('class' => 'section-head'));
+			$label->appendChild($l);
 			$field = Widget::Input('fieldname', $this->get('element_name'), 'hidden');
-			$ul = new XMLElement('ul', NULL);
+			$ul = new XMLElement('ul', NULL, array('class' => 'select-list'));
 
 			$this->prePopulateSelectField($ul, $data);
 			$div->appendChildArray(array($label, $field, $ul));
@@ -303,7 +350,7 @@
 			
 			if ($this->get('allow_dir_upload_files') > 0) {
 				$div = new XMLElement('div', NULL, array(
-					'id' => $base_name . '-fileupload',
+					'id' => $base_name . '-fileupload-' . $instance,
 					'class' => $base_name . '-upload-field field-container'		
 				));
 				/*
@@ -321,28 +368,41 @@
 				$fieldset->appendChild($div);
 			}
 
-			$label = Widget::Label(__('Filebrowser'));
+			$l = Widget::Label(__('Filebrowser'));
+			$label = new XMLElement('div', null, array('class' => 'section-head'));
+			$label->appendChild($l);
 			$div = new XMLElement('div', NULL, array(
-				'id' => $base_name . '-dir-listing-container',
-				'class' => $base_name . '-dir-listing-container field-container'		
+				//'id' => $base_name . '-dir-listing-container',
+				'class' => $base_name . '-dir-listing-container'		
 			));
 
-			$head = new XMLElement('div', NULL, array(
-				'id' => $base_name . '-dir-listing-head',
-				'class' => $base_name . '-dir-listing-head'		
-			));
+			//$head = new XMLElement('div', NULL, array(
+			//	'id' => $base_name . '-dir-listing-head',
+			//	'class' => $base_name . '-dir-listing-head'		
+			//));
 			$body = new XMLElement('div', NULL, array(
-				'id' => $base_name . '-dir-listing-body',
+				'id' => $base_name . '-dir-listing-body-' . $instance,
 				'class' => $base_name . '-dir-listing-body'		
 			));
 
 			$field = Widget::Input('fields[field_id]', $this->get('field_id'), 'hidden');
-			$div->appendChildArray(array($label, $head, $body, $field));
+			//$div->appendChildArray(array($label, $head, $body, $field));
+			$div->appendChildArray(array($label, $body, $field));
 
 			
 			$fieldset->appendChild($div);
 
-			$wrapper->appendChild($fieldcontainer);
+			$script = new XMLElement('script');
+			$script->setValue('(function(define, id, instance) {require(["bootstrap"], function (fn) {fn(id, instance);})}(this.define, ' . $this->get('id') . ', ' . $instance . '));');
+
+			$fieldset->appendChild($script);
+
+			if (is_string($flagWithError) && strlen($flagWithError) > 0) {
+				$wrapper->appendChild($this->wrapContainerInError($fieldcontainer, $flagWithError));
+			} else {
+				$wrapper->appendChild($fieldcontainer);
+			}
+
 		}
 		
 
@@ -357,7 +417,7 @@
 			$span = new XMLElement('span', null, array('class' => 'field-holder')); 
 			$label = new XMLElement('label', basename($path));
 			$span->appendChild($label);
-			$span->appendChild(Widget::Input('fields[' . $this->get('element_name') . '][file][]', $path,'hidden', array('readonly' => 'readonly')));
+			$span->appendChild(Widget::Input('fields[' . $this->get('element_name') . '][file][]', $path,'hidden', array('class' => 'file-selected','readonly' => 'readonly')));
 			$span->appendChild(new XMLElement('span', null, array('class' => 'remove-selected')));
 			$outer_span = new XMLElement('span', null, array('class' => 'fields'));
 
@@ -589,7 +649,6 @@
 		 * TODO: format more verbose output (e.g. list file names)
 		 */ 
 		public function prepareTableValue($data, XMLElement $link = null) {
-
 			$string = '';	
 
 			if (is_array($data)) {
@@ -605,7 +664,8 @@
 					$string = sizeof($files) . __(' files');	
 				} elseif (isset($data['file'])) {
 					if (is_file(WORKSPACE . $data['file'])) {
-						$string =  1 . __(' files');	
+						//$string =  1 . __(' file');	
+						$string = General::sanitize(basename($data['file']));
 					} else {
 						$this->deletFileFormDB($data['file']);
 						$string =  0 . __(' files');	

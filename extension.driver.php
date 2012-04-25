@@ -9,32 +9,7 @@
 
 require_once(TOOLKIT . '/class.alert.php');
 
-define('FILEMANAGER_WORKSPACE', preg_replace('/\//i', DIRECTORY_SEPARATOR , WORKSPACE)); 
-define('FILEMANAGER_EXCLUDE_DIRS', ',/workspace/events,/workspace/data-sources,/workspace/text-formatters,/workspace/pages,/workspace/utilities,/workspace/translations');
-
 Class extension_filemanager extends Extension {
-
-	public function __construct(Array $args) { 
-		parent::__construct($args);
-	}
-
-	public function about() {
-		return array(
-			'name' => 'Filemanager',
-			'type'	=> 'field',
-			'version' => 'dev 1.4.4',
-			'release-date' => '2012-04-19',
-			'author' => array(
-				'name' => 'Thomas Appel',
-				'email' => 'mail@thomas-appel.com',
-				'website' => 'http://thomas-appel.com'
-			),
-			'description' => 'a workspace filemanager',
-			'compatibility' => array(
-				'2.2.5' => true
-			)
-		);
-	}
 
 	public function getSubscribedDelegates() {
 		return array(
@@ -83,10 +58,9 @@ Class extension_filemanager extends Extension {
 		if (!Symphony::Configuration()->get('filemanager')) {
 			Symphony::Configuration()->set('mimetypes', 'application/pdf image/jpeg image/png text/*', 'filemanager');
 			Symphony::Configuration()->set('ignore', base64_encode('^\..*'), 'filemanager');
-			//Symphony::Configuration()->set('ignore', '/\..*/i', 'filemanager');
 		}
 
-		Administration::instance()->saveConfig();	
+		Symphony::Configuration()->write();
 
 		Symphony::Database()->query(
 			"CREATE TABLE `tbl_fields_filemanager` (
@@ -97,6 +71,7 @@ Class extension_filemanager extends Extension {
 				`ignore_files` varchar(255),
 				`limit_files` int(11) default NULL,
 				`allow_file_delete` tinyint(1) default '0',
+				`allow_sort_selected` tinyint(1) default '0',
 				`select_uploaded_files` tinyint(1) default '0',
 				`unique_file_name` tinyint(1) default '0',
 				`allow_file_move` tinyint(1) default '0',
@@ -105,6 +80,7 @@ Class extension_filemanager extends Extension {
 				`allow_dir_create` tinyint(1) default '0',
 				`allow_dir_upload_files` tinyint(1) default '0',
 				`allowed_types` varchar(255),
+				`display_mode` varchar(255),
 				PRIMARY KEY (`id`),
 				KEY `field_id` (`field_id`)
 			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;"

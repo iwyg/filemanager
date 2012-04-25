@@ -14,6 +14,7 @@
 		file_type_invalid: '{$item}: filetype invalid',
 		file_exists: 'file {$file} already exists',
 		file_move_success: 'file {$item} successfully moved to {$to}',
+		file_upload_success: '{$file} successfully uploaded',
 		file_delete_success: 'successfully deleted {$file}',
 		dir_move_success: 'directory {$item} successfully moved {$to}',
 		directory_exists: 'directory {$file} already exists',
@@ -29,7 +30,10 @@
 		dir_creating_error: 'Failed creating Directory {$dir} in {$path}',
 		item_move_error: 'can\'t move {$file} to {$location}',
 		file_delete_error: 'can\'t delete file {$file}',
-		dir_delete_error: 'can\'t delete directory {$file}'
+		dir_delete_error: 'can\'t delete directory {$file}',
+		root_dir_error: 'can\'t delete or move {$dir}. {$dir2} is used by another field',
+		count_files_found: '{$count} files found',
+		count_file_found: '{$count} file found'
 	},
 
 	msgQueue = [],
@@ -38,7 +42,9 @@
 
 	FILTER = /\{\$.*?\}/g;
 
+
 	define(['jquery', 'underscore'], function ($, _) {
+		window._$_ = $;
 		var symLang = {};
 		_.each(msg, function (key, i) {
 			symLang[key] = false;
@@ -66,9 +72,11 @@
 
 			displayMessage: function () {
 				var time = msgQueue.length > 1 ? 0 : 4000,
+				header = $('#header'),
 				that = this, msg = msgQueue.shift();
 				msgCache.push(msg);
-				Symphony.Message.fade('silence', 10);
+
+				header.find('.notifier').css({display: ''});
 				Symphony.Message.post(msg, that.type);
 				setTimeout(function () {
 					setTimeout(function () {

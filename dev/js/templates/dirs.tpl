@@ -8,7 +8,7 @@
 		<span class="ui-icon readonly"></span>	
 		<%}%>
 		<span class="dir-toggle"></span>
-		<span class="ui-icon"></span>
+		<span class="ui-icon dir"></span>
 		<label class="dir-label text">
 			<%= name %>
 		</label>
@@ -20,8 +20,8 @@
 			<% if (settings.allow_dir_create) {%>
 			<span class="ui-icon create"></span>	
 			<%}%>
-			<% if (settings.allow_dir_delete) {%>
-			<span class="ui-icon delete" id="del-<%= id %>"></span>	
+			<% if (settings.allow_dir_delete && deletable) {%>
+			<span class="ui-icon delete-dir delete" id="del-<%= id %>"></span>	
 			<%}%>
 		</span>
 		<%}%>

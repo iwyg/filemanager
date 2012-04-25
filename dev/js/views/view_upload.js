@@ -173,7 +173,7 @@
 				data.progressIndicator.clearAnimation();
 				//data.progressIndicator.settings.startColor = [255, 0, 0];
 				//data.progressIndicator.settings.endColor = [255, 0, 0];
-				data.progressIndicator.drawFullCircle([255, 0, 0]);
+				data.progressIndicator.drawFullCircle([235, 99, 71]);
 			}
 			function _selfRemove(model) {
 				this.trigger('remove', model);
@@ -207,6 +207,7 @@
 					//anker = $('<a class="file-name" href="' + this.model.get('src') + '">' + this.model.get('name') + '</a>');
 					//fn.after(anker).remove();
 					this.$el.addClass('success');
+					fn.text(this.model.get('name'));
 					_itemSetState.call(this, 'cancel');
 				},
 
@@ -296,6 +297,16 @@
 			function _submit(model) {
 				this.collection.send(model.id).fail(function (response) {
 					new SysMessage(null, response);
+				}).done(function (response) {
+					var msg = {
+						success: {
+							message: SysMessage.file_upload_success,
+							context: {
+								file: response[0].name
+							}
+						}
+					};
+					new SysMessage(null, msg);
 				});
 				this.trigger('start');
 			}

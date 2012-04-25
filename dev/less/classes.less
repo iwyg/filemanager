@@ -47,6 +47,11 @@
 	-moz-text-shadow: @color @a @b @c;
 	text-shadow: @color @a @b @c;
 }
+.no-box-shadow() {
+	-webkit-box-shadow: none;
+	   -moz-box-shadow: none;	
+			box-shadow: none;	
+}
 .box-shadow( 
 	@x : 2px, 
 	@y : 2px, 
