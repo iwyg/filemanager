@@ -33,7 +33,7 @@
 			//'timeago': '../../../../symphony/assets/js/symphony.timeago',
 			//'jquery': '//ajax.googleapis.com/ajax/libs/jquery/1/jquery',
 		},
-		urlArgs: Date.now() // add this during development
+		//urlArgs: Date.now() // add this during development
 	}, ['main']);
 }(this, this.require, this.define, this.Symphony));
 

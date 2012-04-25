@@ -1,11 +1,11 @@
 <div class="wrapper">
 	<div class="row bb">
 		<div class="list-column-1">
-			<span class="btn small last close"></span>
+			<span class="btn small last close">×</span>
 		</div>
 	</div>
-	<div class="outer">
-		<div class="row bt">
+	<div class="outer bt">
+		<div class="row">
 			<div class="list-column-4">
 				<div class="preview-img">
 					<img src="<%= preview %>"/>

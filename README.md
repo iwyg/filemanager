@@ -2,7 +2,6 @@
 
 ## Installation notes
 
-This development branche is not compatible to Symphony CMS lower than 2.3.
 Go to `extensions/filemanager/dev` and run `build.sh`.
 
 ## Dependencies
@@ -126,13 +125,22 @@ preview (if available).
 
 ## Changelog
 
-### 1.5 dev, 2012-04-25
+### dev 1.4.5, 2012-04-25
 
-- No longer compatible with Symphony CMS < 2.3
 - added filesearch view 
 - selections can now be reordered
 - selection view can now be displayed in two different modes (`preview` and `compact`)  
 - design changes
+
+### dev 1.4.4, 2012-04-19
+
+- fixed a bug, were files selection would save if there a whitespace character in the files' name
+
+### dev 1.4.3, 2012-04-18
+
+- fixed an error when a directory wasn't accessible
+- improved error handling
+- replaced some method calls for compatibility reasons
 
 ### dev 1.4.2, 2012-04-17
 

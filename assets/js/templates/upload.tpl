@@ -1,4 +1,6 @@
-<label>Uploads</label>
-<ul class="list-container uplaods" id="uploads-<%= id %>">
+<div class="section-head">
+	<label>Uploads</label>
+</div>
+<ul class="list-container uploads" id="uploads-<%= id %>">
 
-</ul>
+</ul>	

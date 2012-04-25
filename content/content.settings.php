@@ -17,8 +17,8 @@ Class contentExtensionFilemanagerSettings extends JSONPage {
 	protected $_roots = array();
 	protected $_fid = NULL;
 
-	public function __construct() {
-		parent::__construct();
+	public function __construct(&$parent) {
+		parent::__construct($parent);
 
 		GenericExceptionHandler::$enabled = false;
 		$post = General::getPostData();
@@ -121,8 +121,8 @@ Class contentExtensionFilemanagerSettings extends JSONPage {
 	 * @return mixed  
 	 */
 	public static function getFieldSettings($field_id = NULL, $setting = NULL) {
-		$field = FieldManager::fetch($field_id);
-		return $field->get($setting);
+		$f_mng = new FieldManager(Administration::instance());
+		return $f_mng->fetch($field_id)->get($setting);
 	}
 	
 	/**
@@ -135,13 +135,15 @@ Class contentExtensionFilemanagerSettings extends JSONPage {
 	 * @return void  
 	 */
 	public static function setFieldSettings($field_id = NULL, $attrib = NULL, $val = NULL) {
-		$field = FieldManager::fetch($field_id);
+		$f_mng = new FieldManager(Administration::instance());
+		$field = $f_mng->fetch($field_id);
 		$field->set($attrib, $val);
 		$field->commit();
 	}
 	
 	public static function save($id) {
-		return FieldManager::fetch($id)->commit();
+		$f_mng = new FieldManager(Administration::instance());
+		return $f_mng->fetch($id)->commit();
 	}
 	
 	/**

@@ -1,7 +1,7 @@
-<li class="file-list list-row row bb" id="send-<%= id %>">
+<li class="file-list list-row row" id="send-<%= id %>">
 	<div class="list-column-4">
 		<div class="inner">
-			<span class="file-name">
+			<span class="file-name pd-box">
 				<% if (file === 'ok') { %>
 				<a class="success" href="<%= src %>" ><%= name %></a>
 				<% } %>

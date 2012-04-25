@@ -22,9 +22,9 @@
 		static protected $instance = 0;
 		static protected $field_instance = 0;
 
-		function __construct() {
+		function __construct(&$parent) {
 			self::$instance++;
-			parent::__construct();
+			parent::__construct($parent);
 			
 			$this->_name = __('Filemanager');
 			$this->_required = true;

@@ -17,8 +17,8 @@ require_once(EXTENSIONS . '/filemanager/content/content.settings.php');
 
 Class contentExtensionFilemanagerEdit extends contentExtensionFilemanagerSettings {
 
-	public function __construct() {
-		parent::__construct();
+	public function __construct(&$parent) {
+		parent::__construct($parent);
 
 		if (isset($_POST['type'])) {
 			$this->task($_POST['type']);

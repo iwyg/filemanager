@@ -11,6 +11,28 @@ require_once(TOOLKIT . '/class.alert.php');
 
 Class extension_filemanager extends Extension {
 
+	public function __construct(Array $args) { 
+		parent::__construct($args);
+	}
+
+	public function about() {
+		return array(
+			'name' => 'Filemanager',
+			'type'	=> 'field',
+			'version' => 'dev 1.4.5',
+			'release-date' => '2012-04-25',
+			'author' => array(
+				'name' => 'Thomas Appel',
+				'email' => 'mail@thomas-appel.com',
+				'website' => 'http://thomas-appel.com'
+			),
+			'description' => 'a workspace filemanager',
+			'compatibility' => array(
+				'2.2.5' => true
+			)
+		);
+	}
+
 	public function getSubscribedDelegates() {
 		return array(
 
@@ -60,7 +82,7 @@ Class extension_filemanager extends Extension {
 			Symphony::Configuration()->set('ignore', base64_encode('^\..*'), 'filemanager');
 		}
 
-		Symphony::Configuration()->write();
+		Administration::instance()->saveConfig();	
 
 		Symphony::Database()->query(
 			"CREATE TABLE `tbl_fields_filemanager` (
@@ -80,7 +102,7 @@ Class extension_filemanager extends Extension {
 				`allow_dir_create` tinyint(1) default '0',
 				`allow_dir_upload_files` tinyint(1) default '0',
 				`allowed_types` varchar(255),
-				`display_mode` varchar(255),
+				`display_mode` varchar(255) default 'compact',
 				PRIMARY KEY (`id`),
 				KEY `field_id` (`field_id`)
 			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;"
@@ -150,15 +172,22 @@ Class extension_filemanager extends Extension {
 	 * @see http://symphony-cms.com/learn/api/2.2/toolkit/extension/#update
 	 */
 	public function update($previousVersion) {
-		$previousVersion = preg_replace('/^\w+\s?/i', '', $previousVersion);
+		if (preg_match('/^(dev|beta)/', trim($previousVersion))) {
 
-		if(version_compare($previousVersion, '1.2', '<')) {
-			// sanitatize broken ignore regexp form beta 1.1 release
-			$ignore = base64_decode(Symphony::Configuration()->get('ignore','filemanager'));
-			$ignore = preg_replace('/(\/i?|\(|\))/i', '', $ignore);
+			$previousVersion = preg_replace('/^\w+\s?/i', '', $previousVersion);
+			if(version_compare($previousVersion, '1.2', '<')) {
+				// sanitatize broken ignore regexp form beta 1.1 release
+				$ignore = base64_decode(Symphony::Configuration()->get('ignore','filemanager'));
+				$ignore = preg_replace('/(\/i?|\(|\))/i', '', $ignore);
 
-			Symphony::Configuration()->set('ignore', base64_encode($ignore), 'filemanager');
-			Administration::instance()->saveConfig();	
+				Symphony::Configuration()->set('ignore', base64_encode($ignore), 'filemanager');
+				Administration::instance()->saveConfig();	
+			}
+			
+			if(version_compare($previousVersion, '1.4.5', '<')) {
+				$stats[] = Symphony::Database()->query("ALTER TABLE `sym_fields_filemanager` ADD `allow_sort_selected` tinyint(1) default '0'");
+				$stats[] = Symphony::Database()->query("ALTER TABLE `sym_fields_filemanager` ADD `display_mode` varchar(255) default 'compact'");
+			}
 		}
 	}
 
