@@ -11,7 +11,7 @@
 
 	require_once(TOOLKIT . '/class.page.php');
 
-	define('FILEMANAGER_WORKSPACE', preg_replace('/\//i', DIRECTORY_SEPARATOR , WORKSPACE)); 
+	//define('FILEMANAGER_WORKSPACE', preg_replace('/\//i', DIRECTORY_SEPARATOR , WORKSPACE)); 
 
 	Class JSONPage extends AjaxPage{
 

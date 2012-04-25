@@ -82,10 +82,10 @@
 			return Backbone.View.extend({
 				events: {
 					'click.searchlist .result-item:not(.selected)': _addSelection,
-					'keyup.searchlist input[type=text]': _triggerSearch,
 					'focus.searchlist input[type=text]': _bindEscape,
 					'blur.searchlist input[type=text]': _unbindEscape,
-					'click.searchlist .remove': _clear
+					'click.searchlist .remove': _clear,
+					'keyup.searchlist input[type=text]' : _triggerSearch
 				},
 
 				initialize: function () {
@@ -93,6 +93,7 @@
 					this.list = this.$el.find('.results');
 					this.field = this.$el.find('input[type=text]');
 					this.collection.on('selected', _.bind(_toggleSelected, this));
+					//this.$el.on('keyup.searchlist input[type=text]', _.debounce(_.bind(_triggerSearch, this), 250));
 				},
 
 				reset: function () {

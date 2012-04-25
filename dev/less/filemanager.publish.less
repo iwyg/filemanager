@@ -476,7 +476,6 @@ input.search {
 	}
 
 	.new-dir .input {
-		margin-right: 92px;
 	}
 
 	.meta-view {	
@@ -609,10 +608,16 @@ input.search {
 }
 
 .new-dir {
-	input[type=text] {
+	.input {
+		margin-right: 92px;
+		padding-top: 2px;
+	}
+	input[type=text], .cr-new-dir {
+		height: 20px;
 		outline: none;
 		border: none;
-		background-color: @bg_col;
+		background-color: transparent;
+		.no-box-shadow();
 	}
 	.btns {
 		overflow: hidden;

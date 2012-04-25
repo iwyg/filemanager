@@ -118,7 +118,6 @@
 					this.$el.on('orderstop.orderable', _.bind(_sort, this));
 				}
 				this.prePopulate();
-				console.log(this.comparator);
 			},
 
 

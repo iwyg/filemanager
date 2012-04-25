@@ -9,9 +9,6 @@
 
 require_once(TOOLKIT . '/class.alert.php');
 
-define('FILEMANAGER_WORKSPACE', preg_replace('/\//i', DIRECTORY_SEPARATOR , WORKSPACE)); 
-define('FILEMANAGER_EXCLUDE_DIRS', ',/workspace/events,/workspace/data-sources,/workspace/text-formatters,/workspace/pages,/workspace/utilities,/workspace/translations');
-
 Class extension_filemanager extends Extension {
 
 	public function getSubscribedDelegates() {
