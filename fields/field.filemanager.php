@@ -7,7 +7,7 @@
 	* @license http://opensource.org/licenses/gpl-3.0.html GNU Public License
 	*/ 
 
-	define('FILEMANAGER_EXCLUDE_DIRS', ',/workspace/events,/workspace/data-sources,/workspace/text-formatters,/workspace/pages,/workspace/utilities,/workspace/translations');
+	define('FILEMANAGER_EXCLUDE_DIRS', ',/workspace/events,/workspace/data-sources,/workspace/text-formatters,/workspace/pages,/workspace/utilities,/workspace/translations,/workspace/jit-image-manipulation');
 	define('FILEMANAGER_WORKSPACE', preg_replace('/\//i', DIRECTORY_SEPARATOR , WORKSPACE)); 
 
 	require_once(TOOLKIT . '/fields/field.upload.php');
