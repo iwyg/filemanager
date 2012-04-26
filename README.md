@@ -4,6 +4,8 @@
 
 This development branche is not compatible to Symphony CMS lower than 2.3.
 Go to `extensions/filemanager/dev` and run `build.sh`.
+If this throws an error saying something like `Error: ENOENT, no such file or directory 'extensions/filemanager/build/js/plugins/jquery-iframe-transport/jquery-iframe-transport.js'`
+type `git submodule update --init` from within `extensions/filemanager`
 
 ## Notes on Multiple field instances
 
