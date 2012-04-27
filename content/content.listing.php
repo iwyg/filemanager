@@ -6,6 +6,8 @@
  * Displays <a href="http://opensource.org/licenses/gpl-3.0.html">GNU Public License</a>
  * @license http://opensource.org/licenses/gpl-3.0.html GNU Public License
  */ 
+//require_once(EXTENSIONS . '/firebug_profiler/lib/FirePHPCore/FirePHP.class.php');
+//require_once(TOOLKIT . '/class.general.php');
 require_once(EXTENSIONS . '/filemanager/content/content.settings.php');
 require_once(EXTENSIONS . '/filemanager/lib/class.directorytools.php');
 
