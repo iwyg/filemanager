@@ -178,7 +178,7 @@ Class extension_filemanager extends Extension {
 			if(version_compare($previousVersion, '1.2', '<')) {
 				// sanitatize broken ignore regexp form beta 1.1 release
 				$ignore = base64_decode(Symphony::Configuration()->get('ignore','filemanager'));
-				$ignore = preg_replace('/(\/i?|\(|\))/i', '', $ignore);
+				$ignore = preg_replace('/(^\/|\/\w+$)/i', '', $ignore);
 
 				Symphony::Configuration()->set('ignore', base64_encode($ignore), 'filemanager');
 				Administration::instance()->saveConfig();	

@@ -61,7 +61,7 @@ Class contentExtensionFilemanagerListing extends contentExtensionFilemanagerSett
 
 		if (!is_null($ignore)) {
 			$ignore = explode(' ', ((strlen($ignore) > 0 && strlen($ignore_files) > 0) ? $ignore . ' ' : $ignore) . $ignore_files);
-			$ignore = '/(' . implode('|', preg_replace('/(\/i?|\(|\))/i', '', $ignore)) . ')/i';
+			$ignore = '/(' . implode('|', preg_replace('/(^\/|\/\w+$)/i', '', $ignore)) . ')/i';
 		}
 
 
