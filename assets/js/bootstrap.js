@@ -1,0 +1,1 @@
+(function(a){a("bootstrap",["fm_settings"],function(a){return function(b,c){a.instances["filemanager-"+c]={field_id:b,instance:c}}})})(this.define)
