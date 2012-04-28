@@ -1,1 +1,0 @@
-(function(a){a(["underscore","backbone"],function(a,b){var c=b.Collection.extend({addSetting:function(a,b,c){this.settings=this.settings||{};if(this.settings[a]&&c!==!0)throw"setting "+a+"already defined";this.settings[a]=b;return this}});c.defaults={};return c})})(this.define)

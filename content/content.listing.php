@@ -77,6 +77,11 @@ Class contentExtensionFilemanagerListing extends contentExtensionFilemanagerSett
 		$roots = sizeof($roots) > 0 ? $roots : NULL;
 
 
+		$xpath_filter;
+
+		//$fm = 
+
+
 		try {
 			$dirs = new DirectoryTools($base_dir, $ignore, $exclude, $roots, $nesting);
 			$this->_Result = $dirs->getDirectoryTree(true);

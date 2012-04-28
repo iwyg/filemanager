@@ -102,6 +102,7 @@ Class extension_filemanager extends Extension {
 				`allow_dir_create` tinyint(1) default '0',
 				`allow_dir_upload_files` tinyint(1) default '0',
 				`allowed_types` varchar(255),
+				`filter_xpath` varchar(255),
 				`display_mode` varchar(255) default 'compact',
 				PRIMARY KEY (`id`),
 				KEY `field_id` (`field_id`)

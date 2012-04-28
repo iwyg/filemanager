@@ -16,6 +16,7 @@ Class contentExtensionFilemanagerSettings extends JSONPage {
 
 	protected $_roots = array();
 	protected $_fid = NULL;
+	protected $_eid = NULL;
 
 	public function __construct(&$parent) {
 		parent::__construct($parent);
@@ -25,6 +26,7 @@ Class contentExtensionFilemanagerSettings extends JSONPage {
 
 		$this->_roots = $this->sanitizePath($this->_getRootPaths());
 		$this->_fid = isset($_GET['field_id']) ? intval($_GET['field_id'], 10) : NULL;
+		$this->_eid = isset($_GET['entry_id']) ? intval($_GET['entry_id'], 10) : NULL;
 
 		if (is_null($this->_fid)) {
 			return;
@@ -52,7 +54,7 @@ Class contentExtensionFilemanagerSettings extends JSONPage {
 		if ($val == NULL) {
 			return NULL;
 		}
-		contentExtensionFilemanagerSettings::setFieldSettings($this->_fid, $attrib, 'test');
+		$this->setFieldSettings($this->_fid, $attrib, 'test');
 	}
 
 	/**
@@ -75,6 +77,53 @@ Class contentExtensionFilemanagerSettings extends JSONPage {
 		$this->_settings['allowed_types'] = preg_replace('/\//', '\\\/',$exp_allowed_types);
 
 		if ($add) $this->_Result = $this->convertSettings($this->_settings);
+	}
+
+
+	public function evalFiledHandleFilter(FieldManager $fm, $id) {
+		require_once(TOOLKIT . '/class.entrymanager.php');
+		$em = new EntryManager(Administration::instance());
+		$entry = $em->fetch($this->_eid);
+		$entry = $entry[0];
+		$data = $entry->getData();
+		$section_id = $entry->get('section_id');
+
+		$xpath = $fm->fetch($id)->get('filter_xpath');
+		$associated = $entry->fetchAllAssociatedEntryCounts();
+
+		$fields = array();
+
+		if (is_array($associated) and !empty($associated)) {
+			foreach ($associated as $section => $count) {
+				$handle = Symphony::Database()->fetchVar('handle', 0, "
+					SELECT
+						s.handle
+					FROM
+						`tbl_sections` AS s
+					WHERE
+						s.id = '{$section}'
+					LIMIT 1
+				");
+			}
+		}
+
+		foreach($data as $k => $v) {
+			if (isset($data[$k]['handle'])) {
+				$fields[$fm->fetch($k)->get('element_name')] = array('handle' => $data[$k]['handle'], 'id' => $k);
+			}
+		}
+
+		preg_match_all('/\{[^\}]+\}/', $xpath, $matches);
+		$exp = array();
+
+		foreach($matches[0] as $match) {
+			$key = preg_replace('/(^\{\$|\}$)/', '', $match);
+			if (isset($fields[$key])) {
+				$exp[] = $fields[$key]['handle'];
+				$xpath = preg_replace('/' . preg_replace('/(\{|\$|\})/', '\\\$0', $match) . '/', $fields[$key]['handle'], $xpath);
+			}
+		}
+		return $xpath;
 	}
 
 	/**
@@ -120,9 +169,18 @@ Class contentExtensionFilemanagerSettings extends JSONPage {
 	 *
 	 * @return mixed  
 	 */
-	public static function getFieldSettings($field_id = NULL, $setting = NULL) {
+	public function getFieldSettings($field_id = NULL, $setting = NULL) {
 		$f_mng = new FieldManager(Administration::instance());
-		return $f_mng->fetch($field_id)->get($setting);
+		$settings = $f_mng->fetch($field_id)->get($setting);
+
+		if (isset($settings['filter_xpath'])) {
+			try {
+				$this->evalFiledHandleFilter($f_mng, $field_id);
+			} catch (Exception $e) {
+				print_r($e);
+			}
+		}
+		return $settings;
 	}
 	
 	/**
@@ -134,14 +192,14 @@ Class contentExtensionFilemanagerSettings extends JSONPage {
 	 *
 	 * @return void  
 	 */
-	public static function setFieldSettings($field_id = NULL, $attrib = NULL, $val = NULL) {
+	public function setFieldSettings($field_id = NULL, $attrib = NULL, $val = NULL) {
 		$f_mng = new FieldManager(Administration::instance());
 		$field = $f_mng->fetch($field_id);
 		$field->set($attrib, $val);
 		$field->commit();
 	}
 	
-	public static function save($id) {
+	public function save($id) {
 		$f_mng = new FieldManager(Administration::instance());
 		return $f_mng->fetch($id)->commit();
 	}

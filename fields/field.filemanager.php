@@ -71,6 +71,7 @@
 			$fields['display_mode'] = implode(',', $this->get('display_mode'));
 			$fields['exclude_dirs'] = is_array($this->get('exclude_dirs')) ? implode(',', $this->get('exclude_dirs')) : '';
 			$fields['ignore_files'] = $this->get('ignore_files');
+			$fields['filter_xpath'] = $this->get('filter_xpath');
 			$fields['limit_files'] = intval(trim($this->get('limit_files')));
 			$fields['allowed_types'] = $this->get('allowed_types');
 			$fields['allow_dir_upload_files'] = ($this->get('allow_dir_upload_files') ? 1 : 0);
@@ -126,6 +127,7 @@
 
 			$label = Widget::Label(__('Root Directory'));
 			$label2 = Widget::Label(__('Allowed MIME types'));
+			$label3 = Widget::Label(__('Filter by XPath'));
 			$label_ignore = Widget::Label(__('Ignore files'));
 			$label_limit = Widget::Label(__('Limit file selection'), null, 'column');
 
@@ -145,6 +147,7 @@
 			$at_val = strlen(trim($this->get('allowed_types'))) == 0 ? Symphony::Configuration()->get('mimetypes', 'filemanager') : $this->get('allowed_types');
 			
 			$label2->appendChild(Widget::Input('fields[' . $sortorder .'][allowed_types]', $at_val, 'text'));
+			$label3->appendChild(Widget::Input('fields[' . $sortorder .'][filter_xpath]', $this->get('filter_xpath'), 'text'));
 
 			$label_ignore->appendChild(Widget::Input('fields[' . $sortorder .'][ignore_files]', $this->get('ignore_files'), 'text'));
 			$label_limit->appendChild(Widget::Input('fields[' . $sortorder .'][limit_files]', $this->get('limit_files'), 'text'));
@@ -179,6 +182,7 @@
 			}
 			$label->appendChild(Widget::Select('fields['.$this->get('sortorder').'][exclude_dirs][]', $options, array('multiple' => '')));
 			$fieldset->appendChild($label);
+			$fieldset->appendChild($label3);
 
 			$this->appendCheckbox($div, 'allow_dir_move', __('Allow moving directories'));
 			$this->appendCheckbox($div, 'allow_dir_delete', __('Allow deleting directories'));
@@ -393,7 +397,7 @@
 			$fieldset->appendChild($div);
 
 			$script = new XMLElement('script');
-			$script->setValue('(function(define, id, instance) {require(["bootstrap"], function (fn) {fn(id, instance);})}(this.define, ' . $this->get('id') . ', ' . $instance . '));');
+			$script->setValue('(function(define, id, entry, instance) {require(["bootstrap"], function (fn) {fn(id, entry, instance);})}(this.define, ' . $this->get('id') . ', ' . $entry_id . ', '  . $instance . '));');
 
 			$fieldset->appendChild($script);
 

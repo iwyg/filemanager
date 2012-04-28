@@ -52,13 +52,14 @@
 
 		Config.prototype = {
 			url: fm_settings.root + '/symphony/extension/filemanager/settings/',
-			get: function (id) {
-				return $.ajax({url: this.url, data: {'field_id': id}});
+			get: function (id, entry) {
+				return $.ajax({url: this.url, data: {'field_id': id, 'entry_id': entry}});
 			}
 		};
 
 		_.each(fm_settings.instances,  function (set) {
-			set.deferred = new Config().get(set.field_id);
+			console.log(set);
+			set.deferred = new Config().get(set.field_id, set.entry_id);
 		});
 
 

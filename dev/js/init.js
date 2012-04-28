@@ -8,10 +8,12 @@
 
 (function (window, require, define, Symphony) {
 	define('bootstrap', ['fm_settings'], function (settings) {
-		return function (id, instance) {
+		return function (id, entry_id, instance) {
+			console.log(arguments);
 			settings.instances['filemanager-' + instance] = {
 				field_id: id,
-				instance: instance
+				instance: instance,
+				entry_id: entry_id
 			};
 		};
 	});
