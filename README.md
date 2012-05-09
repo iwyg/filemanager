@@ -132,6 +132,9 @@ preview (if available).
 
 ## Changelog
 
+### 1.0.1, 2012-05-09
+- minor css fix
+
 ### 1.0.0, 2012-04-25
 
 - filemanager field can now hav multiple instances 
