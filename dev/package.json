@@ -1,0 +1,34 @@
+{
+	"name" : "filemanager",
+	"version": "1",
+	"title": "filemanager for symphony cms",
+	"description": "Select, upload and manage files",
+	"keywords": ["Symphony CMS", "backbone js", "require js", "fileupload", "filemanagment"],
+	"homepage": "https://github.com/iwyg/filemanager",
+	"author": {
+		"name":  "Thomas Appel",
+		"url": "http://thomas-appel.com"
+	},
+	"maintainers": [
+		{
+			"name":  "Thomas Appel",
+			"url": "http://thomas-appcl.com"
+		}
+	],
+    "bugs": "https://github.com/iwyg/filemanager/issues",
+    "licenses": [
+        {
+            "type": "GPL",
+            "url": "http://www.opensource.org/licenses/GPL-3.0"
+        }
+    ],
+    "dependencies": {
+        "jquery": ">=1.7",
+        "jquery.ui.draggable": ">=1.8",
+        "jquery.ui.droppable": ">=1.8",
+        "jquery-ifram-transport": ">=1.8",
+        "backbonejs": ">=2.1.0",
+        "underscorejs": ">=2.1.0",
+        "requirejs": ">=1.1.4"
+    }
+}
