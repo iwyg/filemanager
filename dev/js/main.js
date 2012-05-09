@@ -56,9 +56,7 @@
 				return $.ajax({url: this.url, data: {'field_id': id, 'entry_id': entry}});
 			}
 		};
-
 		_.each(fm_settings.instances,  function (set) {
-			console.log(set);
 			set.deferred = new Config().get(set.field_id, set.entry_id);
 		});
 
@@ -113,7 +111,6 @@
 					syncManager.add(dirTreeView.collection);
 
 					dirTreeView.collection.on(syncManager.events, syncManager._callback);
-
 					// initialize selected files view
 					selectView = new SelectView({
 						dirtree: dirTreeView,

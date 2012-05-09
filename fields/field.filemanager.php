@@ -265,23 +265,23 @@
 			$help = new XMLElement('p', NULL, array('class' => 'help'));
 			$help->setValue(__('Display selected files compact or as thumbnail list'));
 
-			$mode_label->appendChild($help);
 
 			$fieldset->appendChild($label);
-			$div->appendChild($mode_label);
+			$fieldset->appendChild($mode_label);
+			$fieldset->appendChild($help);
 
 			/* ignore files input: 
 			 * ============================================================================================================================== */
 
 			$help = new XMLElement('p', NULL, array('class' => 'help'));
 			$help->setValue(__('type any valid number'));
-			$label_limit->appendChild($help);
 
-			if(isset($errors['limit'])) $div->appendChild(Widget::wrapFormElementWithError($label_limit, $errors['limit']));
-			else $div->appendChild($label_limit);
+			if(isset($errors['limit'])) $fieldset->appendChild(Widget::wrapFormElementWithError($label_limit, $errors['limit']));
+			else $fieldset->appendChild($label_limit);
 
+			$fieldset->appendChild($help);
 			$fieldset->appendChild($div2);
-			$fieldset->appendChild($div);
+			//$fieldset->appendChild($div);
 			$wrapper->appendChild($fieldset);
 
 			/* ============================================================================================================================== */
@@ -294,6 +294,15 @@
 			$this->appendRequiredCheckbox($div);
 			$this->appendShowColumnCheckbox($div);
 			$wrapper->appendChild($div);
+		}
+
+		private function wrapContainerInError(XMLElement &$elemnt, $message = NULL) {
+
+			$error_div = new XMLElement('div', null, array('class' => 'invalid'));
+			$error_p = new XMLElement('p', $message); 
+			$error_div->appendChild($elemnt); 
+			$error_div->appendChild($error_p); 
+			return $error_div;
 		}
 		
 		// see: http://symphony-cms.com/learn/api/2.2.5/toolkit/field/#displayPublishPanel
@@ -379,7 +388,8 @@
 			$fieldset->appendChild($script);
 
 			if (is_string($flagWithError) && strlen($flagWithError) > 0) {
-				$wrapper->appendChild(Widget::wrapFormElementWithError($fieldcontainer, $flagWithError));
+				$wrapper->appendChild($this->wrapContainerInError($fieldcontainer, $flagWithError));
+				//$wrapper->appendChild(Widget::wrapFormElementWithError($fieldcontainer, $flagWithError));
 			} else {
 				$wrapper->appendChild($fieldcontainer);
 			}

@@ -9,7 +9,6 @@
 (function (define) {
 	define('bootstrap', ['fm_settings'], function (settings) {
 		return function (id, entry_id, instance) {
-			console.log(arguments);
 			settings.instances['filemanager-' + instance] = {
 				field_id: id,
 				instance: instance,
