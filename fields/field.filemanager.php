@@ -292,26 +292,13 @@
 			$wrapper->appendChild($div);
 		}
 		
-		private function wrapContainerInError(XMLElement &$elemnt, $message = NULL) {
-
-			$error_div = new XMLElement('div', null, array('class' => 'invalid'));
-			$error_p = new XMLElement('p', $message); 
-			$error_div->appendChild($elemnt); 
-			$error_div->appendChild($error_p); 
-			return $error_div;
-		}
-
 		// see: http://symphony-cms.com/learn/api/2.2.5/toolkit/field/#displayPublishPanel
 		function displayPublishPanel(&$wrapper, $data=NULL, $flagWithError=NULL, $fieldnamePrefix=NULL, $fieldnamePostfix=NULL, $entry_id=NULL, $fieldnameSuffix=NULL ) {
-
 			parent::displayPublishPanel($wrapper, $data, $flagWithError, $fieldnamePrefix, $fieldnamePostfix, $entry_id, $fieldnameSuffix);
 			$base_name = strtolower($this->_name);
-			$tr = __('test124');
 
 			self::$field_instance++;
 			$instance = self::$field_instance;
-			//$instance = $this->_i;
-			//$instance = $instance++;
 
 			/* ============================================================================================================================== 
 			 * container 
@@ -353,18 +340,6 @@
 					'id' => $base_name . '-fileupload-' . $instance,
 					'class' => $base_name . '-upload-field field-container'		
 				));
-				/*
-				$fieldset->appendChild($div);
-				$div = new XMLElement('div', NULL, array(
-					'id' => $base_name . '-droparea',
-					'class' => $base_name . '-dropaera-field'		
-				));
-				$fieldset->appendChild($div);
-				$div = new XMLElement('div', NULL, array(
-					'id' => $base_name . '-upload-list',
-					'class' => $base_name . '-upload-files-list field-container'		
-				));
-				 */
 				$fieldset->appendChild($div);
 			}
 
@@ -398,7 +373,7 @@
 			$fieldset->appendChild($script);
 
 			if (is_string($flagWithError) && strlen($flagWithError) > 0) {
-				$wrapper->appendChild($this->wrapContainerInError($fieldcontainer, $flagWithError));
+				$wrapper->appendChild(Widget::wrapFormElementWithError($fieldcontainer, $flagWithError));
 			} else {
 				$wrapper->appendChild($fieldcontainer);
 			}

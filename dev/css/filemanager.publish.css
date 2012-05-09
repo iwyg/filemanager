@@ -993,7 +993,7 @@ input.search:focus {
   background-image: linear-gradient(top, #668abe, #5c83ba 100%);
   border-top: 1px solid #7492bc;
   border-bottom: 1px solid #5880b8;
-  margin-bottom: -1px;
+  margin-top: -1px;
 }
 .filemanager .file.selected .ui-icon.move {
   background-position: -52px -64px;

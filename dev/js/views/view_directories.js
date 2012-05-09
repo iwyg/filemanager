@@ -19,7 +19,8 @@
 	], function ($, _, Backbone, Dirs, templates, SysMessage, convertBytes, helper) {
 
 		var SearchView, FileView, DirView, MetaView, TreeView, metaStates = {},
-		siteRoot = Symphony.Context.get('root');
+		siteRoot = Symphony.Context.get('root'),
+		$doc = $(document);
 
 		SearchView = (function () {
 			var threshold = 0, trcache;
@@ -69,14 +70,22 @@
 				}
 			}
 
+			function _removeResultNode(model) {
+				var resultNode = $('#result-' + model.id);
+
+				if (resultNode.length) {
+					resultNode.remove();
+				}
+			}
+
 			function _bindEscape(event) {
 				this.field.parent().addClass('active');
-				$(document).on('keyup.searchlist', _.bind(_clearOnEscape, this));
+				$doc.on('keyup.searchlist', _.bind(_clearOnEscape, this));
 			}
 
 			function _unbindEscape(event) {
 				this.field.parent().removeClass('active');
-				$(document).off('keyup.searchlist');
+				$doc.off('keyup.searchlist');
 			}
 
 			return Backbone.View.extend({
@@ -92,7 +101,10 @@
 					this.template = templates.search_list;
 					this.list = this.$el.find('.results');
 					this.field = this.$el.find('input[type=text]');
-					this.collection.on('selected', _.bind(_toggleSelected, this));
+					this.collection
+						.on('selected', _.bind(_toggleSelected, this))
+						.on('filedelete', _.bind(_removeResultNode, this));
+
 					//this.$el.on('keyup.searchlist input[type=text]', _.debounce(_.bind(_triggerSearch, this), 250));
 				},
 
@@ -132,12 +144,20 @@
 			 * @private
 			 * @api private
 			 */
-			function _switchSelected(type) {
+			function _switchSelected(model) {
+				console.log(arguments);
+				if (model.get('selected')) {
+					this.$el.addClass('file-selected');
+				} else {
+					this.$el.removeClass('file-selected');
+				}
+				/*
 				if (type === 'add') {
 					this.$el.addClass('file-selected');
 				} else if (type === 'remove') {
 					this.$el.removeClass('file-selected');
 				}
+			   */
 			}
 
 			return Backbone.View.extend({
@@ -156,9 +176,9 @@
 					this.$el.on('destroyed', _.bind(this.remove, this));
 
 					switchSelected = _.bind(_switchSelected, this);
-					this.options.parentView
-						.on('select', switchSelected)
-						.on('unselect', switchSelected);
+					this.options.parentView.model
+						.on('change:selected', switchSelected);
+						//.on('unselect', switchSelected);
 				},
 
 				/**
@@ -200,11 +220,15 @@
 					!hard ? this.$el.slideDown() : this.$el.css({display: 'block'});
 					this._open = true;
 					this.trigger('open', this);
+
+					_switchSelected.call(this, this.options.parentView.model);
+					/*
 					if (fileNode.hasClass('selected')) {
 						_switchSelected.call(this, 'add');
 					} else if (this.options.parentView.model.get('selected')) {
 						_switchSelected.call(metaView, 'add');
 				    }
+				   */
 					return this;
 				},
 
@@ -395,7 +419,10 @@
 					parent && ! update && this.$el.appendTo(parent);
 					_setTasks.call(this);
 
-					this.model.get('state') === 'open' && this.$el.addClass(this.model.get('state'));
+					if (this.model.get('state') === 'open') {
+						this.$el.addClass(this.model.get('state'));
+						this.$el.find('> .sub-dir').css({display: 'block'});
+					}
 
 					if (update) {
 						this.trigger('update', this);
@@ -686,11 +713,13 @@
 				}
 
 				_.each(fnames, function (path) {
-					var fm = view.collection.getByFileName(path),
-					fv = view.getFileViewByModel(fm[0]);
+					var fm = view.collection.getByFileName(path), fv;
+					fv = fm.length ? view.getFileViewByModel(fm[0]) : null;
 					if (fv) {
-						fv.setMetaView();
-						fv._metaView.open(true);
+						if (fv) {
+							fv.setMetaView();
+							fv._metaView.open(true);
+						}
 					}
 				});
 			}
@@ -938,6 +967,7 @@
 					if (helper.isjQueryObject(node)) {
 						node.find('> .sub-dir').slideDown();
 						node.addClass('open');
+						//node.find('> ul .sub-dir');
 						this.collection.get(node[0].id).set('state', 'open');
 					}
 				},

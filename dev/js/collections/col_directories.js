@@ -483,7 +483,7 @@
 				 * takes an array of pathsnames or String as commy separated list
 				 *
 				 * @param {Mixed} fnames string or array
-				 * @return {Mixed} Array (found file models) or undefined
+				 * @return {Array} found file models
 				 */
 				getByFileName: function (fnames) {
 					var files = this.getFiles(),
@@ -501,7 +501,7 @@
 						});
 						fs && results.push(fs);
 					});
-					return results.length ? results : undefined;
+					return results;
 				},
 
 				/**
