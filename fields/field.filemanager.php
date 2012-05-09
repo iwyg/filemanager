@@ -71,6 +71,7 @@
 			$fields['display_mode'] = implode(',', $this->get('display_mode'));
 			$fields['exclude_dirs'] = is_array($this->get('exclude_dirs')) ? implode(',', $this->get('exclude_dirs')) : '';
 			$fields['ignore_files'] = $this->get('ignore_files');
+			$fields['filter_xpath'] = $this->get('filter_xpath');
 			$fields['limit_files'] = intval(trim($this->get('limit_files')));
 			$fields['allowed_types'] = $this->get('allowed_types');
 			$fields['allow_dir_upload_files'] = ($this->get('allow_dir_upload_files') ? 1 : 0);
@@ -126,6 +127,7 @@
 
 			$label = Widget::Label(__('Root Directory'));
 			$label2 = Widget::Label(__('Allowed MIME types'));
+			$label3 = Widget::Label(__('Filter by XPath'));
 			$label_ignore = Widget::Label(__('Ignore files'));
 			$label_limit = Widget::Label(__('Limit file selection'), null, 'column');
 
@@ -145,6 +147,7 @@
 			$at_val = strlen(trim($this->get('allowed_types'))) == 0 ? Symphony::Configuration()->get('mimetypes', 'filemanager') : $this->get('allowed_types');
 			
 			$label2->appendChild(Widget::Input('fields[' . $sortorder .'][allowed_types]', $at_val, 'text'));
+			$label3->appendChild(Widget::Input('fields[' . $sortorder .'][filter_xpath]', $this->get('filter_xpath'), 'text'));
 
 			$label_ignore->appendChild(Widget::Input('fields[' . $sortorder .'][ignore_files]', $this->get('ignore_files'), 'text'));
 			$label_limit->appendChild(Widget::Input('fields[' . $sortorder .'][limit_files]', $this->get('limit_files'), 'text'));
@@ -179,6 +182,7 @@
 			}
 			$label->appendChild(Widget::Select('fields['.$this->get('sortorder').'][exclude_dirs][]', $options, array('multiple' => '')));
 			$fieldset->appendChild($label);
+			$fieldset->appendChild($label3);
 
 			$this->appendCheckbox($div, 'allow_dir_move', __('Allow moving directories'));
 			$this->appendCheckbox($div, 'allow_dir_delete', __('Allow deleting directories'));
@@ -261,23 +265,23 @@
 			$help = new XMLElement('p', NULL, array('class' => 'help'));
 			$help->setValue(__('Display selected files compact or as thumbnail list'));
 
-			$mode_label->appendChild($help);
 
 			$fieldset->appendChild($label);
-			$div->appendChild($mode_label);
+			$fieldset->appendChild($mode_label);
+			$fieldset->appendChild($help);
 
 			/* ignore files input: 
 			 * ============================================================================================================================== */
 
 			$help = new XMLElement('p', NULL, array('class' => 'help'));
 			$help->setValue(__('type any valid number'));
-			$label_limit->appendChild($help);
 
-			if(isset($errors['limit'])) $div->appendChild(Widget::wrapFormElementWithError($label_limit, $errors['limit']));
-			else $div->appendChild($label_limit);
+			if(isset($errors['limit'])) $fieldset->appendChild(Widget::wrapFormElementWithError($label_limit, $errors['limit']));
+			else $fieldset->appendChild($label_limit);
 
+			$fieldset->appendChild($help);
 			$fieldset->appendChild($div2);
-			$fieldset->appendChild($div);
+			//$fieldset->appendChild($div);
 			$wrapper->appendChild($fieldset);
 
 			/* ============================================================================================================================== */
@@ -291,7 +295,7 @@
 			$this->appendShowColumnCheckbox($div);
 			$wrapper->appendChild($div);
 		}
-		
+
 		private function wrapContainerInError(XMLElement &$elemnt, $message = NULL) {
 
 			$error_div = new XMLElement('div', null, array('class' => 'invalid'));
@@ -300,13 +304,11 @@
 			$error_div->appendChild($error_p); 
 			return $error_div;
 		}
-
+		
 		// see: http://symphony-cms.com/learn/api/2.2.5/toolkit/field/#displayPublishPanel
 		function displayPublishPanel(&$wrapper, $data=NULL, $flagWithError=NULL, $fieldnamePrefix=NULL, $fieldnamePostfix=NULL, $entry_id=NULL, $fieldnameSuffix=NULL ) {
-
 			parent::displayPublishPanel($wrapper, $data, $flagWithError, $fieldnamePrefix, $fieldnamePostfix, $entry_id, $fieldnameSuffix);
 			$base_name = strtolower($this->_name);
-			$tr = __('test124');
 
 			self::$field_instance++;
 			$instance = self::$field_instance;
@@ -353,18 +355,6 @@
 					'id' => $base_name . '-fileupload-' . $instance,
 					'class' => $base_name . '-upload-field field-container'		
 				));
-				/*
-				$fieldset->appendChild($div);
-				$div = new XMLElement('div', NULL, array(
-					'id' => $base_name . '-droparea',
-					'class' => $base_name . '-dropaera-field'		
-				));
-				$fieldset->appendChild($div);
-				$div = new XMLElement('div', NULL, array(
-					'id' => $base_name . '-upload-list',
-					'class' => $base_name . '-upload-files-list field-container'		
-				));
-				 */
 				$fieldset->appendChild($div);
 			}
 
@@ -399,6 +389,7 @@
 
 			if (is_string($flagWithError) && strlen($flagWithError) > 0) {
 				$wrapper->appendChild($this->wrapContainerInError($fieldcontainer, $flagWithError));
+				//$wrapper->appendChild(Widget::wrapFormElementWithError($fieldcontainer, $flagWithError));
 			} else {
 				$wrapper->appendChild($fieldcontainer);
 			}
