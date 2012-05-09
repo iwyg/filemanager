@@ -68,12 +68,18 @@
 }
 */
 .field-filemanager .invalid {
-	.filemanager {
-		& > label {
-			color: #fff;
+		background-color: #D42;
+			& > p, & .filemanager > label {
+				color: #fff !important;
+			}
+		& label {
+			border: none;
+			background-color: transparent;
+		}
+		.filemanager {
+			padding: 0 12px 12px;
 		}
 		color: @text_color;
-	}
 }
 .bb {
 	.border-bottom();
@@ -145,16 +151,18 @@
 		}
 	}
 }
-input[type=text], input.search {
-	.no-box-shadow();
-	padding: 0 80px 0 0;
-	margin-top: -1px;
-	outline: none;
-	border: none;
-	&:focus {
-		border: none;
-		outline: none;
+.filemanager {
+	input[type=text], input.search {
 		.no-box-shadow();
+		padding: 0 80px 0 0;
+		margin-top: -1px;
+		outline: none;
+		border: none;
+		&:focus {
+			border: none;
+			outline: none;
+			.no-box-shadow();
+		}
 	}
 }
 

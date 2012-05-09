@@ -14,6 +14,10 @@
 		</author>
 	</authors>
 	<releases>
+		<release version="1.0.1" date="2012-05-09" min="2.2.5">
+			- minor css fix
+			- new release-build
+		</release>
 		<release version="1.0.0" date="2012-04-25" min="2.2.5">
 			- filemanager field can now hav multiple instances 
 			- added filesearch view 
