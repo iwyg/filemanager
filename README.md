@@ -60,7 +60,7 @@ Section, more options wil become available, as they are:
 
 ![Filebrowser View](http://dev.thomas-appel.com/symphony/assets/sym_fm_1_settings_fileuoload_b.png)
 
-- `Unique Filenames`: check this, if you want to have unique filesnames
+- `Unique Filenames`: check this, if you want to have unique filenames
 - `Allowed MIME types`: define the Mimetypes that should be allowed for
   uploading. This will override the defaults set in preferences for this field.
 
