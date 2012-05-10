@@ -145,18 +145,6 @@
 		}
 	}
 }
-input[type=text], input.search {
-	.no-box-shadow();
-	padding: 0 80px 0 0;
-	margin-top: -1px;
-	outline: none;
-	border: none;
-	&:focus {
-		border: none;
-		outline: none;
-		.no-box-shadow();
-	}
-}
 
 .section-body {
 
@@ -176,6 +164,20 @@ input[type=text], input.search {
 
 // reset properties
 .filemanager {
+
+	input[type=text], input.search {
+		.no-box-shadow();
+		padding: 0 80px 0 0;
+		margin-top: -1px;
+		outline: none;
+		border: none;
+		&:focus {
+			border: none;
+			outline: none;
+			.no-box-shadow();
+		}
+	}
+
 	ul, li, li label {
 		margin: 0;
 		padding: 0;
