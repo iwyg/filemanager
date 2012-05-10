@@ -7,7 +7,15 @@
  */
 
 (function (window, require, define, Symphony) {
-	define('bootstrap', ['fm_settings'], function (settings) {
+
+	define('settings', [], function () {
+		return {
+			root: Symphony.Context.get('root'),
+			instances: {}
+		};
+	});
+
+	define('bootstrap', ['settings'], function (settings) {
 		return function (id, instance) {
 			settings.instances['filemanager-' + instance] = {
 				field_id: id,
@@ -20,8 +28,8 @@
 		baseUrl: Symphony.Context.get('root') + '/extensions/filemanager/assets/js',
 		paths: {
 			'jquery': '../../../../symphony/assets/js/jquery',
-			'fm_settings': 'settings',
-			//'bootstrap': 'bootstrap',
+			//'fm_settings': 'settings',
+			// 'bootstrap': 'bootstrap',
 			'orderable': '../../../../symphony/assets/js/symphony.orderable',
 			'jqueryui': 'libs/jquery-ui-1.8.18.custom',
 			'underscore': '../../../sym_backbonejs/assets/underscore',

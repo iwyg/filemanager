@@ -4,11 +4,11 @@
     dir: "../build/js",
     //Comment out the optimize line if you want
     //the code minified by UglifyJS.
-    optimize: "none",
+    //optimize: "none",
 
 	paths: {
 		'jquery': 'libs/jquery',
-		'fm_settings': 'settings',
+		//'fm_settings': 'settings',
 		//'bootstrap': 'bootstrap',
 		'orderable': '../../../../symphony/assets/js/symphony.orderable',
 		'jqueryui': 'libs/jquery-ui-1.8.18.custom',

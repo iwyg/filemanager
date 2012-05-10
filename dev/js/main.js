@@ -10,7 +10,7 @@
 	var oldQ = jQuery;
 
 	require([
-		'fm_settings',
+		'settings',
 		'jquery',
 		'underscore',
 		'backbone',
