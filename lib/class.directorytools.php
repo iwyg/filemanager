@@ -13,18 +13,51 @@
  * A Class providing some methods and utilities needed for filemanager
  */ 
 //$is_win = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
-Class DirectoryTools extends DirectoryIterator 
-{
+Class DirectoryTools extends DirectoryIterator {
 	private $level = 0;
 
-	public function __construct($context, $ignore = NULL, $exclude = NULL, $nesting = NULL)
-	{
+	/**
+	 * The Root Directory 
+	 */
+	protected $_baseDir;
+
+	/**
+	 * Directory nesting level iterator
+	 */ 
+	protected $_level = 0;
+
+	/**
+	 * RegExp: files that should be ignored
+	 */ 
+	protected $_ignore;
+
+	protected static $_O = 0;
+	/**
+	 * RegeExp: directories to be excluded 
+	 */ 
+	protected $_exclude;
+
+	/**
+	 * an array of that are used by other fields (speaking: the root-directories of all fields) 
+	 */ 
+	protected $_roots;
+
+
+	public function __construct($context, $ignore = NULL, $exclude = NULL, $roots=NULL, $nesting=NULL) {
 		parent::__construct($context);
 
 		$this->_baseDir = $context;
+
+		$this->_O++;
+
 		$this->_ignore = $ignore;
 		$this->_exclude = $exclude;
-		$this->_level = $nesting == NULL || !$nesting ? 0 : $nesting;
+		$this->_roots = is_null($roots) ? array() : $roots;
+		$this->_level = is_null($nesting) || !$nesting ? 0 : $nesting;
+	}
+
+	private function _isRoot($path)  {
+		return in_array($path, $this->_roots);
 	}
 	
 	/**
@@ -37,8 +70,7 @@ Class DirectoryTools extends DirectoryIterator
 	 * @access public
 	 * @return array  
 	 */
-	private function directoryIteratorToArray(DirectoryIterator $it, $result = null) 
-	{
+	private function directoryIteratorToArray(DirectoryIterator $it, $result = null) {
 		$result = array();
 		$subit;
 		foreach ($it as $key => $child) {
@@ -87,8 +119,7 @@ Class DirectoryTools extends DirectoryIterator
 	 * @return string
 	 * @access public
 	 */
-	public function trimPath($path)
-	{
+	public function trimPath($path) {
 		$replace_path = WORKSPACE;
 		#$sub = 'workspace';
 		$sub = '';
@@ -118,12 +149,13 @@ Class DirectoryTools extends DirectoryIterator
 	}
 
 	/**
-	 *  Takes a DirectoryIterator item and returns a associative array 
-	 *  containing file information such as file name, file size, metatype, filepermission 
-	 *  etc.
+	 * Takes a DirectoryIterator item and returns a associative array 
+	 * containing file information such as file name, file size, metatype, filepermission 
+	 * etc.
 	 *
-	 *  @param DirectoryIterator $file 
-	 *  @return array
+	 * @param DirectoryIterator $file 
+	 * @access private
+	 * @return array
 	 */ 
 	private function _getFileInfo(DirectoryIterator $file) {
 		$fpath = $file->getPathname();
@@ -138,15 +170,18 @@ Class DirectoryTools extends DirectoryIterator
 
 		$fparts = pathinfo($fbase);
 
+		$css_class = 'file file-' . strtolower($fparts['extension']); 
+
 
 		return array(
 			'file'		=> $fbase,
 			'src'		=> URL . '/workspace' . $path, 
-			'cssclass'	=> preg_replace('/.*[\.*$]/i', 'file file-$1', $fbase),
+			'cssclass'	=> $css_class,
 			'path'		=> $path,
+			'dirname'	=> $this->trimPath(dirname($file->getPathname())),
 			'type'		=> DirectoryTools::getMimeType($fpath),
 			//'suffix'	=> $file->getExtension(),
-			'suffix'    => $fparts['extension'],
+			'extension' => strtolower($fparts['extension']),
 			'size'		=> $file->getSize(),
 			'owner'		=> $own['name'],
 			'group'		=> $grp['name'],
@@ -159,14 +194,25 @@ Class DirectoryTools extends DirectoryIterator
 		);
 	}
 
+	/**
+	 * Sets the Directory model attributes
+	 *
+	 * @param DirectoryIterator $child 
+	 * @param Boolean $root 
+	 * @access private
+	 * @return array
+	 */ 
 	private function _getDirectoryInfo(DirectoryIterator $child, $root=false) {
+		$r_path = !$root ? $this->getSanitizedPathname($child) : $this->_baseDir;
 		return array(
 			'directory' => array(
-				'name' =>  !$root ? $this->getSanitizedBasename($child) : basename($this->_baseDir),
-				'path' =>  !$root ? $this->trimPath($this->getSanitizedPathname($child)) : $this->trimPath($this->_baseDir),
-				'level' => $this->_level,
-				'writable' => $child->isWritable(),	
-				'readable' => $child->isReadable(),	
+				'name'		=>  basename($r_path),
+				'path'		=>  !$root ? $this->trimPath($r_path) : $this->trimPath($r_path),
+				'level'		=> $this->_level,
+				'writable'	=> $child->isWritable(),	
+				'readable'	=> $child->isReadable(),	
+				'deletable' => !$this->_isRoot($r_path),
+				'test'		=> $this->_O
 			)
 		);	
 	}
@@ -208,8 +254,7 @@ Class DirectoryTools extends DirectoryIterator
 	 * @deprecated
 	 * @return string 
 	 */
-	public function jsonGetDirectoryTree(Array $args) 
-	{
+	public function jsonGetDirectoryTree(Array $args) {
 		return json_encode($this->getDirectoryTree($args));
 	}
 
@@ -267,8 +312,7 @@ Class DirectoryTools extends DirectoryIterator
 	 * @param string $filename the original file name
 	 * @return string 
 	 */ 
-	public static function getUniqueName($filename) 
-	{
+	public static function getUniqueName($filename) {
 		$crop  = '30';
 		return preg_replace("/([^\/]*)(\.[^\.]+)$/e", "substr('$1', 0, $crop).'-'.uniqid().'$2'", $filename);
 	}
