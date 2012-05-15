@@ -7,7 +7,7 @@
 			'email' => 'mail@thomas-appel.com',
 			'website' => 'http://thomas-appel.com'
 		),
-		'release-date' => '2012-04-17'
+		'release-date' => '2012-05-15'
 	);
 
 	/**
@@ -15,6 +15,27 @@
 	 * @package lang
 	 */
 	$dictionary = array(
+		'save section for further upload options' => 
+		'bitte speichern Sie den Bereich für weitere Optionen',
+
+		'Select options' => 
+		'Auswahl-Optionen',
+
+		'display mode' => 
+		'Anzeige Moddus',
+
+		'Limit file selection' => 
+		'Dateiauswahl einschränken',
+
+		'Allow re-ordering selected' => 
+		'Neuanordnung ausgewählter Dateien erlauben',
+
+		'Display selected files compact or as thumbnail list' => 
+		'Ausgewählte Dateien kompakt oder als Vorschauliste anzeigen',
+
+		'type any valid number (<code>0:</code> no limit, <code>-1:</code> selecting files is deaktivated)' =>
+		'geben Sie eine beliebige gültige Nummer ein (<code>0:</code> ohne Beschränkung, <code>-1:</code> Dateiauswahl ist deaktiviert)',
+
 		'{$count} files found' => 
 		'{$count} Dateien gefunden',		
 
@@ -145,7 +166,7 @@
 		'Verzeichnisse dürfen gelöscht werden',
 
 		'Allow creating directories' =>
-		'Neu Verzeichnisse anlegen',
+		'Neue Verzeichnisse anlegen',
 
 		'Allow fileupload' =>
 		'Dateien hochladen',
