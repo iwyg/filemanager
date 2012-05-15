@@ -1,6 +1,6 @@
 {
 	"name" : "filemanager",
-	"version": "1.0.2",
+	"version": "1.0.3",
 	"title": "filemanager for symphony cms",
 	"description": "Select, upload and manage files",
 	"keywords": ["Symphony CMS", "backbone js", "require js", "fileupload", "filemanagment"],
