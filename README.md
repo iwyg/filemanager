@@ -76,7 +76,9 @@ files.
 
 #### `Select options`:
 
-Limit the amount of files that can be selected per entry. `0` means unlimited.
+Limit the amount of files that can be selected per entry. `0` means unlimited,
+`-1` prevents selecting files.
+
 You may allow re-ordering of selected files and choose a displaymode (`compact`
 and `preview`)
 
@@ -134,10 +136,18 @@ preview (if available).
 
 ## Changelog
 
+### 1.0.3, 2012-05-15
+
+- Fixed a bug with file selection limit.
+- Selecting files can now be deactivated (e.g. to use it as a standanlone filemanager)
+- updated lang.de
+
 ### 1.0.2, 2012-05-10
+
 - Symphony 2.3
 
 ### 1.0.1, 2012-05-09
+
 - minor css fix
 
 ### 1.0.0, 2012-04-25
