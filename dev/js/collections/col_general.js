@@ -10,8 +10,17 @@
 (function (define) {
 	// body
 	define(['underscore', 'backbone'], function (_, Backbone) {
-		var Collection = Backbone.Collection.extend({
+		var constructor = Backbone.Collection.prototype.constructor,
+		General = function () {
+			this.settings = this.settings || {};
+			constructor.apply(this, arguments);
+		},
+		Collection;
+		General.prototype = Backbone.Collection.prototype;
 
+		General.extend =  Backbone.Collection.extend;
+
+		Collection = General.extend({
 			addSetting: function (key, value, override) {
 				this.settings = this.settings || {};
 				if (this.settings[key] && override !== true) {

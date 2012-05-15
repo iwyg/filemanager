@@ -37,7 +37,6 @@
 			initialize: function () {
 				this.cid = 'c' + _.uniqueId();
 				changes[this.cid] = [];
-				//this.on('add remove', _.bind(_unsaved, this));
 			},
 
 			record: function () {
