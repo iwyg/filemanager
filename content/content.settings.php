@@ -30,6 +30,17 @@ Class contentExtensionFilemanagerSettings extends JSONPage {
 			return;
 		}
 
+		$this->_instance = FieldManager::fetch($this->_fid);
+					
+		if (empty($this->_instance) || !($this->_instance instanceof fieldFilemanager)) {
+			$this->handleGeneralError(array(
+				'error' => array(
+					'message' => 'field doesn\'t exsit'
+				)
+			));
+			return false;
+		}
+
 		if (isset($post['set'])) {
 			//print_r($post);
 			if (is_array($post['set'])) {
@@ -176,7 +187,7 @@ Class contentExtensionFilemanagerSettings extends JSONPage {
 
 	protected function _getRootPaths() {
 		$dest = array();
-		$q = Symphony::Database()->fetch('SELECT `destination` FROM `sym_fields_filemanager`');
+		$q = Symphony::Database()->fetch('SELECT `destination` FROM `tbl_fields_filemanager`');
 
 		if (isset($q) && is_array($q)) {
 			foreach($q as $d) {
