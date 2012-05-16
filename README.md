@@ -74,7 +74,9 @@ files.
 
 #### `Select options`:
 
-Limit the amount of files that can be selected per entry. `0` means unlimited.
+Limit the amount of files that can be selected per entry. `0` means unlimited,
+`-1` deactivates file selection. 
+
 You may allow re-ordering of selected files and choose a displaymode (`compact`
 and `preview`)
 
@@ -131,6 +133,11 @@ display additional file information such as file size, file type and a file
 preview (if available).
 
 ## Changelog
+
+### 1.0.1.1, 2012-05-16
+
+- bugfixes
+- added possibility to completely deactivate file selection.  
 
 ### 1.0.1, 2012-05-09
 - minor css fix

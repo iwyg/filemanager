@@ -78,7 +78,8 @@
 				selectContainer = $('#filemanager-files-select-container-' + manager.instance),
 				dirTreeView,
 				selectView,
-				upload;
+				upload,
+				limit;
 
 				wrapper.addClass('loading');
 
@@ -86,6 +87,8 @@
 				manager.deferred.done(function (settings) {
 					var dirSettings = {},
 					fileSettings = {};
+
+					limit = parseInt(settings.limit_files, 10);
 
 					_.each(settings, function (value, key) {
 						if (key.match(/^allow_dir_/)) {
@@ -126,8 +129,11 @@
 						dirTreeView.$el.addClass('draggable');
 					}
 
-					if (settings.limit_files) {
-						selectView.collection.addSetting('limit', parseInt(settings.limit_files, 10));
+					if (limit > 0) {
+						selectView.collection.addSetting('limit', limit);
+					}
+					if (limit === -1) {
+						selectView.collection.addSetting('limit', 0);
 					}
 
 					// initialize upload selction if available

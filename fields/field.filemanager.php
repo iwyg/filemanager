@@ -231,7 +231,7 @@
 			 * ============================================================================================================================== */
 
 			$help = new XMLElement('p', NULL, array('class' => 'help'));
-			$help->setValue(__('RegExp: Define which files should be ignored by the directory listing (default: ignores all dot-files <code>^\..*</code>. Separate expressions with a whitespace)'));
+			$help->setValue(__('<code>RegExp:</code> Define which files should be ignored by the directory listing (default: ignores all dot-files <code>^\..*</code>. Separate expressions with a whitespace)'));
 
 			if(isset($errors['ignore'])) $fieldset->appendChild(Widget::wrapFormElementWithError($label_ignore, $errors['ignore']));
 			else $fieldset->appendChild($label_ignore);
@@ -274,14 +274,14 @@
 			 * ============================================================================================================================== */
 
 			$help = new XMLElement('p', NULL, array('class' => 'help'));
-			$help->setValue(__('type any valid number'));
+			$help->setValue(__('type any valid number (<code>0:</code> no limit, <code>-1:</code> selecting files is deaktivated)'));
+			$label_limit->appendChild($help);
 
-			if(isset($errors['limit'])) $fieldset->appendChild(Widget::wrapFormElementWithError($label_limit, $errors['limit']));
-			else $fieldset->appendChild($label_limit);
+			if(isset($errors['limit'])) $div->appendChild(Widget::wrapFormElementWithError($label_limit, $errors['limit']));
+			else $div->appendChild($label_limit);
 
-			$fieldset->appendChild($help);
 			$fieldset->appendChild($div2);
-			//$fieldset->appendChild($div);
+			$fieldset->appendChild($div);
 			$wrapper->appendChild($fieldset);
 
 			/* ============================================================================================================================== */
@@ -327,12 +327,11 @@
 				'id' => $base_name . '-container-' . $instance, 
 				'class' =>  $base_name . '-container'
 			));
+			$label = Widget::Label($this->get('label'));
+			if($this->get('required') != 'yes') $label->appendChild(new XMLElement('i', __('Optional')));
 
-			$fieldcontainer->appendChild(Widget::Label($this->get('label')));
-
+			$fieldcontainer->appendChild($label);
 			$fieldcontainer->appendChild($fieldset);
-
-
 
 			$div = new XMLElement('div', NULL, array(
 				'id' => $base_name . '-files-select-container-' . $instance,
@@ -388,8 +387,7 @@
 			$fieldset->appendChild($script);
 
 			if (is_string($flagWithError) && strlen($flagWithError) > 0) {
-				$wrapper->appendChild($this->wrapContainerInError($fieldcontainer, $flagWithError));
-				//$wrapper->appendChild(Widget::wrapFormElementWithError($fieldcontainer, $flagWithError));
+				$wrapper->appendChild(Widget::wrapFormElementWithError($fieldcontainer, $flagWithError));
 			} else {
 				$wrapper->appendChild($fieldcontainer);
 			}
