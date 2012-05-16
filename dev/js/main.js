@@ -176,7 +176,7 @@
 					// });
 					//selectView.on('prepoulate', _.bind(dirTreeView.selectById, dirTreeView));
 					//selectView.on('removedselected', _.bind(dirTreeView.unselectById, dirTreeView));
-					selectView.collection.on('selectionlimitexceed', dirTreeView.unselectById);
+					selectView.collection.on('selectionlimitexceed', _.bind(dirTreeView.unselectById, dirTreeView));
 
 					dirTreeView.collection.deferred.always(function () {
 						wrapper.removeClass('loading');
