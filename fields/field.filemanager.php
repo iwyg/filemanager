@@ -147,7 +147,7 @@
 			$at_val = strlen(trim($this->get('allowed_types'))) == 0 ? Symphony::Configuration()->get('mimetypes', 'filemanager') : $this->get('allowed_types');
 			
 			$label2->appendChild(Widget::Input('fields[' . $sortorder .'][allowed_types]', $at_val, 'text'));
-			$label3->appendChild(Widget::Input('fields[' . $sortorder .'][filter_xpath]', $this->get('filter_xpath'), 'text'));
+			//$label3->appendChild(Widget::Input('fields[' . $sortorder .'][filter_xpath]', $this->get('filter_xpath'), 'text'));
 
 			$label_ignore->appendChild(Widget::Input('fields[' . $sortorder .'][ignore_files]', $this->get('ignore_files'), 'text'));
 			$label_limit->appendChild(Widget::Input('fields[' . $sortorder .'][limit_files]', $this->get('limit_files'), 'text'));
@@ -182,7 +182,7 @@
 			}
 			$label->appendChild(Widget::Select('fields['.$this->get('sortorder').'][exclude_dirs][]', $options, array('multiple' => '')));
 			$fieldset->appendChild($label);
-			$fieldset->appendChild($label3);
+			//$fieldset->appendChild($label3);
 
 			$this->appendCheckbox($div, 'allow_dir_move', __('Allow moving directories'));
 			$this->appendCheckbox($div, 'allow_dir_delete', __('Allow deleting directories'));
