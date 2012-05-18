@@ -71,7 +71,7 @@
 			$fields['display_mode'] = implode(',', $this->get('display_mode'));
 			$fields['exclude_dirs'] = is_array($this->get('exclude_dirs')) ? implode(',', $this->get('exclude_dirs')) : '';
 			$fields['ignore_files'] = $this->get('ignore_files');
-			$fields['filter_xpath'] = $this->get('filter_xpath');
+			//$fields['filter_xpath'] = $this->get('filter_xpath');
 			$fields['limit_files'] = intval(trim($this->get('limit_files')));
 			$fields['allowed_types'] = $this->get('allowed_types');
 			$fields['allow_dir_upload_files'] = ($this->get('allow_dir_upload_files') ? 1 : 0);
@@ -127,7 +127,7 @@
 
 			$label = Widget::Label(__('Root Directory'));
 			$label2 = Widget::Label(__('Allowed MIME types'));
-			$label3 = Widget::Label(__('Filter by XPath'));
+			//$label3 = Widget::Label(__('Filter by XPath'));
 			$label_ignore = Widget::Label(__('Ignore files'));
 			$label_limit = Widget::Label(__('Limit file selection'), null, 'column');
 
