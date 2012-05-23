@@ -29,7 +29,7 @@
 				event.preventDefault();
 				var target = $([$(event.target), $(event.target).parents().filter('li')]).filter(function () {
 					return this.hasClass('result-item');
-				}),id;
+				}),
 				id = target[0][0].id.replace(/result/, 'file');
 				target.addClass('selected');
 				//$('#' + id).find('> .text').trigger('click.dirtree');
@@ -452,6 +452,8 @@
 		 * @class TreeView
 		 */
 		TreeView = (function () {
+			var _last_selected = {},
+			_canSelectMultiple = {};
 			/**
 			 * Handles click event when file node gets selected
 			 * an triggers a select event and an select or unselect event on
@@ -474,9 +476,53 @@
 				//this.getDirViewByModel(fileModel.get('dir')).getFileByPath(fileModel.get('path')).trigger(event, type);
 			}
 
+			/**
+			 * helper function to determine if the shiftkey is pressed while
+			 * selecting files
+			 * @private
+			 */
+			function _multiSelectHelperOn(e) {
+				if (e.keyCode === 16) {
+					_canSelectMultiple[this.cid] = true;
+					this.$el.on('selectstart.dirtree', function (e) {
+						e.preventDefault();
+					});
+				}
+			}
+
+			/**
+			 * helper function to determine if the shiftkey is released while
+			 * selecting files
+			 * @private
+			 */
+			function _multiSelectHelperOff(e) {
+				if (e.keyCode === 16) {
+					this.$el.off('selectstart.dirtree');
+					_canSelectMultiple[this.cid] = false;
+				}
+			}
 
 			function _selectFile(file) {
-				this[file.get('selected') ? 'selectById' : 'unselectById'](file.id);
+				var that = this,
+				selected = file.get('selected'), files, last_selected = _last_selected[this.cid],
+				method = selected ? 'selectById' : 'unselectById', select;
+
+				if (this.canSelectMultiple()) {
+					files = file.collection.getFilesByIndexRange(file.index(), last_selected.index());
+					_.each(files, function (f) {
+						f.set('selected', selected);
+						that[method](f.id);
+						select = f;
+					});
+				} else {
+					select = file;
+					this[method](file.id);
+				}
+
+				if (selected) {
+					_last_selected[this.cid] = select;
+				}
+
 			}
 			/**
 			 * @private
@@ -750,6 +796,7 @@
 				},
 
 				initialize: function () {
+					var that = this;
 					this.collection = new Dirs();
 					this.dirViews = {};
 					this.collection.addSetting('field_id', this.options.field_id);
@@ -770,11 +817,18 @@
 						threshold: 3,
 						collection: this.collection
 					});
+					this._canSelectMultiple = false;
+					_last_selected[this.cid] = null;
 
 					this.$el.parent().find('label').after(this.searchView.$el);
-					window['tree' + this.cid] = this;
+					$doc
+						.on('keydown.dirtree', _.bind(_multiSelectHelperOn, this))
+						.on('keyup.dirtree', _.bind(_multiSelectHelperOff, this));
 
-					//this.on('update', _.bind(_ensureDelegates, this));
+				},
+
+				canSelectMultiple: function () {
+					return _canSelectMultiple[this.cid];
 				},
 
 				tasks: function (e) {
@@ -943,7 +997,7 @@
 				 * @api public
 				 */
 				toggleDir: function (event) {
-					var target, subdir, toggle, trigger, toggle;
+					var target, subdir, trigger, toggle;
 					event.preventDefault();
 					event.stopPropagation();
 

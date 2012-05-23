@@ -37,7 +37,7 @@
 			function _notifyDirectory() {
 				this.get('dir').trigger('selected', this);
 			}
-			function _selfDesctruct(model) {
+			function _selfDestruct(model) {
 				if (model === this || model === this.get('dir')) {
 					this.set('selected', false);
 				}
@@ -49,11 +49,15 @@
 					}
 					this.set({'id': _.uniqueId(), 'selected': false, 'sorting': 0}, {silent: true});
 					this.on('change:selected', _.bind(_notifyDirectory, this));
-					this.collection.on('remove', _.bind(_selfDesctruct, this));
+					this.collection.on('remove', _.bind(_selfDestruct, this));
 
 					if (options.dir) {
-						this.get('dir').on('removed', _.bind(_selfDesctruct, this));
+						this.get('dir').on('removed', _.bind(_selfDestruct, this));
 					}
+				},
+
+				index: function () {
+					return this.collection.indexOf(this);
 				}
 			});
 		}());
@@ -72,6 +76,16 @@
 					return _.filter(this.models, function (file) {
 						return _.indexOf(fnames, file.get('path')) >= 0;
 					});
+				},
+
+				getFilesByIndexRange: function (start, end) {
+					var a = start < end ? start : end,
+					b = end > start ? end : start,
+					res	= [];
+					while (a <= b) {
+						res.push(this.at(a++));
+					}
+					return res;
 				}
 			});
 		}());
@@ -240,12 +254,12 @@
 			}
 
 			/**
-			 * takes nested directory models from the raw server response an
-			 * parese them in an unnseted array.
+			 * takes nested directory models from the raw server response and
+			 * parese them in an unnested array.
 			 *
 			 * Here, each directory gets a unique identifyer
 			 * If a directory has subdirectories, each subdirectory will get
-			 * a property called `_parent` with the value og its parent id
+			 * a property called `_parent` with the value of its parent id
 			 *
 			 * @name Directories#_parse
 			 *
@@ -309,8 +323,8 @@
 				resp.directory.id = dir.id;
 				resp.directory.cid = dir.cid;
 
-				// subdirs will automatically remove them self when an remove
-				// event is triggered. We won't notify any one else than the
+				// subdirs will automatically remove themself if a remove
+				// event is triggered. We won't notify anyone else than the
 				// subdirs itself, so we remove them all together with option
 				// silent
 
@@ -626,7 +640,7 @@
 				/**
 				 * Delete a directory or file from its collection
 				 *
-				 * @param {Backbone.Model instance} file the model to be removd
+				 * @param {Backbone.Model instance} file the model to be removed
 				 * @param {String} type accepts 'file' or 'dir'
 				 */
 				deleteItem: function (file, type) {
