@@ -24,7 +24,7 @@
 			addSetting: function (key, value, override) {
 				this.settings = this.settings || {};
 				if (!!this.settings[key] && override !== true) {
-					//throw ('setting ' + key + 'already defined');
+					throw ('setting ' + key + 'already defined');
 				}
 				this.settings[key] = value;
 				return this;
