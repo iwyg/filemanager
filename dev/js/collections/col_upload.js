@@ -314,7 +314,7 @@
 			allowed_types: ['image/jpeg']
 		};
 
-		return new UploadCollection();
+		return UploadCollection;
 	});
 
 }(this.define, this.Symphony));
