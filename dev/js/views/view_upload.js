@@ -51,6 +51,7 @@
 		});
 
 		// UPLOAD FILES LIST VIEW
+		// deprecated
 		// ==================================================================
 		var UploadListItemView = Backbone.View.extend({
 			events: {
@@ -58,7 +59,7 @@
 			},
 			initialize: function () {
 				//this.collection = new upload.constructors.UploadList();
-				this.collection = upload.addList();
+				//this.collection = upload.addList();
 				this.collection.field_id = this.options.field_id;
 				this.collection.on('create', _.bind(this.add, this));
 				this._ulQueue = [];
@@ -377,7 +378,7 @@
 				},
 				initialize: function () {
 					//this.collection = new upload.constructors.UploadList();
-					this.collection = upload.addList();
+					//this.collection = upload.addList();
 					this.collection
 						.on('create', _.bind(this.add, this))
 						.on('invalidtype', _.bind(_invalidType, this))
@@ -474,7 +475,8 @@
 					el: '#uploads-' + this.cid,
 					className: 'row item upload-container',
 					field_id: this.options.field_id,
-					destination: dir.get('path')
+					destination: dir.get('path'),
+					collection: this.collection.addList()
 				});
 				var me = this;
 				uploadList.render(dir);
