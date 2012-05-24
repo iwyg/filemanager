@@ -8,7 +8,7 @@
 
 (function (Symphony, define, window, undefined) {
 
-	define(['jquery', 'underscore', 'backbone', 'collections/col_upload', 'modules/mod_animate_circle', 'modules/mod_sysmessage', 'templates/templates'], function ($, _, Backbone, upload, AnimatedCircle, SysMessage, templates) {
+	define(['jquery', 'underscore', 'backbone', 'collections/col_upload', 'modules/mod_animate_circle', 'modules/mod_sysmessage', 'templates/templates'], function ($, _, Backbone, Upload, AnimatedCircle, SysMessage, templates) {
 
 		var corf = Backbone.View.extend.call(function () {this.initialize.apply(this, arguments);}, Backbone.Events);
 		corf.extend = Backbone.View.extend;
@@ -460,7 +460,7 @@
 
 			initialize: function () {
 				this.files = [];
-				this.collection = upload;
+				this.collection = new Upload();
 				this.uploadList = {};
 				this._dirinstance = [];
 			},

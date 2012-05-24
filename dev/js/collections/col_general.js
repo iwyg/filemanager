@@ -23,8 +23,8 @@
 		Collection = General.extend({
 			addSetting: function (key, value, override) {
 				this.settings = this.settings || {};
-				if (this.settings[key] && override !== true) {
-					throw ('setting ' + key + 'already defined');
+				if (!!this.settings[key] && override !== true) {
+					//throw ('setting ' + key + 'already defined');
 				}
 				this.settings[key] = value;
 				return this;

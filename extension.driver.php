@@ -88,17 +88,29 @@ Class extension_filemanager extends Extension {
 		return true;
 	}
 
+	
+	public static function hasInstance($ext_name=NULL, $section_handle) {
+		$sid  = SectionManager::fetchIDFromHandle($section_handle);
+		$section = SectionManager::fetch($sid);
+		$fm = $section->fetchFields($ext_name);
+		return is_array($fm) && !empty($fm);
+	}		
+
 	/**
 	 * apend needed css an js files to the document head
-	 */
+	*/
 	public function __appendAssets($context) {
 		$callback = Symphony::Engine()->getPageCallback();
 		// Append styles for publish area
 		if($callback['driver'] == 'publish') {
 		}
+
 		if($callback['driver'] == 'publish' && $callback['context']['page'] != 'index') {
-			Administration::instance()->Page->addStylesheetToHead(URL . '/extensions/filemanager/assets/css/filemanager.publish.css', 'screen', 100, false);
-			Administration::instance()->Page->addScriptToHead(URL . '/extensions/filemanager/assets/js/init.js', 112, false);
+
+			if (self::hasInstance('filemanager', $callback['context']['section_handle'])) {
+				Administration::instance()->Page->addStylesheetToHead(URL . '/extensions/filemanager/assets/css/filemanager.publish.css', 'screen', 100, false);
+				Administration::instance()->Page->addScriptToHead(URL . '/extensions/filemanager/assets/js/init.js', 112, false);
+			}
 		}
 	}
 
