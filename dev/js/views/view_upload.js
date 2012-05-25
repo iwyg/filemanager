@@ -460,10 +460,14 @@
 			},
 
 			initialize: function () {
+				var that = this;
 				this.files = [];
 				this.collection = new Upload();
 				this.uploadList = {};
 				this._dirinstance = [];
+				this._notifyUploaded = _.debounce(function (dir) {
+					this.trigger('fileuploaded', dir);
+				}, 500);
 			},
 
 			toggleView: function () {
@@ -486,9 +490,7 @@
 						me.$el.slideUp();
 					}
 				});
-				uploadList.on('fileuploaded', _.bind(function () {
-					me.trigger('fileuploaded', dir);
-				}));
+				uploadList.on('fileuploaded', _.bind(this._notifyUploaded, this, dir));
 
 			},
 
