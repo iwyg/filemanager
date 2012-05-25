@@ -136,7 +136,7 @@ preview (if available).
 
 ## Changelog
 
-### 1.0.3, 2012-05-25
+### 1.0.4, 2012-05-25
 
 - Fixed a bug with uploads on multiple instances.
 - you may now select and unselect multiple files at once

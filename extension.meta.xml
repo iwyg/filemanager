@@ -14,7 +14,7 @@
 		</author>
 	</authors>
 	<releases>
-		<release version="1.0.3" date="2012-05-25" min="2.3">
+		<release version="1.0.4" date="2012-05-25" min="2.3">
 			- Fixed a bug with uploads on multiple instances.
 			- you may now select and unselect multiple files at once
 		</release>
