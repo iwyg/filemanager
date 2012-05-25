@@ -31,7 +31,6 @@ Class DirectoryTools extends DirectoryIterator {
 	 */ 
 	protected $_ignore;
 
-	protected static $_O = 0;
 	/**
 	 * RegeExp: directories to be excluded 
 	 */ 
@@ -47,15 +46,19 @@ Class DirectoryTools extends DirectoryIterator {
 		parent::__construct($context);
 
 		$this->_baseDir = $context;
-
-		$this->_O++;
-
 		$this->_ignore = $ignore;
 		$this->_exclude = $exclude;
 		$this->_roots = is_null($roots) ? array() : $roots;
 		$this->_level = is_null($nesting) || !$nesting ? 0 : $nesting;
 	}
 
+	/**
+	 * _isRoot 
+	 * 
+	 * @param mixed $path 
+	 * @access private
+	 * @return void
+	 */
 	private function _isRoot($path)  {
 		return in_array($path, $this->_roots);
 	}
@@ -74,16 +77,10 @@ Class DirectoryTools extends DirectoryIterator {
 		$result = array();
 		$subit;
 		foreach ($it as $key => $child) {
-			/*
-			if ($child->isDot() || (!is_null($this->_ignore) ? preg_match($this->_ignore, $this->getSanitizedBasename($child)) : false)) {
-				continue;
-			}
-			 */
 			// check if directory is accassible
 			if ($child->isDot() || !$child->isReadable()) {
 				continue;
 			}
-			//$name = $child->getBasename();
 			if ($child->isDir()) {
 				if ($this->isExcludedPath($child->getPathname())) {
 					continue;
@@ -115,13 +112,12 @@ Class DirectoryTools extends DirectoryIterator {
 	/**
 	 * Trims a full filepath an takes the WORKSPACE constant as its base 
 	 *
-	 * @param string $path path to be trimmed
-	 * @return string
-	 * @access public
+	 * @param			$path		String		path to be trimmed
+	 * @return			string
+	 * @access			public
 	 */
 	public function trimPath($path) {
 		$replace_path = WORKSPACE;
-		#$sub = 'workspace';
 		$sub = '';
 		return $sub . substr($path, strlen($replace_path));
 	}
@@ -170,13 +166,10 @@ Class DirectoryTools extends DirectoryIterator {
 
 		$fparts = pathinfo($fbase);
 
-		$css_class = 'file file-' . strtolower($fparts['extension']); 
-
 
 		return array(
 			'file'		=> $fbase,
 			'src'		=> URL . '/workspace' . $path, 
-			'cssclass'	=> $css_class,
 			'path'		=> $path,
 			'dirname'	=> $this->trimPath(dirname($file->getPathname())),
 			'type'		=> DirectoryTools::getMimeType($fpath),
@@ -211,8 +204,7 @@ Class DirectoryTools extends DirectoryIterator {
 				'level'		=> $this->_level,
 				'writable'	=> $child->isWritable(),	
 				'readable'	=> $child->isReadable(),	
-				'deletable' => !$this->_isRoot($r_path),
-				'test'		=> $this->_O
+				'deletable' => !$this->_isRoot($r_path)
 			)
 		);	
 	}
@@ -309,8 +301,8 @@ Class DirectoryTools extends DirectoryIterator {
 	/**
 	 * Takes a filename and converts it into a unique one
 	 *
-	 * @param string $filename the original file name
-	 * @return string 
+	 * @param		$filename		Stringthe		original file name
+	 * @return		string 
 	 */ 
 	public static function getUniqueName($filename) {
 		$crop  = '30';

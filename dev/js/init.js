@@ -27,20 +27,14 @@
 	require({
 		baseUrl: Symphony.Context.get('root') + '/extensions/filemanager/assets/js',
 		paths: {
-			'jquery': '../../../../symphony/assets/js/jquery',
-			//'fm_settings': 'settings',
-			// 'bootstrap': 'bootstrap',
-			'orderable': '../../../../symphony/assets/js/symphony.orderable',
-			'jqueryui': 'libs/jquery-ui-1.8.18.custom',
-			'underscore': '../../../sym_backbonejs/assets/underscore',
-			'backbone': '../../../sym_backbonejs/assets/backbone',
-			'text': '../../../sym_requirejs/assets/text'
-			//'jquery': 'libs/jquery', // use system default
-			//'notify': '../../../../symphony/assets/js/symphony.notify',
-			//'timeago': '../../../../symphony/assets/js/symphony.timeago',
-			//'jquery': '//ajax.googleapis.com/ajax/libs/jquery/1/jquery',
+			'jquery':		'../../../../symphony/assets/js/jquery',
+			'orderable':	'../../../../symphony/assets/js/symphony.orderable',
+			'jqueryui':		'libs/jquery-ui-1.8.18.custom',
+			'underscore':	'../../../sym_backbonejs/assets/underscore',
+			'backbone':		'../../../sym_backbonejs/assets/backbone',
+			'text':			'../../../sym_requirejs/assets/text'
 		},
-		//urlArgs: Date.now() // add this during development
+		urlArgs: Date.now() // add this during development
 	}, ['main']);
 }(this, this.require, this.define, this.Symphony));
 

@@ -14,6 +14,10 @@
 		</author>
 	</authors>
 	<releases>
+		<release version="1.0.3" date="2012-05-25" min="2.3">
+			- Fixed a bug with uploads on multiple instances.
+			- you may now select and unselect multiple files at once
+		</release>
 		<release version="1.0.3" date="2012-05-15" min="2.3">
 			- Fixed a bug with file selection limit.
 			- Selecting files can now be deactivated (e.g. to use it as a standanlone filemanager)

@@ -6,8 +6,6 @@
  * Displays <a href="http://opensource.org/licenses/gpl-3.0.html">GNU Public License</a>
  * @license http://opensource.org/licenses/gpl-3.0.html GNU Public License
  */ 
-//require_once(EXTENSIONS . '/firebug_profiler/lib/FirePHPCore/FirePHP.class.php');
-//require_once(TOOLKIT . '/class.general.php');
 require_once(EXTENSIONS . '/filemanager/content/content.settings.php');
 require_once(EXTENSIONS . '/filemanager/lib/class.directorytools.php');
 
@@ -31,7 +29,7 @@ Class contentExtensionFilemanagerListing extends contentExtensionFilemanagerSett
 	 *
 	 * @return void
 	 */
-	public function getDirectoryListing() {
+	protected function getDirectoryListing() {
 		$tp = $_GET['select']; // if 'select' is set, update information on a specific subdir on the root path
 
 		$dest_path = !isset($tp) ?  $this->get('destination') : '/workspace' . $tp;
@@ -42,15 +40,7 @@ Class contentExtensionFilemanagerListing extends contentExtensionFilemanagerSett
 
 		if (!is_readable($base_dir) || !is_writable($base_dir)) {
 
-			$this->handleGeneralError(array(
-				'error' => array(
-					'message' => 'Cannot access {$file}', 
-					'context' => array(
-						'file' => basename($dest_path)
-					)
-				)
-			));
-			return false;
+			return $this->handleGeneralError('Cannot access {$file}', array('file' => basename($dest_path)));
 		}
 
 		$count_level_str = substr(substr($dest_path, strlen($this->get('destination'))), 1); 
@@ -82,14 +72,7 @@ Class contentExtensionFilemanagerListing extends contentExtensionFilemanagerSett
 			$this->_Result = $dirs->getDirectoryTree(true);
 
 		} catch (Exception $e) {
-			$this->handleGeneralError(array(
-				'error' => array(
-					'message' => 'Cannot resolve directory structure for {$root}', 
-					'context' => array(
-						'root' => substr($base_dir, strlen(FILEMANAGER_WORKSPACE) - 9)
-					)
-				)
-			));	
+			return $this->handleGeneralError('Cannot resolve directory structure for {$root}', array('root' => substr($base_dir, strlen(FILEMANAGER_WORKSPACE) - 9)));
 		}
 
 	}

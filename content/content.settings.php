@@ -33,12 +33,7 @@ Class contentExtensionFilemanagerSettings extends JSONPage {
 		$this->_instance = FieldManager::fetch($this->_fid);
 					
 		if (empty($this->_instance) || !($this->_instance instanceof fieldFilemanager)) {
-			$this->handleGeneralError(array(
-				'error' => array(
-					'message' => 'field doesn\'t exsit'
-				)
-			));
-			return false;
+			return $this->handleGeneralError('field doesn\'t exsit', array());
 		}
 
 		if (isset($post['set'])) {

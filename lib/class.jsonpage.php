@@ -25,24 +25,51 @@
 			//Administration::instance()->Profiler->sample('Page template created', PROFILE_LAP);
 		}
 
+		public function addResult($key, $value) {
+			$this->_Result[$key] = $value;	
+		}
+
 		/**
 		 * This function is called when a user is not authenticated to the Symphony
 		 * backend. It sets the status of this page to `STATUS_UNAUTHORISED` and
 		 * appends a message for generation
 		 */
-		public function handleFailedAuthorisation()
-		{
+		public function handleFailedAuthorisation() {
 			$this->_status = self::STATUS_UNAUTHORISED;
-			$this->_Result['STATUS_UNAUTHORISED'] = __('You are not authorised to access this page.');
-			//$this->_Result->setValue(__('You are not authorised to access this page.'));
+
+			$this->addResult('STATUS_UNAUTHORISED', array(
+				'message' => __('You are not authorised to access this page.'),
+				'context' => array()
+			));
+			return false;
+		}
+		/**
+		 * handleGeneralError 
+		 * 
+		 * @param mixed $error 
+		 * @access public
+		 * @return void
+		 */
+		public function handleGeneralError($message, Array $context) {
+			$this->_status = self::STATUS_ERROR;
+			$this->addResult('STATUS_ERROR', array(
+				'message' => $message,
+				'context' => $context
+			));
+			unset($this->_Result['success']);
+			return false;
 		}
 
-		public function handleGeneralError($error)
-		{
-			$this->_status = self::STATUS_ERROR;
-			$this->_Result['STATUS_ERROR'] = $error;
-			//$this->_Result['STATUS_UNAUTHORISED'] = __('You are not authorised to access this page.');
-			//$this->_Result->setValue(__('You are not authorised to access this page.'));
+		public function handleSuccess($message, Array $context) {
+			$this->_status = self::STATUS_OK;
+
+			$this->addResult('success', array(
+				'message' => $message,
+				'context' => $context
+			));
+			unset($this->_Result['STATUS_ERROR']);
+			unset($this->_Result['STATUS_UNAUTHORISED']);
+			return true;
 		}
 
 		/**
@@ -102,8 +129,7 @@
 		 *
 		 * @see build()
 		 */
-		function view($override=false) 
-		{
+		function view($override=false) {
 			//$this->_Result = preg_replace("/(^[\r\n]*|[\r\n]+)[\s\t]*[\r\n\']+/", "",json_encode($this->_Result));
 			if (!$override) {
 				$this->_Result = preg_replace('/\r+/mi', '',json_encode($this->_Result));

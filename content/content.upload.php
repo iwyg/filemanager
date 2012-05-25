@@ -29,11 +29,11 @@ Class contentExtensionFilemanagerUpload extends contentExtensionFilemanagerSetti
 		$mime_type = DirectoryTools::getMimeType($tempname);
 
 		if (!preg_match($allowed_types, $mime_type)) {
-			$this->handleGeneralError(array('error' => array('message' => 'file type {$mimetype} not allowed', 'context' => array('mimetype' => $mime_type))));
+			$this->handleGeneralError('file type {$mimetype} not allowed', array('mimetype' => $mime_type));
 			return false;
 		}
 		if (filesize($tempname) > $max_upload_size) {
-			$this->handleGeneralError(array('error' => array('message' => 'file size ({$f_size}) limit exceeds allowed size', 'context' => array('f_size' => filesize($tempname)))));
+			$this->handleGeneralError('file size ({$f_size}) limit exceeds allowed size', array('f_size' => filesize($tempname)));
 			return false;
 		}
 		return true;
@@ -74,20 +74,13 @@ Class contentExtensionFilemanagerUpload extends contentExtensionFilemanagerSetti
 
 				if (!is_writable(FILEMANAGER_WORKSPACE . $dest . $new_file)) {
 					// not writable error
-					$this->handleGeneralError(array(
-						'error' => array(
-							'message' => 'Cannot access {$file}', 
-							'context' => array(
-								'file' => $dest
-							)
-						)
-					));
+					$this->handleGeneralError('Cannot access {$file}', array('file' => $dest));
 					return false;
 				}
 
 				if (!is_dir(FILEMANAGER_WORKSPACE . $dest)) {
 					// invalid destination error
-					$this->handleGeneralError(array('error' => array('message' => 'invalid destination: {$dir}', 'context' => array('dir' => $dest))));	
+					$this->handleGeneralError('invalid destination: {$dir}', array('dir' => $dest));	
 					return false;
 				}
 
@@ -95,7 +88,7 @@ Class contentExtensionFilemanagerUpload extends contentExtensionFilemanagerSetti
 
 				if (is_file(FILEMANAGER_WORKSPACE . $dest . $new_file)) {
 					// file exists error 					
-					$this->handleGeneralError(array('error' => array('message' => 'file {$file} already exists', 'context' => array('file' => $new_file))));	
+					$this->handleGeneralError('file {$file} already exists',array('file' => $new_file));	
 					return false;
 				}
 
@@ -106,7 +99,7 @@ Class contentExtensionFilemanagerUpload extends contentExtensionFilemanagerSetti
 						'src' => $this->getHttpPath($dest . $new_file)
 					);
 				} else {
-					$this->handleGeneralError(array('error' => array('message' => 'Cannot upload {$file}', 'context' => array('file' => $new_file))));
+					$this->handleGeneralError('Cannot upload {$file}',array('file' => $new_file));
 					return false;		
 				}
 			}
