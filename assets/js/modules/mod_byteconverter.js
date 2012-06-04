@@ -6,44 +6,4 @@
  * @license http://opensource.org/licenses/gpl-3.0.html GNU Public License
  */
 
-(function (define) {
-	var KB = 1000,
-	MB = Math.pow(KB, 2),
-	GB = Math.pow(KB, 3);
-
-	define(function () {
-
-		function convert(v, unit) {
-			return (Math.round(v / unit * 100000) / 100000).toFixed(2);
-		}
-
-		function convertKB(v) {
-			return convert(v, KB);
-		}
-
-		function convertMB(v) {
-			return convert(v, MB);
-		}
-
-		function convertGB(v) {
-			return convert(v, GB);
-		}
-
-		function convertBytes(val) {
-			if (val < KB) {
-				return val + '';
-			}
-			if (val < MB) {
-				return convertKB(val) + ' KB';
-			}
-			if (val < GB) {
-				return convertMB(val) + ' MB';
-			}
-			return convertGB(val) + ' GB';
-		}
-
-		return convertBytes;
-
-	});
-} (this.define));
-
+(function(a){var b=1e3,c=Math.pow(b,2),d=Math.pow(b,3);a([],function(){function a(a,b){return(Math.round(a/b*1e5)/1e5).toFixed(2)}function e(c){return a(c,b)}function f(b){return a(b,c)}function g(b){return a(b,d)}function h(a){return a<b?a+"":a<c?e(a)+" KB":a<d?f(a)+" MB":g(a)+" GB"}return h})})(this.define)

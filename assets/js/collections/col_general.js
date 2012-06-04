@@ -7,31 +7,4 @@
  * @license http://opensource.org/licenses/gpl-3.0.html GNU Public License
  */
 
-(function (define) {
-	// body
-	define(['underscore', 'backbone'], function (_, Backbone) {
-		var constructor = Backbone.Collection.prototype.constructor,
-		General = function () {
-			this.settings = this.settings || {};
-			constructor.apply(this, arguments);
-		},
-		Collection;
-		General.prototype = Backbone.Collection.prototype;
-
-		General.extend =  Backbone.Collection.extend;
-
-		Collection = General.extend({
-			addSetting: function (key, value, override) {
-				this.settings = this.settings || {};
-				if (!!this.settings[key] && override !== true) {
-					throw ('setting ' + key + 'already defined');
-				}
-				this.settings[key] = value;
-				return this;
-			}
-		});
-		Collection.defaults = {};
-		return Collection;
-	});
-}(this.define));
-
+(function(a){a(["underscore","backbone"],function(a,b){var c=b.Collection.prototype.constructor,d=function(){this.settings=this.settings||{},c.apply(this,arguments)},e;return d.prototype=b.Collection.prototype,d.extend=b.Collection.extend,e=d.extend({addSetting:function(a,b,c){this.settings=this.settings||{};if(!this.settings[a]||c===!0)return this.settings[a]=b,this;throw"setting "+a+"already defined"}}),e.defaults={},e})})(this.define)

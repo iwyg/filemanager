@@ -108,7 +108,6 @@
 					});
 
 					// initialize directory listing
-					console.log('#filemanager-dir-listing-body-' + manager.instance);
 					dirTreeView = new TreeView({
 						el: '#filemanager-dir-listing-body-' + manager.instance,
 						tagName: 'ul',

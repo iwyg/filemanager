@@ -1,18 +1,1 @@
-(function (define, Symphony) {
-	define(['jquery', 'underscore'], function ($, _) {
-		var EXP_ISIMAGE = /(jpe?g|gif|tif?f|bmp|png)/,
-		URL_WORKSPACE = '/workspace',
-		PREVIEW_IMG = '/extensions/filemanager/assets/images/file-preview.png',
-		SITE_ROOT = Symphony.Context.get('root'),
-		default_thumb_size = '/image/2/40/40/5';
-		return {
-			getThumbURL: function (model, size) {
-				var fileRoot = EXP_ISIMAGE.test(model.get('extension').toLowerCase()) ? (size || default_thumb_size) + model.get('src').substr((SITE_ROOT + URL_WORKSPACE).length) : PREVIEW_IMG;
-				return SITE_ROOT + fileRoot;
-			},
-			isjQueryObject: function (object) {
-				return (object instanceof $ && object.length);
-			}
-		};
-	});
-}(this.define, this.Symphony));
+(function(a,b){a(["jquery","underscore"],function(a,c){var d=/(jpe?g|gif|tif?f|bmp|png)/,e="/workspace",f="/extensions/filemanager/assets/images/file-preview.png",g=b.Context.get("root"),h="/image/2/40/40/5";return{getThumbURL:function(a,b){var c=d.test(a.get("extension").toLowerCase())?(b||h)+a.get("src").substr((g+e).length):f;return g+c},isjQueryObject:function(b){return b instanceof a&&b.length}}})})(this.define,this.Symphony)

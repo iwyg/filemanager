@@ -6,13 +6,4 @@
  * @license http://opensource.org/licenses/gpl-3.0.html GNU Public License
  */
 
-(function (define) {
-	define('bootstrap', ['fm_settings'], function (settings) {
-		return function (id, instance) {
-			settings.instances['filemanager-' + instance] = {
-				field_id: id,
-				instance: instance
-			};
-		};
-	});
-}(this.define));
+(function(a){a("bootstrap",["fm_settings"],function(a){return function(b,c){a.instances["filemanager-"+c]={field_id:b,instance:c}}})})(this.define)
