@@ -246,7 +246,7 @@
 					e.preventDefault();
 					this.cancel(e);
 					this.model.collection.remove(this.model);
-				},
+				}
 
 			});
 		}());
@@ -446,7 +446,7 @@
 					// remove all uploads first
 					this.$el.remove();
 					this.trigger('remove');
-				},
+				}
 			});
 		}());
 

@@ -1,20 +1,37 @@
-<?php 
+<?php
 /**
  * @package content
  * @author thomas appel <mail@thomas-appel.com>
 
  * Displays <a href="http://opensource.org/licenses/gpl-3.0.html">GNU Public License</a>
  * @license http://opensource.org/licenses/gpl-3.0.html GNU Public License
- */ 
+ */
 
 require_once(TOOLKIT . '/class.fieldmanager.php');
 require_once(EXTENSIONS . '/filemanager/content/content.settings.php');
 require_once(EXTENSIONS . '/filemanager/lib/class.directorytools.php');
 
-Class contentExtensionFilemanagerUpload extends contentExtensionFilemanagerSettings
+/**
+ * contentExtensionFilemanagerUpload
+ *
+ * @uses contentExtensionFilemanagerSettings
+ * @package
+ * @version $id$
+ * @copyright 1997-2005 The PHP Group
+ * @author Tobias Schlitt <toby@php.net>
+ * @license PHP Version 3.0 {@link http://www.php.net/license/3_0.txt}
+ */
+class contentExtensionFilemanagerUpload extends contentExtensionFilemanagerSettings
 {
 
-	public function __construct() {
+    /**
+     * __construct
+     *
+     * @access public
+     * @return void
+     */
+    public function __construct()
+    {
 		parent::__construct();
 		$this->moveUploadedFiles();
 	}
@@ -23,7 +40,8 @@ Class contentExtensionFilemanagerUpload extends contentExtensionFilemanagerSetti
 	 * Validate uploaded file for mimetype and filesize
 	 * @param string $tempname uploaded file
 	 */
-	public function validateUploadedFile($tempname, $file) {
+    public function validateUploadedFile($tempname, $file)
+    {
 		$max_upload_size = intval($this->get('max_upload_size'));
 		$allowed_types =  '/' . $this->get('allowed_types') . '/i';
 		$mime_type = DirectoryTools::getMimeType($tempname);
@@ -41,8 +59,9 @@ Class contentExtensionFilemanagerUpload extends contentExtensionFilemanagerSetti
 
 	/**
 	 * @see content/content.settings.php#process
-	 */ 
-	public function process() {
+	 */
+    public function process()
+    {
 		$this->setSettings(false);
 
 		//print_r($this->_settings);
@@ -51,8 +70,9 @@ Class contentExtensionFilemanagerUpload extends contentExtensionFilemanagerSetti
 
 	/**
 	 *  try to move uploaded files to detination
-	 */ 
-	public function moveUploadedFiles() {
+	 */
+    public function moveUploadedFiles()
+    {
 		$data = General::getPostData();
 
 		if (isset($data['iframe'])) {
@@ -69,7 +89,7 @@ Class contentExtensionFilemanagerUpload extends contentExtensionFilemanagerSetti
 		if (is_array($data['file'])) {
 			foreach($data['file'] as $i => $file) {
 				if (!$this->validateUploadedFile($file['tmp_name'], $file['name'])) {
-					return false;	
+					return false;
 				}
 
 				if (!is_writable(FILEMANAGER_WORKSPACE . $dest . $new_file)) {
@@ -80,15 +100,15 @@ Class contentExtensionFilemanagerUpload extends contentExtensionFilemanagerSetti
 
 				if (!is_dir(FILEMANAGER_WORKSPACE . $dest)) {
 					// invalid destination error
-					$this->handleGeneralError('invalid destination: {$dir}', array('dir' => $dest));	
+					$this->handleGeneralError('invalid destination: {$dir}', array('dir' => $dest));
 					return false;
 				}
 
 				$new_file = $unique ? DirectoryTools::getUniqueName($file['name']) : $file['name'];
 
 				if (is_file(FILEMANAGER_WORKSPACE . $dest . $new_file)) {
-					// file exists error 					
-					$this->handleGeneralError('file {$file} already exists',array('file' => $new_file));	
+					// file exists error
+					$this->handleGeneralError('file {$file} already exists',array('file' => $new_file));
 					return false;
 				}
 
@@ -100,19 +120,36 @@ Class contentExtensionFilemanagerUpload extends contentExtensionFilemanagerSetti
 					);
 				} else {
 					$this->handleGeneralError('Cannot upload {$file}',array('file' => $new_file));
-					return false;		
+					return false;
 				}
 			}
 
-			$this->success($results);	
+			$this->success($results);
 		}
 	}
 
-	public function success($data) {
+    /**
+     * success
+     *
+     * @param mixed $data
+     * @access public
+     * @return void
+     */
+    public function success($data)
+    {
 		$this->_Result = $data;
 	}
 
-	public function getHttpPath($path) {
+    /**
+     * getHttpPath
+     * returns the http path of a file or directory
+     *
+     * @param mixed $path the relative file or directory
+     * @access public
+     * @return string
+     */
+    public function getHttpPath($path)
+    {
 		return URL . '/workspace' . $path;
 	}
 }

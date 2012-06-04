@@ -6,7 +6,7 @@
  */
 
 (function (jOuery, Symphony, require) {
-
+	'use strict';
 	var oldQ = jQuery;
 
 	require([
@@ -16,15 +16,20 @@
 		'backbone',
 		'views/view_upload',
 		'views/view_directories',
+		'views/view_search',
 		'views/view_select',
 		'modules/mod_sysmessage',
 		'modules/mod_syncmanager',
 		'jqueryui',
 		'plugins/jquery-event-destroyed',
 		'orderable'
-	], function (fm_settings, $, _, Backbone, UploadView, TreeView, SelectView, SysMessage, syncManager) {
+	], function (fm_settings, $, _, Backbone, UploadView, TreeView, SearchView, SelectView, SysMessage, syncManager) {
 
-		var listings_base, upload_base, CoreSettings, changes = false;
+		var listings_base, upload_base, CoreSettings, changes = false,
+
+		cantSelect = function () {
+			return false;
+		};
 
 
 		$.noConflict();
@@ -77,6 +82,7 @@
 				container = $('#filemanager-container-' + manager.instance),
 				selectContainer = $('#filemanager-files-select-container-' + manager.instance),
 				dirTreeView,
+				searchView,
 				selectView,
 				upload,
 				limit;
@@ -102,6 +108,7 @@
 					});
 
 					// initialize directory listing
+					console.log('#filemanager-dir-listing-body-' + manager.instance);
 					dirTreeView = new TreeView({
 						el: '#filemanager-dir-listing-body-' + manager.instance,
 						tagName: 'ul',
@@ -112,28 +119,28 @@
 						baseName: settings.element_name //the field name we are postign to
 					});
 
+					if (limit === -1) {
+						selectContainer.remove();
+						dirTreeView.collection.canSelect = cantSelect;
+					}
+
 					syncManager.add(dirTreeView.collection);
 
 					dirTreeView.collection.on(syncManager.events, syncManager._callback);
 
-					// initialize selected files view
-					selectView = new SelectView({
-						dirtree: dirTreeView,
-						el: selectContainer.find('ul').get(0),
-						fieldname: settings.element_name,
-						mode: settings.display_mode,
-						sortable: settings.allow_sort_selected
-					});
+					// set searchin files:
+					if (settings.allow_file_search) {
+						searchView = new SearchView({
+							threshold: 3,
+							collection: dirTreeView.collection,
+							id: 'search-' + dirTreeView.cid
+						});
+						dirTreeView.$el.parent().find('label').after(searchView.$el);
+					}
 
+					// set moving directories:
 					if (settings.allow_dir_move) {
 						dirTreeView.$el.addClass('draggable');
-					}
-
-					if (limit > 0) {
-						selectView.collection.addSetting('limit', limit);
-					}
-					if (limit === -1) {
-						selectView.collection.addSetting('limit', 0);
 					}
 
 					// initialize upload selction if available
@@ -160,30 +167,49 @@
 							//dirs._setSchemeState, dirs)
 						});
 					}
-					// setupt Events
-					// sync selection when directory is updated
-					dirTreeView.collection.on('update', function (dir) {
-						var currentSelected = selectView.collection.pluck('path'),
-						existing = dirTreeView.collection.getByFileName(currentSelected);
 
-						selectView.collection.reset(existing);
+					// set SelectView
+					if (limit !== -1) {
 
-						_.each(existing, function (f) {
-							f.set('selected', true);
+						// initialize selected files view
+						selectView = new SelectView({
+							dirtree: dirTreeView,
+							el: selectContainer.find('ul').get(0),
+							fieldname: settings.element_name,
+							mode: settings.display_mode,
+							sortable: settings.allow_sort_selected
 						});
 
-						selectView.render();
+						if (limit > 0) {
+							selectView.collection.addSetting('limit', limit);
+						}
+						//	if (limit === -1) {
+						//		selectView.collection.addSetting('limit', 0);
+						//	}
 
-					});
+						// setupt Events
+						// sync selection when directory is updated
+						dirTreeView.collection.on('update', function (dir) {
+							var currentSelected = selectView.collection.pluck('path'),
+							existing = dirTreeView.collection.getByFileName(currentSelected);
+
+							selectView.collection.reset(existing);
+
+							_.each(existing, function (f) {
+								f.set('selected', true);
+							});
+
+							selectView.render();
+
+						});
+
+						selectView.collection.on('selectionlimitexceed', _.bind(dirTreeView.unselectById, dirTreeView));
+					}
 
 
-					// unselect file if a file is deleted:
-					// dirTreeView.collection.on('itemdelete', function () {
-					//	console.log('item deleted', arguments);
-					// });
-					//selectView.on('prepoulate', _.bind(dirTreeView.selectById, dirTreeView));
-					//selectView.on('removedselected', _.bind(dirTreeView.unselectById, dirTreeView));
-					selectView.collection.on('selectionlimitexceed', _.bind(dirTreeView.unselectById, dirTreeView));
+
+
+
 
 					dirTreeView.collection.deferred.always(function () {
 						wrapper.removeClass('loading');

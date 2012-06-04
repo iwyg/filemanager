@@ -1,21 +1,34 @@
-<?php 
+<?php
 /**
  * @package content
  * @author thomas appel <mail@thomas-appel.com>
 
  * Displays <a href="http://opensource.org/licenses/gpl-3.0.html">GNU Public License</a>
  * @license http://opensource.org/licenses/gpl-3.0.html GNU Public License
- */ 
+ */
 require_once(EXTENSIONS . '/filemanager/content/content.settings.php');
 require_once(EXTENSIONS . '/filemanager/lib/class.directorytools.php');
 
-Class contentExtensionFilemanagerListing extends contentExtensionFilemanagerSettings {
+/**
+ * contentExtensionFilemanagerListing
+ *
+ * @uses contentExtensionFilemanagerSettings
+ * @package
+ * @version $id$
+ * @copyright 1997-2005 The PHP Group
+ * @author Tobias Schlitt <toby@php.net>
+ * @license PHP Version 3.0 {@link http://www.php.net/license/3_0.txt}
+ */
+class contentExtensionFilemanagerListing extends contentExtensionFilemanagerSettings
+{
 
-	public function __construct() {
+    public function __construct()
+    {
 		parent::__construct();
 	}
 
-	public function process() {
+    public function process()
+    {
 		parent::process();
 		// extend settings;
 
@@ -29,7 +42,8 @@ Class contentExtensionFilemanagerListing extends contentExtensionFilemanagerSett
 	 *
 	 * @return void
 	 */
-	protected function getDirectoryListing() {
+    protected function getDirectoryListing()
+    {
 		$tp = $_GET['select']; // if 'select' is set, update information on a specific subdir on the root path
 
 		$dest_path = !isset($tp) ?  $this->get('destination') : '/workspace' . $tp;
@@ -43,7 +57,7 @@ Class contentExtensionFilemanagerListing extends contentExtensionFilemanagerSett
 			return $this->handleGeneralError('Cannot access {$file}', array('file' => basename($dest_path)));
 		}
 
-		$count_level_str = substr(substr($dest_path, strlen($this->get('destination'))), 1); 
+		$count_level_str = substr(substr($dest_path, strlen($this->get('destination'))), 1);
 
 		$nesting = !isset($tp) ? 0 : strlen($count_level_str) ? sizeof(explode('/', $count_level_str)) : 0;
 

@@ -140,6 +140,11 @@ preview (if available).
 
 ## Changelog
 
+### 1.0.5, 2012-06-04
+
+- better handling when file selection is deactivated.
+- searchview is now optional (but activated by default).
+
 ### 1.0.4, 2012-05-25
 
 - Fixed a bug with uploads on multiple instances.

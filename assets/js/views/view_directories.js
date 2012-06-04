@@ -1,1 +1,1066 @@
-(function(a,b,c){c(["jquery","underscore","backbone","collections/col_directories","templates/templates","modules/mod_sysmessage","modules/mod_byteconverter","modules/mod_helper"],function(a,c,d,e,f,g,h,i){var j,k,l,m,n,o={},p=b.Context.get("root"),q=a(document);j=function(){function r(a){this.field.parent().removeClass("active"),q.off("keyup.searchlist")}function p(a){this.field.parent().addClass("active"),q.on("keyup.searchlist",c.bind(l,this))}function o(b){var c=a("#result-"+b.id);c.length&&c.remove()}function n(b){var c=a("#result-"+b.id);c.length&&c[b.get("selected")?"addClass":"removeClass"]("selected")}function m(){l.call(this,{keyCode:27})}function l(a){a.keyCode===27&&(this.reset(),this.field.val("").blur())}function k(d){var i,j,k;e++,this.reset(),h=this.options.threshold,this.options.threshold=0,e=0,i=d.target,j=this.collection.searchFiles(i.value),k=j.length,this.counter=a(f.search_count({found:b.Language.get(g[k===1?"count_file_found":"count_files_found"],{count:k})})),c.each(j,c.bind(this.render,this)),this.field.after(this.counter)}function j(b){b.preventDefault();var c=a([a(b.target),a(b.target).parents().filter("li")]).filter(function(){return this.hasClass("result-item")}),d=c[0][0].id.replace(/result/,"file");c.addClass("selected");var e=this.collection.getFileById(parseInt(d.substr(5),10));e.set("selected",!0)}var e=0,h;return d.View.extend({events:{"click.searchlist .result-item:not(.selected)":j,"focus.searchlist input[type=text]":p,"blur.searchlist input[type=text]":r,"click.searchlist .remove":m,"keyup.searchlist input[type=text]":k},initialize:function(){this.template=f.search_list,this.list=this.$el.find(".results"),this.field=this.$el.find("input[type=text]"),this.collection.on("selected",c.bind(n,this)).on("filedelete",c.bind(o,this))},reset:function(){this.options.threshold=h,this.list.empty(),this.counter&&this.counter.remove()},render:function(a){var b=a.toJSON(),c;b.thumb=i.getThumbURL(a,"/image/2/40/40/5"),c=this.template(b),this.list.append(c)}})}(),m=function(){function e(a){console.log(arguments),a.get("selected")?this.$el.addClass("file-selected"):this.$el.removeClass("file-selected")}function b(a){a.preventDefault(),a.stopPropagation(),this.close()}return d.View.extend({events:{"click.meta .close":b},initialize:function(){var a;this._rendered=!1,this.$el.on("destroyed",c.bind(this.remove,this)),a=c.bind(e,this),this.options.parentView.model.on("change:selected",a)},render:function(){var a,b;if(this._rendered)return this;a=c.extend(this.model.toJSON(),{preview:i.getThumbURL(this.model,"/image/1/0/150"),size:h(this.model.get("size"))+" ("+this.model.get("size")+")"}),b=f.meta(a),this.el.innerHTML=b,this._rendered=!0;return this},open:function(b){var c=this,d=a("#file-"+this.options.parentView.model.id);if(!this._rendered){this.render(),this.open(b);return this}this.$el.insertAfter(d),this.delegateEvents(),b?this.$el.css({display:"block"}):this.$el.slideDown(),this._open=!0,this.trigger("open",this),e.call(this,this.options.parentView.model);return this},close:function(a){var b=this;this._open=!1,this.$el.slideUp(function(){a?b.$el.remove():b.undelegateEvents()}),!a&&this.trigger("close",this)},remove:function(){this.undelegateEvents(),this.trigger("remove")}})}(),m.makeView=function(){if(this instanceof d.View)return new m({parentView:this,tagName:"li",model:this.model,id:"meta-for-"+this.model.id,className:"meta-view",idPrefix:"meta-for-"});throw"makeView called with wrong context"},k=function(){function a(a){var b,c;a===this.model&&this._metaView&&(b=this._metaView,c=a.get("dir").get("path"),this._metaView.close(!0))}return d.View.extend({initialize:function(){this.model.collection.on("remove",c.bind(a,this))},render:function(a){a=a||{};var b=this,d=f.files(c.extend(this.model.toJSON(),{settings:a}));this.el.innerHTML+=d,setTimeout(function(){b.$el.find("#preview-"+b.model.id).on("click.file",c.bind(b.showMetaInfo,b))},0)},setMetaView:function(){var a=this.model.get("path"),b=this.dirView,c;this._metaView||(c=b.model.collection.cid,this._metaView=m.makeView.call(this),this._metaView.on("open",function(){o[c][a]=!0}).on("close",function(){delete o[c][a]}))},showMetaInfo:function(a){a.preventDefault(),a.stopPropagation(),this.setMetaView(),this._metaView.open()}})}(),l=function(){function g(){var b={},d=this.$el.find(".toolbar:first");c.each(a,function(a){var c=d.find("."+a);c.length&&(b[a]=c)}),this._tasks=b}function e(a,b){this._tasks[a]&&this._tasks[a].addClass("disabled")}function b(a,b){this._tasks[a]&&this._tasks[a].removeClass("disabled")}var a="upload create move delete".split(" ");return d.View.extend({events:{},initialize:function(){var a=this;this.fileViews=[],this._files={},this.on("enabletask",c.bind(b,this)).on("disabletask",c.bind(e,this))},render:function(a,b,d){var e=this,h=c.clone(a),i,j=this.model.get("parent"),l=this.model.get("files"),m;this.$el.html(f.dirs(c.extend(this.model.toJSON(),{settings:c.extend(h,b)}))),m=this.$el.find("#sub-"+this.model.id),l&&(l.on("remove",c.bind(e.model.collection.trigger,e.model.collection,"remove")),l.each(function(a){var c=new k({el:m,model:a});c.dirView=e,e._files[a.get("path")]=c,e.fileViews.push(c),c.render(b)})),i=j?document.getElementById("sub-"+j.id):document.getElementById("dir-list-root-"+this.model.collection.cid),i&&!d&&this.$el.appendTo(i),g.call(this),this.model.get("state")==="open"&&(this.$el.addClass(this.model.get("state")),this.$el.find("> .sub-dir").css({display:"block"})),d&&this.trigger("update",this)},getFileViewById:function(a){var b;a=isNaN(a)?parseInt(a.replace("file-",""),10):a,b=c.find(this.fileViews,function(b){return b.model.id===a});return b},getFileByPath:function(a){return this._files[a]},getSubDirs:function(){var a=this.model.get("subdirs")}})}(),n=function(){function G(a){var b=new g(null,a),c=f.dirtree_error({message:b.getMessage()});this.el.innerHTML=c}function F(a){var b=c.keys(o[this.collection.cid]),d,e=this,f,g=[],h=this.getDirViewByModel(a);!b.length||c.each(b,function(a){var b=e.collection.getByFileName(a),c;c=b.length?e.getFileViewByModel(b[0]):null,c&&c&&(c.setMetaView(),c._metaView.open(!0))})}function E(){this.$el.find(".draggable:not(.ui-draggable)").trigger("mouseenter").end().find(".droppable:not(.ui-droppable)").trigger("mouseenter")}function D(){var b=this,d=this.$el.find(".droppable:not(.ui-droppable)");d.droppable({drop:c.bind(w,this),greedy:!0,tolerance:"intersect",hoverClass:"dropover",scope:"moveable",over:function(c,e){d.on("toggleopen.itemdraggover",function(){var c=a(this),d=c.parent();C(c,d,b)}),setTimeout(function(){d.trigger("toggleopen.itemdraggover",[c,e])},600)},out:function(a,b){d.off("toggleopen.itemdraggover")}}),d.on("destroyed",A);return this}function C(a,b,c){b.hasClass("open")||(a.on("dropout.itemdraggover",function(a,d){c.closeDir(b)}),c.openDir(b))}function B(){var a=this.$el.find(".draggable:not(.ui-draggable)");a.draggable({revert:!0,revertDuration:120,cursor:"move",axis:"y",handle:".move",opacity:.7,snap:!0,zIndex:2700,scope:"moveable"}),a.on("destroyed",z);return this}function A(){a(this).droppable("destroy")}function z(){a(this).draggable("destroy")}function y(b){b.preventDefault(),b.stopPropagation();var d;if(!!/droppable/.test(b.target.className)){d=a(b.target).add(".droppable"),d.droppable({drop:c.bind(w,this),greedy:!0,tolerance:"intersect",hoverClass:"dropover",scope:"moveable"});return this}}function x(b){b.preventDefault(),b.stopPropagation();var c;if(!!/draggable/.test(b.target.className)){c=a(b.target),c.draggable({revert:!0,revertDuration:120,cursor:"move",axis:"y",handle:".move",opacity:.7,snap:!0,zIndex:2700,scope:"moveable"});return this}}function w(b,c){b.preventDefault(),b.stopPropagation();var d=c.draggable,e=/file/.test(d[0].className)?"file":"dir",f=a(b.target).parent()[0].id,h=e==="file"?d.parents().filter("li.dir")[0].id:d.parent()[0].id,i=e==="file"?d[0].id.substr(5):undefined;this.collection.moveItem({type:e,destination:f,source:h,file:e==="file"?parseInt(i,10):i}).always(function(a){new g(null,a)})}function v(a){a=a instanceof d.Model?a:this.collection.get(a.directory.id);return this.renderPart(a)}function u(a,b){var c=b.find("input[type=text]").val();this.collection.createDir(c,a).always(function(a){b.off("click",".confirm"),b.remove();var c=new g(null,a)})}function t(a,b,c){var d=/dir/.test(a.id);d||this.trigger("select","remove",a);return s.call(this,a.id,d?"dir":"file")}function s(b,c){if(!this instanceof d.View)throw"function called with wrong context";var e=c==="file"?a("#file-"+b):a("#"+b),f=a([e,e.find(".dir-header")]).filter(function(){return this.data("draggable")||this.data("droppable")});this.dirViews[b]&&delete this.dirViews[b],e.detach(),setTimeout(function(){e.remove()},100);return this}function r(a){var b=this,d=a.get("selected"),e,f=h[this.cid],g=d?"selectById":"unselectById",i;this.canSelectMultiple()?(e=a.collection.getFilesByIndexRange(a.index(),f.index()),c.each(e,function(a){a.set("selected",d),b[g](a.id),i=a})):(i=a,this[g](a.id)),d&&(h[this.cid]=i)}function p(a){a.keyCode===16&&(this.$el.off("selectstart.dirtree"),k[this.cid]=!1)}function n(a){a.keyCode===16&&(k[this.cid]=!0,this.$el.on("selectstart.dirtree",function(a){a.preventDefault()}))}function m(a,b){var c=this.collection.getFileById(parseInt(a.target.id.replace("select-file-",""),10)),d=b==="add"?"select":"unselect",e=b==="add"?!0:!1;this.trigger("select",b,c.toJSON()),c.set("selected",e)}var h={},k={};return d.View.extend({events:{"click.dritree .toolbar":"tasks","click.dirtree .dir-header":"toggleDir","click.dirtree .file:not(.selected) > .text":"select","click.dirtree .file.selected > .text":"unselect","click.dirtree .file > .toolbar > .delete":"deleteFile","click.dirtree .dir-header > .toolbar > .delete":"deleteDir","click.dirtree .dir-header > .toolbar > .create":"createDir"},initialize:function(){var a=this;this.collection=new e,this.dirViews={},this.collection.addSetting("field_id",this.options.field_id),this.collection.populate(),this.collection.deferred.done(c.bind(this.render,this)).fail(c.bind(G,this)),this.collection.on("add",c.bind(this.renderPart,this)),this.collection.on("remove",c.bind(t,this)),this.collection.on("update",c.debounce(c.bind(F,this),0)),this.collection.on("selected",c.bind(r,this)),o[this.collection.cid]={},this.searchView=new j({el:f.search_bar({id:"search-"+this.cid}),threshold:3,collection:this.collection}),this._canSelectMultiple=!1,h[this.cid]=null,this.$el.parent().find("label").after(this.searchView.$el),q.on("keydown.dirtree",c.bind(n,this)).on("keyup.dirtree",c.bind(p,this))},canSelectMultiple:function(){return k[this.cid]},tasks:function(b){var c=a(b.target).parents().filter("li").find("ul")[0].id.substr(4),d=b.target.className.split(" ")[1];this.trigger(d,this.collection.get(c));return!1},select:function(a){m.call(this,a,"add")},unselect:function(a){m.call(this,a,"remove")},selectById:function(a){this.filesById(a).addClass("selected");return this},unselectById:function(a){this.filesById(a).removeClass("selected");return this},filesById:function(b){return a(c.isArray(b)?"#file-"+b.join(", #file-"):"#file-"+b)},getFile:function(a){return this.collection.getFileById(parseInt(a[0].id.split("file-")[1],10))},confirm:function(a){return confirm(a)},deleteDir:function(c){var d=this.collection.get(a(c.target).parents().filter(".dir")[0].id),e=b.Language.get(g.confirm_directory_deletion,{dir:d.get("name"),dir2:d.get("name"),dircount:d.get("subdirs")?d.get("subdirs").length:0,filecount:d.get("files")?d.get("files").models.length:0});this.confirm(e)&&this.collection.deleteItem(d,"dir").always(function(a){new g(null,a)})},deleteFile:function(c){var d=a(c.target),e=d.parents().filter(".file"),f=e.parent(),h=this.getFile(e),i=b.Language.get(g.confirm_file_deletion,{file:h.get("name")||h.get("path")});this.confirm(i)&&this.collection.deleteItem(h,"file").always(function(a){new g(null,a)}).done(function(){h.get("selected")&&h.set("selected",!1)})},createDir:function(b){var d=a(b.target),e=this.collection.get(d.parents().filter(".dir")[0].id),g=a(f.newdir({parent:e.get("path"),level:~~e.get("level")+1}));a("#sub-"+e.id).prepend(g),this.openDir(d.parents().filter(".dir")),g.on("click",".add",c.bind(u,this,e,g)),g.on("click",".cancel",function(){g.remove()})},toggleDir:function(b){var c,d,e,f;b.preventDefault(),b.stopPropagation(),c=a(b.target).parents().filter(".dir:not(#dir-list-root-"+this.collection.cid+")").first(),d=c.find("> .sub-dir"),e=c.hasClass("open")?"close":"open",f=e==="open"?"openDir":"closeDir",this[f](c)},openDir:function(a){i.isjQueryObject(a)&&(a.find("> .sub-dir").slideDown(),a.addClass("open"),this.collection.get(a[0].id).set("state","open"))},closeDir:function(a){a.find("> .sub-dir").slideUp(),a.removeClass("open"),this.collection.get(a[0].id).set("state","close")},enableTask:function(a,b){this.dirViews[b.id].trigger("enabletask",a)},disableTask:function(a,b){this.dirViews[b.id].trigger("disabletask",a)},renderPart:function(a){var b,d=this.dirViews[a.id]?!0:!1;d?(b=this.dirViews[a.id],b.model=a):(b=new l({tagName:"li",id:a.id,className:"dir level-"+a.get("level"),model:a}),this.dirViews[a.id]=b),b.render(this.options.dirSettings,this.options.fileSettings,d),d&&c.isArray(a.get("subdirs"))&&c.each(a.get("subdirs"),c.bind(v,this)),d&&this.trigger("update",b),B.call(this),D.call(this)},render:function(){var a=this;this.el.innerHTML=f.dirtree({name:this.options.baseName,cid:this.collection.cid}),this.collection.each(c.bind(this.renderPart,this))},getSubdirsFromView:function(a,b){var d=this,e=a.model.get("subdirs"),f=[];e&&c.each(e,function(a){d.dirViews[a.id]&&(f.push(d.dirViews[a.id]),b&&a.get("subdirs")&&f.push.apply(f,d.getSubdirsFromView(d.dirViews[a.id],!0)))});return f},getDirViewByModel:function(a){return this.dirViews[a.id]},getDirViewById:function(a){return this.dirViews[a]},getFileViewByModel:function(a){var b=this.getDirViewById(a.get("dir").id),c=b.getFileViewById(a.id);return c}})}();return n})})(this,this.Symphony,this.define)
+/**
+ * @package Views
+ * @author thomas appel <mail@thomas-appel.com>
+
+ * Displays <a href="http://opensource.org/licenses/gpl-3.0.html">GNU Public License</a>
+ * @license http://opensource.org/licenses/gpl-3.0.html GNU Public License
+ */
+
+/**
+ * @module TreeView
+ * @requires jQuery
+ * @requires Backbone
+ * @requires Underscore
+ */
+
+(function (window, Symphony, define) {
+	define([
+		'jquery',
+		'underscore',
+		'backbone',
+		'collections/col_directories',
+		'templates/templates',
+		'modules/mod_sysmessage',
+		'modules/mod_byteconverter',
+		'modules/mod_helper'
+	], function ($, _, Backbone, Dirs, templates, SysMessage, convertBytes, helper) {
+
+		var FileView, DirView, MetaView, TreeView, metaStates = {},
+		siteRoot = Symphony.Context.get('root'),
+		$doc = $(document);
+
+		/** ## MetaView
+		 * @module TreeView
+		 * @submodule MetaView
+		 * @class MetaView
+		 * @extends Backbone.View
+		 * @constructor
+		 */
+		MetaView = (function () {
+			/**
+			 * @private
+			 * @api private
+			 */
+			function _close(event) {
+				event.preventDefault();
+				event.stopPropagation();
+				this.close();
+			}
+
+			/**
+			 * @private
+			 * @api private
+			 */
+			function _switchSelected(model) {
+				console.log(arguments);
+				if (model.get('selected')) {
+					this.$el.addClass('file-selected');
+				} else {
+					this.$el.removeClass('file-selected');
+				}
+				/*
+				if (type === 'add') {
+					this.$el.addClass('file-selected');
+				} else if (type === 'remove') {
+					this.$el.removeClass('file-selected');
+				}
+			   */
+			}
+
+			return Backbone.View.extend({
+
+				events: {
+					'click.meta .close': _close
+				},
+
+				/**
+				 * @ #
+				 */
+				initialize: function () {
+					var switchSelected;
+
+					this._rendered = false;
+					this.$el.on('destroyed', _.bind(this.remove, this));
+
+					switchSelected = _.bind(_switchSelected, this);
+					this.options.parentView.model
+						.on('change:selected', switchSelected);
+						//.on('unselect', switchSelected);
+				},
+
+				/**
+				 * @method MetaVierender
+				 */
+				render: function () {
+					var data, compiled;
+					if (this._rendered) {
+						return this;
+					}
+
+					data = _.extend(this.model.toJSON(), {
+						preview: helper.getThumbURL(this.model, '/image/1/0/150'),
+						//lastmod: new Date(this.model.get('lastmod')),
+						size: convertBytes(this.model.get('size')) + ' (' + this.model.get('size') + ')'
+					});
+					compiled = templates.meta(data);
+
+					this.el.innerHTML = compiled;
+					this._rendered = true;
+					return this;
+
+				},
+
+				/**
+				 * @method open
+				 */
+				open: function (hard) {
+					var metaView = this,
+					fileNode = $('#file-' + this.options.parentView.model.id);
+
+					if (!this._rendered) {
+						this.render();
+						this.open(hard);
+						return this;
+					}
+					this.$el.insertAfter(fileNode);
+					this.delegateEvents();
+					!hard ? this.$el.slideDown() : this.$el.css({display: 'block'});
+					this._open = true;
+					this.trigger('open', this);
+
+					_switchSelected.call(this, this.options.parentView.model);
+					/*
+					if (fileNode.hasClass('selected')) {
+						_switchSelected.call(this, 'add');
+					} else if (this.options.parentView.model.get('selected')) {
+						_switchSelected.call(metaView, 'add');
+				    }
+				   */
+					return this;
+				},
+
+				/**
+				 * @method MetaView#close
+				 */
+				close: function (destroy) {
+					var that = this;
+					this._open = false;
+					this.$el.slideUp(function () {
+						if (destroy) {
+							that.$el.remove();
+							return;
+						}
+						that.undelegateEvents();
+					});
+					!destroy && this.trigger('close', this);
+				},
+
+				/**
+				 * @method MetaView#remove
+				 */
+				remove: function () {
+					this.undelegateEvents();
+					this.trigger('remove');
+				}
+			});
+		} ());
+
+		/**
+		 * Used to create a new MetaView Instance form a FileView Instance Context.
+		 * Must be called with a FileView Instance as context.
+		 *
+		 * Example: var metaView = MetaView.makeView.call(fileView);
+		 *
+		 * @method MetaViemakeView
+		 * @static
+		 */
+		MetaView.makeView = function () {
+			if (! (this instanceof Backbone.View)) {
+				throw ('makeView called with wrong context');
+			}
+			return new MetaView({
+				parentView: this,
+				tagName: 'li',
+				model: this.model,
+				id: 'meta-for-' + this.model.id,
+				className: 'meta-view',
+				idPrefix: 'meta-for-'
+			});
+		};
+
+		/** ## SINGLE FILE
+		 * @augments Backbone.View
+		 * @class FileView
+		 * @constructor
+		 */
+		FileView = (function () {
+			function _fileSelfRemove(model) {
+				var meta, dirPath;
+				if (model === this.model) {
+					if (this._metaView) {
+						meta = this._metaView;
+						dirPath = model.get('dir').get('path');
+						this._metaView.close(true);
+					}
+				}
+			}
+
+			return Backbone.View.extend({
+				initialize: function () {
+					this.model.collection.on('remove', _.bind(_fileSelfRemove, this));
+					//this.model.get('dir').collection.on('update', _.bind(_metaViewPersistance, this));
+				},
+				render: function (settings) {
+					settings = settings || {};
+					var view = this,
+					compiled = templates.files(_.extend(this.model.toJSON(), {
+						settings: settings
+					}));
+					this.el.innerHTML += compiled;
+
+					setTimeout(function () {
+						view.$el.find('#preview-' + view.model.id).on('click.file', _.bind(view.showMetaInfo, view));
+					},
+					0);
+				},
+
+				setMetaView: function () {
+					var file = this.model.get('path'),
+					dirView = this.dirView,
+					id;
+
+					if (!this._metaView) {
+						id = dirView.model.collection.cid;
+						this._metaView = MetaView.makeView.call(this);
+						this._metaView.on('open', function () {
+							metaStates[id][file] = true;
+						}).on('close', function () {
+							delete metaStates[id][file];
+						});
+					}
+				},
+
+				showMetaInfo: function (event) {
+
+					event.preventDefault();
+					event.stopPropagation();
+
+					this.setMetaView();
+					this._metaView.open();
+				}
+
+			});
+		} ());
+
+// ==================================================================
+
+		/** ## SINGLE DIRECTORY VIEW
+		 * @class DirView
+		 * @constructor
+		 * @augments Backbone.View
+		 */
+		DirView = (function () {
+			var _tasks = 'upload create move delete'.split(' ');
+
+			function _enableTask(task, dir) {
+				this._tasks[task] && this._tasks[task].removeClass('disabled');
+			}
+
+			function _disableTask(task, dir) {
+				this._tasks[task] && this._tasks[task].addClass('disabled');
+			}
+
+			function _setTasks() {
+				var a = {},
+				tb = this.$el.find('.toolbar:first');
+				_.each(_tasks, function (task) {
+					var n = tb.find('.' + task);
+					if (n.length) {
+						a[task] = n;
+					}
+				});
+				this._tasks = a;
+			}
+
+			return Backbone.View.extend({
+				events: {
+					//	'click.dirview  .dir-header:first': '_toggle'
+				},
+
+				initialize: function () {
+					var dir = this;
+					this.fileViews = [];
+					this._files = {};
+					this.on('enabletask', _.bind(_enableTask, this)).on('disabletask', _.bind(_disableTask, this));
+				},
+
+				render: function (dirSettings, fileSettings, update) {
+					var that = this,
+					settings = _.clone(dirSettings),
+					parent,
+					pm = this.model.get('parent'),
+					files = this.model.get('files'),
+					ul;
+
+					this.$el.html(templates.dirs(_.extend(this.model.toJSON(), {
+						settings: _.extend(settings, fileSettings)
+					})));
+
+					ul = this.$el.find('#sub-' + this.model.id);
+
+					if (files) {
+						files.on('remove', _.bind(that.model.collection.trigger, that.model.collection, 'remove'));
+						files.each(function (file) {
+							var fv = new FileView({
+								el: ul,
+								model: file
+							});
+							fv.dirView = that;
+							that._files[file.get('path')] = fv;
+							that.fileViews.push(fv);
+							fv.render(fileSettings);
+						});
+					}
+
+					parent = pm ? document.getElementById('sub-' + pm.id) : document.getElementById('dir-list-root-' + this.model.collection.cid);
+					parent && ! update && this.$el.appendTo(parent);
+					_setTasks.call(this);
+
+					if (this.model.get('state') === 'open') {
+						this.$el.addClass(this.model.get('state'));
+						this.$el.find('> .sub-dir').css({display: 'block'});
+					}
+
+					if (update) {
+						this.trigger('update', this);
+					}
+
+				},
+				getFileViewById: function (id) {
+					var fileView;
+					id = isNaN(id) ? parseInt(id.replace('file-', ''), 10) : id;
+					fileView = _.find(this.fileViews, function (fw) {
+						return fw.model.id === id;
+					});
+					return fileView;
+				},
+				getFileByPath: function (path) {
+					return this._files[path];
+				},
+				getSubDirs: function () {
+					var subs = this.model.get('subdirs');
+				}
+			});
+		} ());
+
+		/** ## Directory Tree View
+		 * Donec sed odio dui. Aenean eu leo quam. Pellentesque ornare sem
+		 * lacinia quam venenatis vestibulum. Cum `sociis` natoque penatibus
+		 * et magnis dis parturient montes, nascetur ridiculus mus.
+		 *
+		 * @extends Backbone.View
+		 * @constructor
+		 * @class TreeView
+		 */
+		TreeView = (function () {
+			var _last_selected = {},
+			_canSelectMultiple = {};
+			/**
+			 * Handles click event when file node gets selected
+			 * an triggers a select event and an select or unselect event on
+			 * the FileView instance
+			 *
+			 * @private
+			 */
+			function _select(e, type) {
+				//var target = $(e.target),
+				//fileNode = target.parent(),
+				var fileModel = this.collection.getFileById(parseInt(e.target.id.replace('select-file-', ''), 10)),
+
+				event = type === 'add' ? 'select' : 'unselect',
+				selected = type === 'add' ? true : false;
+
+				this.trigger('select', type, fileModel.toJSON());
+				fileModel.set('selected', selected);
+				// getting the fileView instance and trigger an select or
+				// unselect event:
+				//this.getDirViewByModel(fileModel.get('dir')).getFileByPath(fileModel.get('path')).trigger(event, type);
+			}
+
+			/**
+			 * helper function to determine if the shiftkey is pressed while
+			 * selecting files
+			 * @private
+			 */
+			function _multiSelectHelperOn(e) {
+				if (e.keyCode === 16) {
+					_canSelectMultiple[this.cid] = true;
+					this.$el.on('selectstart.dirtree', function (e) {
+						e.preventDefault();
+					});
+				}
+			}
+
+			/**
+			 * helper function to determine if the shiftkey is released while
+			 * selecting files
+			 * @private
+			 */
+			function _multiSelectHelperOff(e) {
+				if (e.keyCode === 16) {
+					this.$el.off('selectstart.dirtree');
+					_canSelectMultiple[this.cid] = false;
+				}
+			}
+
+			function _selectFile(file) {
+				var that = this,
+				selected = file.get('selected'), files, last_selected = _last_selected[this.cid],
+				method = selected ? 'selectById' : 'unselectById', select;
+
+				if (this.canSelectMultiple()) {
+					files = file.collection.getFilesByIndexRange(file.index(), last_selected.index());
+					_.each(files, function (f) {
+						f.set('selected', selected);
+						that[method](f.id);
+						select = f;
+					});
+				} else {
+					select = file;
+					this[method](file.id);
+				}
+
+				if (selected) {
+					_last_selected[this.cid] = select;
+				}
+
+			}
+			/**
+			 * @private
+			 */
+			function _removeItemNode(id, type) {
+				if (!this instanceof Backbone.View) {
+					throw ('function called with wrong context');
+				}
+				var node = type === 'file' ? $('#file-' + id) : $('#' + id),
+				moveable = $([node, node.find('.dir-header')]).filter(function () {
+					return this.data('draggable') || this.data('droppable');
+				});
+
+				if (this.dirViews[id]) {
+					delete this.dirViews[id];
+				}
+				node.detach();
+				setTimeout(function () {
+					node.remove();
+				},
+				100);
+				return this;
+			}
+
+			/**
+			 * attempts to remove a directory or file
+			 *
+			 * @private
+			 */
+			function _removeItem(model, cols, options) {
+				var isDir = /dir/.test(model.id);
+				if (!isDir) {
+					//this.trigger('select', 'remove', model.toJSON());
+					this.trigger('select', 'remove', model);
+				}
+				return _removeItemNode.call(this, model.id, isDir ? 'dir': 'file');
+			}
+
+			/**
+			 * initializes creation of a new directory
+			 *
+			 * @private
+			 */
+			function _createDir(parentModel, mask) {
+				var name = mask.find('input[type=text]').val();
+				this.collection.createDir(name, parentModel).always(function (resp) {
+					mask.off('click', '.confirm');
+					mask.remove();
+					var msg = new SysMessage(null, resp);
+				});
+			}
+
+			/**
+			 * Initialize subdirectory rendering if a parent directory was updated
+			 *
+			 * @private
+			 */
+			function _renderSubDirsOnUpdate(sub) {
+				sub = sub instanceof Backbone.Model ? sub: this.collection.get(sub.directory.id);
+				return this.renderPart(sub);
+			}
+
+			/**
+			 * moves an item (File or Directory) to a different location (another directory)
+			 *
+			 * @private
+			 */
+			function _moveItemTo(event, ui) {
+				event.preventDefault();
+				event.stopPropagation();
+				var movedItem = ui.draggable,
+				type = /file/.test(movedItem[0].className) ? 'file': 'dir',
+				destination = $(event.target).parent()[0].id,
+				// the directory the item gets moved to
+				source = type === 'file' ? movedItem.parents().filter('li.dir')[0].id: movedItem.parent()[0].id,
+				file = type === 'file' ? movedItem[0].id.substr(5) : undefined;
+				this.collection.moveItem({
+					type: type,
+					destination: destination,
+					source: source,
+					file: type === 'file' ? parseInt(file, 10) : file,
+				}).always(function (resp) {
+					new SysMessage(null, resp);
+				});
+			}
+
+			/**
+			 * @private
+			 * @deprecated
+			 */
+			function _itemDelegateMoveable(event) {
+				event.preventDefault();
+				event.stopPropagation();
+				var target;
+				if (!/draggable/.test(event.target.className)) {
+					return;
+				}
+
+				target = $(event.target);
+				target.draggable({
+					revert: true,
+					revertDuration: 120,
+					cursor: 'move',
+					axis: 'y',
+					handle: '.move',
+					opacity: 0.7,
+					snap: true,
+					zIndex: 2700,
+					scope: 'moveable'
+				});
+				return this;
+			}
+
+			/**
+			 * @private
+			 * @deprecated
+			 */
+			function _itemDelegateDroppable(event) {
+				event.preventDefault();
+				event.stopPropagation();
+				var target;
+				if (!/droppable/.test(event.target.className)) {
+					return;
+				}
+
+				target = $(event.target).add('.droppable');
+				target.droppable({
+					drop: _.bind(_moveItemTo, this),
+					greedy: true,
+					tolerance: 'intersect',
+					hoverClass: 'dropover',
+					scope: 'moveable'
+				});
+				return this;
+			}
+
+			/**
+			 * @private
+			 */
+			function _destroyDraggable() {
+				$(this).draggable('destroy');
+			}
+			/**
+			 * @private
+			 */
+			function _destroyDroppable() {
+				$(this).droppable('destroy');
+			}
+			/**
+			 * @private
+			 */
+			function _itemSetDraggable() {
+				var target = this.$el.find('.draggable:not(.ui-draggable)');
+				target.draggable({
+					revert: true,
+					revertDuration: 120,
+					cursor: 'move',
+					axis: 'y',
+					handle: '.move',
+					opacity: 0.7,
+					snap: true,
+					zIndex: 2700,
+					scope: 'moveable'
+				});
+				target.on('destroyed', _destroyDraggable);
+				return this;
+			}
+			function _dirToggleOpen(el, parent, dirtree) {
+				if (!parent.hasClass('open')) {
+					el.on('dropout.itemdraggover', function (event, ui) {
+						dirtree.closeDir(parent);
+					});
+
+					dirtree.openDir(parent);
+				}
+			}
+			/**
+			 * @private
+			 */
+			function _itemSetDroppable() {
+				var dirtree = this,
+				target = this.$el.find('.droppable:not(.ui-droppable)');
+
+				target.droppable({
+					drop: _.bind(_moveItemTo, this),
+					greedy: true,
+					tolerance: 'intersect',
+					hoverClass: 'dropover',
+					scope: 'moveable',
+					over: function (event, ui) {
+						target.on('toggleopen.itemdraggover', function () {
+							var el = $(this), parent = el.parent();
+							_dirToggleOpen(el, parent, dirtree);
+						});
+						setTimeout(function () {
+							target.trigger('toggleopen.itemdraggover', [event, ui]);
+						}, 600);
+					},
+					out: function (event, ui) {
+						target.off('toggleopen.itemdraggover');
+					}
+				});
+				target.on('destroyed', _destroyDroppable);
+				return this;
+			}
+
+			/**
+			 * @private
+			 * @deprecated
+			 */
+			function _ensureDelegates() {
+				this.$el.find('.draggable:not(.ui-draggable)').trigger('mouseenter').end().find('.droppable:not(.ui-droppable)').trigger('mouseenter');
+			}
+
+			/**
+			 * Runs each time a Directory gets updated
+			 * Determines weather a MetaView Instance was opend or not before
+			 * the update
+			 *
+			 * @private
+			 * @api private
+			 */
+			function _handleMetaStates(model) {
+				var fnames = _.keys(metaStates[this.collection.cid]),
+				f,
+				view = this,
+				meta,
+				files = [],
+
+				dir = this.getDirViewByModel(model);
+
+				if (!fnames.length) {
+					return;
+				}
+
+				_.each(fnames, function (path) {
+					var fm = view.collection.getByFileName(path), fv;
+					fv = fm.length ? view.getFileViewByModel(fm[0]) : null;
+					if (fv) {
+						if (fv) {
+							fv.setMetaView();
+							fv._metaView.open(true);
+						}
+					}
+				});
+			}
+			/**
+			 * Renders an error instead of the directory tree structure
+			 *
+			 * @private
+			 */
+
+			function _renderError(response) {
+				var message = new SysMessage(null, response),
+				compiled = templates.dirtree_error({message: message.getMessage()});
+				this.el.innerHTML = compiled;
+			}
+
+			return Backbone.View.extend({
+				events: {
+					//'click .dir-toggle':  'toggleDir',
+					'click.dritree .toolbar': 'tasks',
+					'click.dirtree .dir-header': 'toggleDir',
+					'click.dirtree .file:not(.selected) > .text': 'select',
+					'click.dirtree .file.selected > .text': 'unselect',
+					'click.dirtree .file > .toolbar > .delete': 'deleteFile',
+					'click.dirtree .dir-header > .toolbar > .delete': 'deleteDir',
+					'click.dirtree .dir-header > .toolbar > .create': 'createDir',
+					//'mouseenter.dirtree .draggable:not(.ui-draggable)': _itemDelegateMoveable,
+					//'mouseover.dirtree .droppable:not(.ui-droppable)': _itemDelegateDroppable
+				},
+
+				initialize: function () {
+					var that = this;
+					this.collection = new Dirs();
+					this.dirViews = {};
+					this.collection.addSetting('field_id', this.options.field_id);
+					this.collection.populate();
+					this.collection.deferred
+						.done(_.bind(this.render, this))
+						.fail(_.bind(_renderError, this));
+
+					//this.collection.on('itemdelete', _.bind(_removeItemNode, this));
+					this.collection.on('add', _.bind(this.renderPart, this));
+					this.collection.on('remove', _.bind(_removeItem, this));
+					this.collection.on('update', _.debounce(_.bind(_handleMetaStates, this), 0));
+					this.collection.on('selected', _.bind(_selectFile, this));
+					metaStates[this.collection.cid] = {};
+
+					this._canSelectMultiple = false;
+					_last_selected[this.cid] = null;
+
+					$doc
+						.on('keydown.dirtree', _.bind(_multiSelectHelperOn, this))
+						.on('keyup.dirtree', _.bind(_multiSelectHelperOff, this));
+
+				},
+
+				canSelectMultiple: function () {
+					return _canSelectMultiple[this.cid];
+				},
+
+				tasks: function (e) {
+					var parentId = $(e.target).parents().filter('li').find('ul')[0].id.substr(4),
+					task = e.target.className.split(' ')[1];
+					this.trigger(task, this.collection.get(parentId));
+					return false;
+				},
+
+				/**
+				 * selects an item node
+				 *
+				 * @param {Object} e the event Object
+				 * @api public
+				 */
+				select: function (e) {
+					_select.call(this, e, 'add');
+				},
+
+				/**
+				 * unselects an item node
+				 *
+				 * @param {Object} e the event Object
+				 * @api public
+				 */
+				unselect: function (e) {
+					_select.call(this, e, 'remove');
+				},
+
+				/**
+				 * selects an item node by its model id
+				 *
+				 * @param {String} id model id of file to be slected
+				 * @api public
+				 */
+				selectById: function (id) {
+					this.filesById(id).addClass('selected');
+					return this;
+				},
+
+				/**
+				 * unselects an item node by its model id
+				 *
+				 * @param {String} id model id of file to be unslected
+				 * @api public
+				 */
+				unselectById: function (id) {
+					this.filesById(id).removeClass('selected');
+					return this;
+				},
+
+				/**
+				 * unselects an item node by its model id
+				 *
+				 * @param {Mixed} ids String Number or Array containing the
+				 * filemodel ids to be fetched
+				 * @return {Object} jQuery nodelist
+				 * @api public
+				 */
+				filesById: function (ids) {
+					return $(_.isArray(ids) ? ('#file-' + ids.join(', #file-')) : '#file-' + ids);
+				},
+
+				/**
+				 * Fetches a Filemodel given its representing rendered DOM view node
+				 *
+				 * @param {Object} node jQuery DOMnode Object
+				 * @return {Object} Backbone.Model instance
+				 * @api public
+				 */
+				getFile: function (node) {
+					// var id = node.parent()[0].id.substr(4);
+					// return this.collection.getFile(node[0].id.split('file-')[1], id);
+					return this.collection.getFileById(parseInt(node[0].id.split('file-')[1], 10));
+				},
+
+				/**
+				 * alias to window confirm:
+				 * displays confirm dialog
+				 * @param {string} message the message to be shown
+				 * @return {Boolean}
+				 * @api public
+				 */
+				confirm: function (message) {
+					return confirm(message);
+				},
+
+				/**
+				 * triggers removal of a directory given serverside removeal
+				 * was successful
+				 *
+				 * @param {Object} event the event Object
+				 * @api public
+				 */
+				deleteDir: function (event) {
+					var dir = this.collection.get($(event.target).parents().filter('.dir')[0].id);
+					var message = Symphony.Language.get(SysMessage.confirm_directory_deletion, {
+						'dir': dir.get('name'),
+						'dir2': dir.get('name'),
+						'dircount': dir.get('subdirs') ? dir.get('subdirs').length: 0,
+						'filecount': dir.get('files') ? dir.get('files').models.length: 0
+					});
+
+					if (this.confirm(message)) {
+						this.collection.deleteItem(dir, 'dir').always(function (response) {
+							new SysMessage(null, response);
+						});
+					}
+				},
+
+				/**
+				 * triggers removal of a filenode given serverside removeal
+				 * was successful
+				 *
+				 * @param {Object} event the event Object
+				 * @api public
+				 */
+				deleteFile: function (event) {
+					var t = $(event.target),
+					fileNode = t.parents().filter('.file'),
+					parentNode = fileNode.parent(),
+					file = this.getFile(fileNode);
+
+					var message = Symphony.Language.get(SysMessage.confirm_file_deletion, {
+						'file': file.get('name') || file.get('path')
+					});
+
+					if (this.confirm(message)) {
+						this.collection.deleteItem(file, 'file').always(function (response) {
+							new SysMessage(null, response);
+						}).done(function () {
+							if (file.get('selected')) {
+								file.set('selected', false);
+							}
+						});
+						//_select.call(this, {target: t.parent()[0]}, 'remove');
+					}
+				},
+
+				/**
+				 * triggers the createing of a directorynode given serverside
+				 * creating
+				 * was successful
+				 *
+				 * @param {Object} event the event Object
+				 * @api public
+				 */
+				createDir: function (event) {
+					var target = $(event.target),
+					dir = this.collection.get(target.parents().filter('.dir')[0].id),
+					compiled = $(templates.newdir({
+						parent: dir.get('path'),
+						level: ~~dir.get('level') + 1
+					}));
+					$('#sub-' + dir.id).prepend(compiled);
+					this.openDir(target.parents().filter('.dir'));
+					compiled.on('click', '.add', _.bind(_createDir, this, dir, compiled));
+					compiled.on('click', '.cancel', function () {
+						compiled.remove();
+					});
+				},
+
+				/**
+				 * opens or closes a directory node view
+				 * @param {Object} event the Event Object
+				 * @api public
+				 */
+				toggleDir: function (event) {
+					var target, subdir, trigger, toggle;
+					event.preventDefault();
+					event.stopPropagation();
+
+					target = $(event.target).parents().filter('.dir:not(#dir-list-root-' + this.collection.cid + ')').first();
+					subdir = target.find('> .sub-dir');
+					trigger = target.hasClass('open') ? 'close': 'open';
+					toggle = trigger === 'open' ? 'openDir': 'closeDir';
+
+					this[toggle](target);
+					//this.trigger('toggle', trigger);
+				},
+
+				/**
+				 * opens a directory node view
+				 *
+				 * @param {Object} node jQuery DOM object the node which should
+				 * be opened
+				 * @api public
+				 */
+				openDir: function (node) {
+					if (helper.isjQueryObject(node)) {
+						node.find('> .sub-dir').slideDown();
+						node.addClass('open');
+						//node.find('> ul .sub-dir');
+						this.collection.get(node[0].id).set('state', 'open');
+					}
+				},
+
+				/**
+				 * closes a directory node view
+				 *
+				 * @param {Object} node jQuery DOM object the node which should
+				 * be closed
+				 */
+				closeDir: function (node) {
+					node.find('> .sub-dir').slideUp();
+					node.removeClass('open');
+					this.collection.get(node[0].id).set('state', 'close');
+				},
+
+				enableTask: function (task, dir) {
+					this.dirViews[dir.id].trigger('enabletask', task);
+				},
+
+				disableTask: function (task, dir) {
+					this.dirViews[dir.id].trigger('disabletask', task);
+				},
+
+				/**
+				 * Renders a directory branch
+				 * @param {Object: Backbone.Model Instance} model the directory model
+				 * @api public
+				 */
+				renderPart: function (model) {
+					var dir, update = this.dirViews[model.id] ? true: false;
+
+					if (!update) {
+						dir = new DirView({
+							tagName: 'li',
+							id: model.id,
+							className: 'dir level-' + model.get('level'),
+							model: model
+						});
+						this.dirViews[model.id] = dir;
+					} else {
+						dir = this.dirViews[model.id];
+						dir.model = model;
+					}
+					dir.render(this.options.dirSettings, this.options.fileSettings, update);
+					if (update && _.isArray(model.get('subdirs'))) {
+						_.each(model.get('subdirs'), _.bind(_renderSubDirsOnUpdate, this));
+					}
+					update && this.trigger('update', dir);
+
+					_itemSetDraggable.call(this);
+					_itemSetDroppable.call(this);
+				},
+
+				/**
+				 * starts the initial render process.
+				 * This is nomaly done once
+				 *
+				 * @api public
+				 */
+				render: function () {
+					var view = this;
+					this.el.innerHTML = templates.dirtree({
+						name: this.options.baseName,
+						cid: this.collection.cid
+					});
+					this.collection.each(_.bind(this.renderPart, this));
+				},
+				/**
+				 * Fetches all DirView instances
+				 * from a given DirView instance
+				 *
+				 * @param	{DirView Instance}	dir
+				 * @param	{Boolean}			deep pass true to get all nested subdirs
+				 * @return	{Array}				all DirView instances that are subdirs of the given DirView
+				 * @api public
+				 */
+				getSubdirsFromView: function (dir, deep) {
+					var tree = this,
+					subdirs = dir.model.get('subdirs'),
+					res = [];
+
+					if (subdirs) {
+						_.each(subdirs, function (d) {
+							if (tree.dirViews[d.id]) {
+								res.push(tree.dirViews[d.id]);
+								if (deep && d.get('subdirs')) {
+									res.push.apply(res, tree.getSubdirsFromView(tree.dirViews[d.id], true));
+								}
+							}
+						});
+					}
+					return res;
+				},
+				/**
+				 * get a DirView Instance form
+				 * by passing in a directory model
+				 *
+				 * @method getDirViewByModel
+				 * @param	{Object:Directory Instance}		dir a given directory model
+				 * @return	{Mixed}							DirView Instance or undefined
+				 * @api public
+				 */
+				getDirViewByModel: function (dir) {
+					return this.dirViews[dir.id];
+				},
+
+				/**
+				 * get a DirView Instance form
+				 * by passing in a directory id
+				 *
+				 * @method getDirViewById
+				 * @param {String} id directory id
+				 * @return {Mixed} DirView Instance or undefined
+				 * @api public
+				 */
+				getDirViewById: function (id) {
+					return this.dirViews[id];
+				},
+
+				getFileViewByModel: function (model) {
+					var dirView = this.getDirViewById(model.get('dir').id),
+					fileView = dirView.getFileViewById(model.id);
+					return fileView;
+				}
+			});
+		} ());
+
+		_.extend(TreeView, {
+			DirView: DirView,
+			FileView: FileView,
+			MetaView: MetaView
+		});
+
+		return TreeView;
+	});
+} (this, this.Symphony, this.define));

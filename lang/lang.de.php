@@ -14,32 +14,41 @@
 	 * Filemanager
 	 * @package lang
 	 */
-	$dictionary = array(
-		'save section for further upload options' => 
+    $dictionary = array(
+		'Show filesearch' =>
+		'Dateisuche anzeigen',
+
+        'Filemanager Pagination' =>
+        'Dateimanager Pagination',
+
+        'Filemanager' =>
+        'Dateimanager',
+
+		'save section for further upload options' =>
 		'bitte speichern Sie den Bereich für weitere Optionen',
 
-		'Select options' => 
+		'Select options' =>
 		'Auswahl-Optionen',
 
-		'display mode' => 
+		'display mode' =>
 		'Anzeige Moddus',
 
-		'Limit file selection' => 
+		'Limit file selection' =>
 		'Dateiauswahl einschränken',
 
-		'Allow re-ordering selected' => 
+		'Allow re-ordering selected' =>
 		'Neuanordnung ausgewählter Dateien erlauben',
 
-		'Display selected files compact or as thumbnail list' => 
+		'Display selected files compact or as thumbnail list' =>
 		'Ausgewählte Dateien kompakt oder als Vorschauliste anzeigen',
 
 		'type any valid number (<code>0:</code> no limit, <code>-1:</code> selecting files is deaktivated)' =>
 		'geben Sie eine beliebige gültige Nummer ein (<code>0:</code> ohne Beschränkung, <code>-1:</code> Dateiauswahl ist deaktiviert)',
 
-		'{$count} files found' => 
-		'{$count} Dateien gefunden',		
+		'{$count} files found' =>
+		'{$count} Dateien gefunden',
 
-		'{$count} file found' => 
+		'{$count} file found' =>
 		'{$count} Datei gefunden',
 
 		'can\'t delete or move {$dir}. {$dir2} is used by another field' =>
@@ -68,7 +77,7 @@
 
 		'can\'t move {$file} to {$location}' =>
 		'kann {$file} nicht nach {$location} verschieben',
-		
+
 		'Failed creating Directory {$dir} in {$path}' =>
 		'Kann Verzeichnis {$dir} nicht in {$path} erstellen',
 
@@ -78,7 +87,7 @@
 		'Cannot upload {$file}' =>
 		'Kann Datei {$file} nicht auf den Server laden',
 
-		'{$file} successfully uploaded' => 
+		'{$file} successfully uploaded' =>
 		'{$file} erfolgreich hochgeladen',
 
 		'Filemanager requires requirejs. Please make sure the extension <a href="https://github.com/iwyg/sym_requirejs">sym_requirejs</a> is installed' =>
@@ -133,7 +142,7 @@
 		'Eindeutige Dateinamen',
 
 		'Filebrowser' =>
-		'Datebrowser',
+		'Dateibrowser',
 
 		'Selected files' =>
 		'Ausgewählte Dateien',
@@ -190,5 +199,5 @@
 		'Geben Sie hier die MIME Typen an, die standardmäßig für den Upload erlaubt werden sollen (getrennt durch ein Leerzeichen). </br>Sie können auch Platzhalter vergeben: <code>text/*</code> erlaubt z.B. alle textbasierten MIME Typen. Tragen sie nur ein einziges <code>*</code> ein, werden standardmäßig alle Dateitypen akzeptiert (nicht empfohlen)',
 
 			'Define which files should be ignored by the directory listing. Separate them with a whitespace character.' =>
-		'Legen Sie hier fest, welche Dateine in der Verzeichnisauflistung ignoriert werden sollen und trennen Sie diese durch eine Leerzeichen.'	
+		'Legen Sie hier fest, welche Dateine in der Verzeichnisauflistung ignoriert werden sollen und trennen Sie diese durch eine Leerzeichen.'
 	);
