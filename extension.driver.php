@@ -75,6 +75,7 @@ cLass extension_filemanager extends Extension
                 `ignore_files` varchar(255),
                 `limit_files` int(11) default NULL,
                 `allow_file_delete` tinyint(1) default '0',
+                `allow_file_search` tinyint(1) default '1',
                 `allow_sort_selected` tinyint(1) default '0',
                 `select_uploaded_files` tinyint(1) default '0',
                 `unique_file_name` tinyint(1) default '0',
