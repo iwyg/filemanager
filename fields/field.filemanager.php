@@ -26,7 +26,6 @@ define('FILEMANAGER_WORKSPACE', preg_replace('/\//i', DIRECTORY_SEPARATOR , WORK
 
 require_once(TOOLKIT . '/fields/field.upload.php');
 require_once(EXTENSIONS . '/filemanager/lib/class.directorytools.php');
-require_once(EXTENSIONS . '/firebug_profiler/lib/FirePHPCore/fb.php');
 
 class fieldFilemanager extends Field
 {
