@@ -1,0 +1,1 @@
+(function(a,b){typeof a=="function"&&a.amd?a(["jquery"],b):b(this.jQuery)})(this.define,function(a){var b=jQuery.cleanData;a.cleanData=function(c){for(var d=0,e;(e=c[d])!==undefined;d++)a(e).triggerHandler("destroyed");b(c)}})
