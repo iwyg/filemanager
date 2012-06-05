@@ -50,7 +50,7 @@ you want to ignore all files with  `.jpg` and  `.gif` extensions, write
 #### `Directory options`: 
 
 Set the rootdirectory within `workspace` and select which directories should be excluded. You can also choose to allow
-moving, removing and/or creating directories. Uncheck `Show filesearch` if don't need fielsearch on this field (since 1.0.5).
+moving, removing and/or creating directories. Uncheck `Show filesearch` if you don't need fielsearch on this field (since 1.0.5).
 
 ![Filebrowser View](http://dev.thomas-appel.com/symphony/assets/sym_fm_1_settings_fileuoload_a.png)
 

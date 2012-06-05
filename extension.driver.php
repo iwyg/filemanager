@@ -186,7 +186,7 @@ cLass extension_filemanager extends Extension
      */
     public function update($previousVersion)
     {
-        $beta_dev = preg_match('/^\w+\s?/i');
+        $beta_dev = preg_match('/^\w+\s?/i', $previousVersion);
         $previousVersion = preg_replace('/^\w+\s?/i', '', $previousVersion);
 
         if ($beta_dev && version_compare($previousVersion, '1.2', '<')) {
