@@ -62,11 +62,6 @@
 			}
 		};
 
-		_.each(fm_settings.instances,  function (set) {
-			set.deferred = new Config().get(set.field_id);
-		});
-
-
 		// DOMREADY
 		// ==================================================================
 		$(function () {
@@ -76,6 +71,7 @@
 				var formData = form.serialize();
 				$.ajax({type: 'POST', url: form.attr('action'), data: formData});
 			};
+
 
 			_.each(fm_settings.instances, function (manager, name) {
 				var wrapper = $('#' + name),
@@ -90,6 +86,7 @@
 				wrapper.addClass('loading');
 
 				// setup sections when settings are available
+				manager.deferred = new Config().get(manager.field_id);
 				manager.deferred.done(function (settings) {
 					var dirSettings = {},
 					fileSettings = {};
