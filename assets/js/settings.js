@@ -1,8 +1,1 @@
-(function (define, Symphony) {
-	define(function () {
-		return {
-			root: Symphony.Context.get('root'),
-			instances: {}
-		};
-	});
-}(this.define, this.Symphony));
+(function(a,b){a(function(){return{root:b.Context.get("root"),instances:{}}})})(this.define,this.Symphony)
