@@ -1,17 +1,17 @@
-<?php 
+<?php
 /**
  * @package filemanager
  * @author thomas appel <mail@thomas-appel.com>
 
  * Displays <a href="http://opensource.org/licenses/gpl-3.0.html">GNU Public License</a>
  * @license http://opensource.org/licenses/gpl-3.0.html GNU Public License
- */ 
+ */
 
 require_once(TOOLKIT . '/class.alert.php');
 
 Class extension_filemanager extends Extension {
 
-	public function __construct(Array $args) { 
+	public function __construct(Array $args) {
 		parent::__construct($args);
 	}
 
@@ -19,8 +19,8 @@ Class extension_filemanager extends Extension {
 		return array(
 			'name' => 'Filemanager',
 			'type'	=> 'field',
-			'version' => '1.0.1.1',
-			'release-date' => '2012-05-16',
+			'version' => '1.0.1.2',
+			'release-date' => '2012-06-06',
 			'author' => array(
 				'name' => 'Thomas Appel',
 				'email' => 'mail@thomas-appel.com',
@@ -46,32 +46,32 @@ Class extension_filemanager extends Extension {
 				'page' => '/system/preferences/',
 				'delegate' => 'AddCustomPreferenceFieldsets',
 				'callback' => '__appendPreferences'
-			),				
+			),
 			array(
 				'page' => '/system/preferences/',
 				'delegate' => 'Save',
 				'callback' => 'save'
-			),				
+			),
 			array(
 				'page' => '/backend/',
 				'delegate' => 'AppendPageAlert',
 				'callback' => '__checkDependencies'
-			),				
+			),
 		);
 	}
 
 	/**
 	 * TODO: Fix error catching
-	 */ 
+	 */
 	public function uninstall() {
 		/* Drop configuration array */
 		Symphony::Configuration()->remove('filemanager');
-		Administration::instance()->saveConfig();	
+		Administration::instance()->saveConfig();
 		/* Drop database tables */
 		try {
 			Symphony::Database()->query("DROP TABLE `tbl_fields_filemanager`");
 		} catch (DatabaseException $db_err) {
-			
+
 		}
 		return true;
 	}
@@ -82,7 +82,7 @@ Class extension_filemanager extends Extension {
 			Symphony::Configuration()->set('ignore', base64_encode('^\..*'), 'filemanager');
 		}
 
-		Administration::instance()->saveConfig();	
+		Administration::instance()->saveConfig();
 
 		Symphony::Database()->query(
 			"CREATE TABLE `tbl_fields_filemanager` (
@@ -161,13 +161,13 @@ Class extension_filemanager extends Extension {
 		$group->appendChildArray($ca);
 
 		$context['wrapper']->appendChild($group);
-	}	
+	}
 
 	public function save(&$context) {
 		if (!empty($context['settings']['filemanager']['ignore'])) {
 			$context['settings']['filemanager']['ignore'] = base64_encode($context['settings']['filemanager']['ignore']);
 		}
-	}	
+	}
 	/**
 	 * @see http://symphony-cms.com/learn/api/2.2/toolkit/extension/#update
 	 */
@@ -181,9 +181,9 @@ Class extension_filemanager extends Extension {
 				$ignore = preg_replace('/(^\/|\/\w+$)/i', '', $ignore);
 
 				Symphony::Configuration()->set('ignore', base64_encode($ignore), 'filemanager');
-				Administration::instance()->saveConfig();	
+				Administration::instance()->saveConfig();
 			}
-			
+
 			if(version_compare($previousVersion, '1.4.5', '<')) {
 				$stats[] = Symphony::Database()->query("ALTER TABLE `sym_fields_filemanager` ADD `allow_sort_selected` tinyint(1) default '0'");
 				$stats[] = Symphony::Database()->query("ALTER TABLE `sym_fields_filemanager` ADD `display_mode` varchar(255) default 'compact'");

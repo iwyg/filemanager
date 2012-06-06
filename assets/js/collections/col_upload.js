@@ -1,1 +1,320 @@
-(function(a,b){a(["jquery","underscore","backbone","collections/col_general","modules/mod_async_upload","modules/mod_byteconverter"],function(a,c,d,e,f,g){function n(a){a===this&&this.trigger("destroyed",this)}function m(a){a.fail(c.bind(k,this)).done(c.bind(l,this));return a}function l(a,b){b==="success"&&this.trigger("success",this,a)}function k(b,c){c==="abort"&&this.trigger("cancled",this),c==="error"&&this.trigger("error",this,a.parseJSON(b.responseText))}var h,i,j;i=d.Model.extend({initialize:function(){this.collection.trigger("create",this),window._m=this,this.collection.on("remove",c.bind(n,this))},parse:function(a){},url:function(){return this.collection.url+"?field_id="+this.get("field_id")},defaults:{context:"",file:[],originalFiles:[],form:"",name:undefined,size:0,type:undefined,id:undefined,field_id:undefined},_createSendData:function(){return{file:this.get("file")}},_filter:function(a,b){var d=b.split(" "),e={};c.each(a,function(a,b){c.include(d,b)&&(e[b]=a)});return e},send:function(){var a=new f({url:this.url()});a.on("progress",c.bind(this._onProgress,this)),this._upload=m.call(this,a.send(this._filter(this.toJSON(),"file context form")))},_onProgress:function(a,b){this.trigger("progress",Math.floor(a/b*100))},_onSuccess:function(){}}),j=function(){function p(a){alert(a)}function o(a){!a.name&&a.fileName&&(a.name=a.fileName),!a.size&&a.fileSize&&(a.size=a.fileSize);return a}function n(b){a[this.cid].push(b),this.trigger("push")}function m(a){d[this.cid].push(a),this.trigger("push")}function l(a){var b=d[this.cid],e=c.indexOf(b,a);e>-1&&(b.splice(e,1),this.trigger("flush"))}function k(b){var d=a[this.cid],e=c.indexOf(d,b);e>-1&&(d.splice(e,1),this._uploads--,this.trigger("flush"))}function j(a){var b=this,d=[],e=c.toArray(a[0].files);e.length||e.push({name:a[0].value.replace(/^.*\\/,"")}),c.each(e,function(i,j,k){var l=c.clone(b.model.prototype.defaults);i.type&&!f.call(b,i.type)?(e[j]=null,e.splice(j,1),b.trigger("invalidtype",i.name||i.fileName,i.type)):i.size&&!h.call(b,i.size)?(e[j]=null,e.splice(j,1),b.trigger("filesizeexceeds",i.name||i.fileName,i.size)):(l.form=a,l.file=i,l.originalFiles=k,l.name=i.name||i.fileName,l.size=g(i.size||i.fileSize),l.type=i.type,l.id=c.uniqueId(),d.push(l))});return d}function h(a){return parseInt(this.settings.max_file_size,10)<a?!1:!0}function f(a){return a.match(this.settings.allowed_types)?!0:!1}var a={},d={};return e.extend({events:{error:"_onError"},initialize:function(){this.cid=this.cid||"c"+c.uniqueId(),d[this.cid]=[],a[this.cid]=[],this.on("add",c.bind(n,this)),this.on("remove",c.bind(k,this))},url:b.Context.get("root")+"/symphony/extension/filemanager/upload/",model:i,addItem:function(a){var b=j.call(this,a);this.add(b)},removeItem:function(a){this.remove(a)},update:function(a,b){var d=this,e;c.isArray(b)?c.each(b,function(b){d.update(a,b)}):(e=this.get(a),e.set(b))},send:function(a){var b=this.get(a),d;b.on("success",c.bind(this.update,this)).on("success error cancled",c.bind(l,this)),d=b.send(),m.call(this,b),k.call(this,b);return b._upload},cancel:function(a){var b=this.get(a);if(b._upload&&!b._upload.isResolved()){b._upload.abort(),n.call(this,b);return!0}return!1},hasActiveUploads:function(){return!!d[this.cid].length},hasPendingUploads:function(){return!!a[this.cid].length}})}(),h=e.extend({constructors:{UploadList:j},addList:function(){var a=new j;c.each(this.settings,function(b,c){a.addSetting(c,b,!0)});return a},initialize:function(){this.settings=c.extend({},h.defaults)}}),h.defaults={field_id:null,allowed_types:["image/jpeg"]};return h})})(this.define,this.Symphony)
+/**
+ * @package Collections
+ * @author thomas appel <mail@thomas-appel.com>
+ *
+ * @requires jquery underscore backbone collections/col_general
+ * modules/mod_async_upload modules/mod_byteconverter
+ *
+ * Displays <a href="http://opensource.org/licenses/gpl-3.0.html">GNU Public License</a>
+ * @license http://opensource.org/licenses/gpl-3.0.html GNU Public License
+ */
+
+(function (define, Symphony) {
+	// define Collection
+	// ============================================================================================
+
+	define(['jquery', 'underscore', 'backbone', 'collections/col_general', 'modules/mod_async_upload', 'modules/mod_byteconverter'], function ($, _, Backbone, General, Upload, convertBytes) {
+		var UploadCollection, UploadListItem, UploadList;
+
+		function _onError(dfr, state) {
+			if (state === 'abort') {
+				this.trigger('cancled', this);
+			}
+
+			if (state === 'error') {
+				this.trigger('error', this, $.parseJSON(dfr.responseText));
+			}
+		}
+
+		function _onComplete(dfr, state) {
+			if (state === 'success') {
+				//this.trigger('success', this.id, dfr);
+				this.trigger('success', this, dfr);
+			}
+		}
+
+		function _setStateHandles(upload) {
+			upload
+				.fail(_.bind(_onError, this))
+				.done(_.bind(_onComplete, this));
+			return upload;
+		}
+		function _selfDestruct(model) {
+			if (model === this)  {
+				this.trigger('destroyed', this);
+			}
+		}
+
+		UploadListItem = Backbone.Model.extend({
+			initialize: function () {
+				this.collection.trigger('create', this);
+				window._m = this;
+				this.collection.on('remove', _.bind(_selfDestruct, this));
+			},
+
+			parse: function (data) {
+
+			},
+
+			url: function () {
+				return this.collection.url + '?field_id=' + this.get('field_id');
+			},
+
+			defaults: {
+				context: '',		// jQuery DOMObject
+				file: [],
+				originalFiles: [],
+				form: '',			// string
+				name: undefined,	// string
+				size: 0,			// number
+				type: undefined,	// string
+				id: undefined,
+				field_id: undefined
+			},
+			_createSendData: function () {
+				return {
+					file: this.get('file'),
+
+				};
+			},
+			_filter: function (o, filter) {
+				var f = filter.split(' '),
+				b = {};
+
+				_.each(o, function (a, k) {
+					if (_.include(f, k)) {
+						b[k] = a;
+					}
+				});
+				return b;
+
+			},
+			send: function () {
+				var upload = new Upload({url: this.url()});
+				upload.on('progress', _.bind(this._onProgress, this));
+				this._upload = _setStateHandles.call(this, upload.send(this._filter(this.toJSON(), 'file context form')));
+
+			},
+
+
+			_onProgress: function (l, t) {
+				this.trigger('progress', Math.floor((l / t) * 100));
+			},
+
+			_onSuccess: function () {
+			}
+		});
+		// UPLOAD FILES LIST
+		// ==================================================================
+		UploadList = (function () {
+
+			var _waitQueue = {},
+			_ulQueue = {};
+
+			function _validateType(mime) {
+
+				// var escaped = '(' + this.settings.allowed_types.join('|') + ')', filter;
+				// escaped = escaped.replace(/\/\*/g, '/.*');
+				// filter = new RegExp(escaped);
+
+				if (!mime.match(this.settings.allowed_types)) {
+					return false;
+				}
+				return true;
+			}
+
+			function _validateFileSize(size) {
+				if (parseInt(this.settings.max_file_size, 10) < size) {
+					return false;
+				}
+				return true;
+			}
+
+			function _parse(data) {
+				var collection = this, list = [],
+				files = _.toArray(data[0].files);
+				// if files property doesn't exsits, browser doesn't support
+				// File API, so we're faking it:
+				if (!files.length) {
+					files.push({
+						name: data[0].value.replace(/^.*\\/, '')
+					});
+				}
+
+				_.each(files, function (file, it, ofiles) {
+					var d =  _.clone(collection.model.prototype.defaults);
+					// if browser doesn't support file API, validate file site
+					// and type on the server
+					if (file.type && !_validateType.call(collection, file.type)) {
+						files[it] = null;
+						files.splice(it, 1);
+						collection.trigger('invalidtype', file.name || file.fileName, file.type);
+					} else if (file.size && !_validateFileSize.call(collection, file.size)) {
+						files[it] = null;
+						files.splice(it, 1);
+						collection.trigger('filesizeexceeds', file.name || file.fileName, file.size);
+
+					} else {
+						d.form = data;
+						d.file = file;
+						d.originalFiles = ofiles;
+						d.name = file.name || file.fileName;
+						d.size = convertBytes(file.size || file.fileSize);
+						d.type = file.type;
+						d.id = _.uniqueId();
+						list.push(d);
+					}
+				});
+				return list;
+			}
+
+			function _flushWaitQueue(model) {
+				var q = _waitQueue[this.cid],
+				index = _.indexOf(q, model);
+
+				if (index > -1) {
+					q.splice(index, 1);
+					this._uploads--;
+					this.trigger('flush');
+				}
+			}
+
+			function _flushUlQueu(model) {
+				var q = _ulQueue[this.cid],
+				index = _.indexOf(q, model);
+				if (index > -1) {
+					q.splice(index, 1);
+					this.trigger('flush');
+				}
+			}
+
+			function _pushUlQueue(model) {
+				_ulQueue[this.cid].push(model);
+				this.trigger('push');
+			}
+
+			function _pushWaitQueu(model) {
+				_waitQueue[this.cid].push(model);
+				this.trigger('push');
+			}
+
+			function _sanitizeFile(file) {
+				// in older geko version, file.name and file.size are getters
+				// only. so we cannot redeclare these properties
+				if (!file.name && file.fileName) {
+					file.name = file.fileName;
+				}
+				if (!file.size && file.fileSize) {
+					file.size = file.fileSize;
+				}
+				return file;
+			}
+
+			function _onError(message) {
+				alert(message);
+			}
+
+			return General.extend({
+
+				events: {
+					'error': '_onError'
+				},
+
+				initialize: function () {
+					this.cid = this.cid || 'c' + _.uniqueId();
+					_ulQueue[this.cid] = [];
+					_waitQueue[this.cid] = [];
+
+					this.on('add', _.bind(_pushWaitQueu, this));
+					this.on('remove', _.bind(_flushWaitQueue, this));
+				},
+
+				url: Symphony.Context.get('root') + '/symphony/extension/filemanager/upload/',
+
+				model: UploadListItem,
+
+				addItem: function (data) {
+					var model = _parse.call(this, data);
+					this.add(model);
+				},
+
+				removeItem: function (id) {
+					this.remove(id);
+				},
+
+				update: function (id, update) {
+					var col = this, m;
+					if (_.isArray(update)) {
+						_.each(update, function (upd) {
+							col.update(id, upd);
+						});
+					} else {
+						m = this.get(id);
+						m.set(update);
+						//_flushWaitQueue.call(this, m);
+					}
+
+				},
+
+				send: function (id) {
+					var model = this.get(id), send;
+					model
+						.on('success', _.bind(this.update, this))
+						.on('success error cancled', _.bind(_flushUlQueu, this));
+
+					send = model.send();
+
+					_pushUlQueue.call(this, model);
+					_flushWaitQueue.call(this, model);
+
+					return model._upload;
+				},
+
+				cancel: function (id) {
+					var model = this.get(id);
+					if (model._upload && !model._upload.isResolved()) {
+						model._upload.abort();
+						_pushWaitQueu.call(this, model);
+						return true;
+					}
+					return false;
+				},
+
+				hasActiveUploads: function () {
+					return !!_ulQueue[this.cid].length;
+				},
+
+				hasPendingUploads: function () {
+					return !!_waitQueue[this.cid].length;
+				}
+			});
+		}());
+
+		UploadCollection = General.extend({
+
+			constructors : {
+				UploadList: UploadList
+			},
+
+			addList: function () {
+				var list = new UploadList();
+				_.each(this.settings, function (val, key) {
+					list.addSetting(key, val, true);
+				});
+				return list;
+			},
+
+			initialize: function () {
+				this.settings = _.extend({}, UploadCollection.defaults);
+			}
+		});
+
+		UploadCollection.defaults = {
+			field_id: null,
+			allowed_types: ['image/jpeg']
+		};
+
+		return UploadCollection;
+	});
+
+}(this.define, this.Symphony));

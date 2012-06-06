@@ -57,10 +57,6 @@
 			}
 		};
 
-		_.each(fm_settings.instances,  function (set) {
-			set.deferred = new Config().get(set.field_id);
-		});
-
 
 		// DOMREADY
 		// ==================================================================
@@ -83,6 +79,7 @@
 
 				wrapper.addClass('loading');
 
+				manager.deferred = new Config().get(manager.field_id);
 				// setup sections when settings are available
 				manager.deferred.done(function (settings) {
 					var dirSettings = {},

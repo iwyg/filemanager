@@ -134,6 +134,10 @@ preview (if available).
 
 ## Changelog
 
+### 1.0.1.2, 2012-06-06
+
+- bugfixes: Opera related issue
+
 ### 1.0.1.1, 2012-05-16
 
 - bugfixes

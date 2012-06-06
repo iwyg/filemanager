@@ -14,19 +14,22 @@
 		</author>
 	</authors>
 	<releases>
-		<release version="1.0.1.1" date="2012-05-16" min="2.2.5">
+		<release version="1.0.1.2" date="2012-06-06" min="2.2.5" max="2.2.5">
+			- bugfixes: Opera related issue
+		</release>
+		<release version="1.0.1.1" date="2012-05-16" min="2.2.5" max="2.2.5">
 			- bugfixes
-			- added possibility to completely deactivate file selection.  
+			- added possibility to completely deactivate file selection.
 		</release>
 		<release version="1.0.1" date="2012-05-09" min="2.2.5">
 			- minor css fix
 			- new release-build
 		</release>
 		<release version="1.0.0" date="2012-04-25" min="2.2.5">
-			- filemanager field can now hav multiple instances 
-			- added filesearch view 
+			- filemanager field can now hav multiple instances
+			- added filesearch view
 			- selections can now be reordered
-			- selection view can now be displayed in two different modes (`preview` and `compact`)  
+			- selection view can now be displayed in two different modes (`preview` and `compact`)
 			- design changes
 		</release>
 		<release version="beta 1.3.2" date="2012-04-19" min="2.2.5">
@@ -56,7 +59,7 @@
 		</release>
 		<release version="beta 1.1" date="2012-04-12" min="2.2.5">
 			- fixed directory update behaviour
-			- deprecated field setting that would cause an error 
+			- deprecated field setting that would cause an error
 		</release>
 		<release version="beta 1.0" date="2012-04-11" min="2.2.5">
 			- initial release
