@@ -65,7 +65,7 @@ cLass extension_filemanager extends Extension
         }
 
         Symphony::Configuration()->write();
-        return Symphony::Database()->query(
+        Symphony::Database()->query(
             "CREATE TABLE IF NOT EXISTS `tbl_fields_filemanager` (
                 `id` int(11) unsigned NOT NULL auto_increment,
                 `field_id` int(11) unsigned NOT NULL,
@@ -88,7 +88,8 @@ cLass extension_filemanager extends Extension
                 PRIMARY KEY (`id`),
                 KEY `field_id` (`field_id`)
             ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;"
-        );
+		);
+		return true;
     }
 
 
@@ -110,7 +111,7 @@ cLass extension_filemanager extends Extension
         if ($callback['driver'] == 'publish' && $callback['context']['page'] != 'index') {
             if (self::hasInstance('filemanager', $callback['context']['section_handle'])) {
                 Administration::instance()->Page->addStylesheetToHead(URL . '/extensions/filemanager/assets/css/filemanager.publish.css', 'screen', 100, false);
-                Administration::instance()->Page->addScriptToHead(URL . '/extensions/filemanager/assets/js/init.js', 112, false);
+                Administration::instance()->Page->addScriptToHead(URL . '/extensions/filemanager/assets/js/filemanager.init.js', 112, false);
             }
         }
     }
