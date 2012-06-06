@@ -42,18 +42,8 @@
 		}
 
 		Backbone.emulateHTTP = true;
-		/*
-		function C() {
-			if (typeof this.initialize === 'function') {
-				this.initialize.apply(this, arguments);
-			}
-		}
-		C.prototype = _.extend({}, Backbone.Events);
-		C.extend = Backbone.Model.extend;
-		*/
-		function Config() {
-			return this;
-		}
+
+		function Config() {}
 
 		Config.prototype = {
 			url: fm_settings.root + '/symphony/extension/filemanager/settings/',
@@ -61,11 +51,6 @@
 				return $.ajax({url: this.url, data: {'field_id': id}});
 			}
 		};
-
-		_.each(fm_settings.instances,  function (set) {
-			set.deferred = new Config().get(set.field_id);
-		});
-
 
 		// DOMREADY
 		// ==================================================================
@@ -76,6 +61,7 @@
 				var formData = form.serialize();
 				$.ajax({type: 'POST', url: form.attr('action'), data: formData});
 			};
+
 
 			_.each(fm_settings.instances, function (manager, name) {
 				var wrapper = $('#' + name),
@@ -90,6 +76,7 @@
 				wrapper.addClass('loading');
 
 				// setup sections when settings are available
+				manager.deferred = new Config().get(manager.field_id);
 				manager.deferred.done(function (settings) {
 					var dirSettings = {},
 					fileSettings = {};
@@ -206,34 +193,16 @@
 					}
 
 
-
-
-
-
 					dirTreeView.collection.deferred.always(function () {
 						wrapper.removeClass('loading');
 						container.slideDown();
 					});
 
 					$(window).on('beforeunload.getdiff', function () {
-						if (selectView.collection.getDiff()) {
+						if (SelectView && selectView.collection.getDiff()) {
 							changes = true;
 						}
 					});
-
-					/*
-					$(window).on('beforeunload.filemanager', function () {
-
-						if (selectView.collection.hasChanges()) {
-							submitForm();
-							form.submit();
-							return Symphony.Language.get(SysMessage.unsaved_changes);
-						}
-					});
-					form.on('submit', function () {
-						$(window).off('before.filemanager');
-					});
-				   */
 
 				});
 				var bindunload = _.debounce(function () {
