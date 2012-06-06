@@ -8,9 +8,9 @@
 
 	paths: {
 		'jquery': 'libs/jquery',
-		'fm_settings': 'settings',
+		//'fm_settings': 'settings',
 		//'bootstrap': 'bootstrap',
-		'orderable': '../../../../symphony/assets/symphony.orderable',
+		'orderable': '../../../../symphony/assets/js/symphony.orderable',
 		'jqueryui': 'libs/jquery-ui-1.8.18.custom',
 		'underscore': '../../../sym_backbonejs/assets/underscore',
 		'backbone': '../../../sym_backbonejs/assets/backbone',

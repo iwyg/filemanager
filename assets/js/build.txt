@@ -28,6 +28,7 @@ views/view_upload.js
 collections/col_directories.js
 modules/mod_helper.js
 views/view_directories.js
+views/view_search.js
 collections/col_select.js
 views/view_select.js
 modules/mod_syncmanager.js

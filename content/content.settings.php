@@ -1,35 +1,63 @@
-<?php 
+<?php
 /**
  * @package content
  * @author thomas appel <mail@thomas-appel.com>
 
  * Displays <a href="http://opensource.org/licenses/gpl-3.0.html">GNU Public License</a>
  * @license http://opensource.org/licenses/gpl-3.0.html GNU Public License
- */ 
+ */
 
 require_once(EXTENSIONS . '/filemanager/lib/class.jsonpage.php');
 require_once(TOOLKIT . '/class.fieldmanager.php');
 require_once(EXTENSIONS . '/filemanager/fields/field.filemanager.php');
 
-Class contentExtensionFilemanagerSettings extends JSONPage {
-	static $exclude = array('/workspace/data-sources', '/workspace/events', '/workspace/pages', '/workspace/translations');	
+/**
+ * contentExtensionFilemanagerSettings
+ *
+ * @uses JSONPage
+ * @package
+ * @version $id$
+ * @copyright 1997-2005 The PHP Group
+ * @author Tobias Schlitt <toby@php.net>
+ * @license PHP Version 3.0 {@link http://www.php.net/license/3_0.txt}
+ */
+class contentExtensionFilemanagerSettings extends JSONPage
+{
+	static $exclude = array('/workspace/data-sources', '/workspace/events', '/workspace/pages', '/workspace/translations');
 
-	protected $_roots = array();
-	protected $_fid = NULL;
-	protected $_eid = NULL;
+    /**
+     * _roots
+     *
+     * @var array
+     * @access private
+     */
+	private $_roots = array();
+    /**
+     * _fid
+     *
+     * @var mixed
+     * @access private
+     */
+	private $_fid = NULL;
 
-	public function __construct(&$parent) {
-		parent::__construct($parent);
+    public function __construct()
+    {
+		parent::__construct();
 
 		GenericExceptionHandler::$enabled = false;
 		$post = General::getPostData();
 
 		$this->_roots = $this->sanitizePath($this->_getRootPaths());
 		$this->_fid = isset($_GET['field_id']) ? intval($_GET['field_id'], 10) : NULL;
-		$this->_eid = isset($_GET['entry_id']) ? intval($_GET['entry_id'], 10) : NULL;
 
 		if (is_null($this->_fid)) {
 			return;
+		}
+
+		$this->_instance = FieldManager::fetch($this->_fid);
+
+		if (empty($this->_instance) || !($this->_instance instanceof fieldFilemanager)) {
+			return $this->handleGeneralError('field doesn\'t exsit', array());
 		}
 
 		if (isset($post['set'])) {
@@ -39,36 +67,47 @@ Class contentExtensionFilemanagerSettings extends JSONPage {
 					$this->setAttribute($attr, $val);
 				}
 			}
-			//contentExtensionFilemanagerSettings::save($this->_fid);	
+			//contentExtensionFilemanagerSettings::save($this->_fid);
 		}
 		$this->process();
 
-	
+
 	}
 
-	public function process() {
+    public function process()
+    {
 		$this->setSettings();
 	}
 
-	public function setAttribute($attrib, $val=NULL) {
+    /**
+     * setAttribute
+     *
+     * @param mixed $attrib
+     * @param mixed $val
+     * @access public
+     * @return void
+     */
+    public function setAttribute($attrib, $val=NULL)
+    {
 		if ($val == NULL) {
 			return NULL;
 		}
-		$this->setFieldSettings($this->_fid, $attrib, 'test');
+		contentExtensionFilemanagerSettings::setFieldSettings($this->_fid, $attrib, 'test');
 	}
 
 	/**
-	 * fetch the fieldsetting array 
+	 * fetch the fieldsetting array
 	 * @param boolean $add convert settings or not
-	 */ 
-	public function setSettings($add=true) {
+	 */
+    public function setSettings($add=true)
+    {
 
 		$this->_settings = contentExtensionFilemanagerSettings::getFieldSettings($this->_fid);
 		if (!isset($this->_settings['allowed_types'])) {
-			$std_mime_types = Symphony::Configuration()->get('mimetypes', 'filemanager'); 
+			$std_mime_types = Symphony::Configuration()->get('mimetypes', 'filemanager');
 			$this->_settings['allowed_types'] = $std_mime_types ? $std_mime_types : '*./*';
 		}
-		$max_upload_size = Symphony::Configuration()->get('max_upload_size', 'admin'); 
+		$max_upload_size = Symphony::Configuration()->get('max_upload_size', 'admin');
 		$this->_settings['max_upload_size'] = $max_upload_size ? intval($max_upload_size) : 0;
 
 		$exp_allowed_types = '(' . implode('|', explode(' ', $this->get('allowed_types'))) . ')';
@@ -76,54 +115,7 @@ Class contentExtensionFilemanagerSettings extends JSONPage {
 
 		$this->_settings['allowed_types'] = preg_replace('/\//', '\\\/',$exp_allowed_types);
 
-		if ($add) $this->_Result = $this->convertSettings($this->_settings);
-	}
-
-
-	public function evalFiledHandleFilter(FieldManager $fm, $id) {
-		require_once(TOOLKIT . '/class.entrymanager.php');
-		$em = new EntryManager(Administration::instance());
-		$entry = $em->fetch($this->_eid);
-		$entry = $entry[0];
-		$data = $entry->getData();
-		$section_id = $entry->get('section_id');
-
-		$xpath = $fm->fetch($id)->get('filter_xpath');
-		$associated = $entry->fetchAllAssociatedEntryCounts();
-
-		$fields = array();
-
-		if (is_array($associated) and !empty($associated)) {
-			foreach ($associated as $section => $count) {
-				$handle = Symphony::Database()->fetchVar('handle', 0, "
-					SELECT
-						s.handle
-					FROM
-						`tbl_sections` AS s
-					WHERE
-						s.id = '{$section}'
-					LIMIT 1
-				");
-			}
-		}
-
-		foreach($data as $k => $v) {
-			if (isset($data[$k]['handle'])) {
-				$fields[$fm->fetch($k)->get('element_name')] = array('handle' => $data[$k]['handle'], 'id' => $k);
-			}
-		}
-
-		preg_match_all('/\{[^\}]+\}/', $xpath, $matches);
-		$exp = array();
-
-		foreach($matches[0] as $match) {
-			$key = preg_replace('/(^\{\$|\}$)/', '', $match);
-			if (isset($fields[$key])) {
-				$exp[] = $fields[$key]['handle'];
-				$xpath = preg_replace('/' . preg_replace('/(\{|\$|\})/', '\\\$0', $match) . '/', $fields[$key]['handle'], $xpath);
-			}
-		}
-		return $xpath;
+		if ($add) $this->_Result = $this->_convertSettings($this->_settings);
 	}
 
 	/**
@@ -131,8 +123,9 @@ Class contentExtensionFilemanagerSettings extends JSONPage {
 	 * and sanitizes exclude values
 	 *
 	 * @param array $settings the setting array to convert
-	 */ 
-	private function convertSettings(&$settings) {
+	 */
+    private function _convertSettings(&$settings)
+    {
 		foreach($settings as $item => $val) {
 			if (substr($item, 0, 6) == 'allow_') {
 				$settings[$item] = ($val == 0) ? false : true;
@@ -149,11 +142,12 @@ Class contentExtensionFilemanagerSettings extends JSONPage {
 	}
 
 	/**
-	 * fetches a the value from the setting array 
+	 * fetches a the value from the setting array
 	 *
 	 * @param string $key key name of setting
-	 */ 
-	public function get($key = NULL) {
+	 */
+    public function get($key = NULL)
+    {
 		if (!$key) return;
 		$val = $this->_settings[$key];
 		return isset($val) ? $val : NULL;
@@ -161,56 +155,49 @@ Class contentExtensionFilemanagerSettings extends JSONPage {
 
 	/**
 	 * Fetch the fieldsetting by a field id
-	 * returns a single setting value or the whole setting array if no setting 
+	 * returns a single setting value or the whole setting array if no setting
 	 * name is specified
 	 *
-	 * @param mixed $field_id the field id 
+	 * @param mixed $field_id the field id
 	 * @param string $setting setting name which should be fetched
 	 *
-	 * @return mixed  
+	 * @return mixed
 	 */
-	public function getFieldSettings($field_id = NULL, $setting = NULL) {
-		$f_mng = new FieldManager(Administration::instance());
-		$settings = $f_mng->fetch($field_id)->get($setting);
-
-		if (isset($settings['filter_xpath'])) {
-			try {
-				$this->evalFiledHandleFilter($f_mng, $field_id);
-			} catch (Exception $e) {
-				print_r($e);
-			}
-		}
-		return $settings;
+    public static function getFieldSettings($field_id = NULL, $setting = NULL)
+    {
+		$field = FieldManager::fetch($field_id);
+		return $field->get($setting);
 	}
-	
+
 	/**
 	 * Set a fieldsetting by a field id
 	 *
-	 * @param mixed $field_id the field id 
+	 * @param mixed $field_id the field id
 	 * @param string $attrib setting name which should be set
 	 * @param string $val setting value which should be set
 	 *
-	 * @return void  
+	 * @return void
 	 */
-	public function setFieldSettings($field_id = NULL, $attrib = NULL, $val = NULL) {
-		$f_mng = new FieldManager(Administration::instance());
-		$field = $f_mng->fetch($field_id);
+    public static function setFieldSettings($field_id = NULL, $attrib = NULL, $val = NULL)
+    {
+		$field = FieldManager::fetch($field_id);
 		$field->set($attrib, $val);
 		$field->commit();
 	}
-	
-	public function save($id) {
-		$f_mng = new FieldManager(Administration::instance());
-		return $f_mng->fetch($id)->commit();
+
+    public static function save($id)
+    {
+		return FieldManager::fetch($id)->commit();
 	}
-	
+
 	/**
 	 * Sanitize a Path(fragment) String by replacing the `\` or `/` with the `DIRECTORY_SEPARATOR` constant
 	 *
 	 * @param string $path
 	 * @return string sanitized pathfragment
-	 */ 
-	public function sanitizePathFragment($path) {
+	 */
+    public function sanitizePathFragment($path)
+    {
 		return preg_replace('/(\/|\\\)/i', DIRECTORY_SEPARATOR, $path);
 	}
 
@@ -220,23 +207,38 @@ Class contentExtensionFilemanagerSettings extends JSONPage {
 	 *
 	 * @return mixed string or array
 	 */
-	public function sanitizePath($path) {
+    public function sanitizePath($path)
+    {
 		if (is_array($path)) {
 			foreach	($path as $p => $d) {
 				$path[$p] = $this->sanitizePath($d);
 			}
 			return $path;
-		} 
+		}
 		return FILEMANAGER_WORKSPACE . substr($path, strlen(DIRECTORY_SEPARATOR . 'WORKSPACE'));
 	}
-	
-	public function getRootPaths() {
+
+    /**
+     * getRootPaths
+     *
+     * @access public
+     * @return void
+     */
+    public function getRootPaths()
+    {
 		return $this->_roots;
 	}
 
-	protected function _getRootPaths() {
+    /**
+     * _getRootPaths
+     *
+     * @access private
+     * @return void
+     */
+    private function _getRootPaths()
+    {
 		$dest = array();
-		$q = Symphony::Database()->fetch('SELECT `destination` FROM `sym_fields_filemanager`');
+		$q = Symphony::Database()->fetch('SELECT `destination` FROM `tbl_fields_filemanager`');
 
 		if (isset($q) && is_array($q)) {
 			foreach($q as $d) {
@@ -248,7 +250,16 @@ Class contentExtensionFilemanagerSettings extends JSONPage {
 		return $dest;
 	}
 
-	public function isRoot($path, $sanitize=NULL) {
+    /**
+     * isRoot
+     *
+     * @param mixed $path
+     * @param mixed $sanitize
+     * @access public
+     * @return void
+     */
+    public function isRoot($path, $sanitize=NULL)
+    {
 		if ($sanitize) {
 			$path = $this->sanitizePath($path);
 		}

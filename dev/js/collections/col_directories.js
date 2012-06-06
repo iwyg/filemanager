@@ -1,3 +1,5 @@
+/* vim: set noexpandtab tabstop=4 shiftwidth=4 softtabstop=4: */
+
 /**
  * @package Collections
  * @author thomas appel <mail@thomas-appel.com>
@@ -8,7 +10,7 @@
  */
 
 (function (define, Symphony) {
-	// body
+
 	define([
 		'jquery',
 		'underscore',
@@ -34,10 +36,19 @@
 		 * @augments Backbone.Model
 		 */
 		File = (function () {
-			function _notifyDirectory() {
-				this.get('dir').trigger('selected', this);
+			/**
+			 * context this: instanceof Backbone.Model
+			 */
+			function _ensureContext() {
+
+				if (!(this instanceof Backbone.Model)) {
+					throw ('function called with wron context');
+				}
 			}
-			function _selfDesctruct(model) {
+			function _notifyDirectory() {
+				this.collection.settings.selectable && this.get('dir').trigger('selected', this);
+			}
+			function _selfDestruct(model) {
 				if (model === this || model === this.get('dir')) {
 					this.set('selected', false);
 				}
@@ -49,10 +60,23 @@
 					}
 					this.set({'id': _.uniqueId(), 'selected': false, 'sorting': 0}, {silent: true});
 					this.on('change:selected', _.bind(_notifyDirectory, this));
-					this.collection.on('remove', _.bind(_selfDesctruct, this));
+					this.collection.on('remove', _.bind(_selfDestruct, this));
 
 					if (options.dir) {
-						this.get('dir').on('removed', _.bind(_selfDesctruct, this));
+						this.get('dir').on('removed', _.bind(_selfDestruct, this));
+					}
+				},
+
+				index: function () {
+					return this.collection.indexOf(this);
+				},
+
+				set: function (key) {
+					if (key === 'selected') {
+						return this.collection.settings.selectable && Backbone.Model.prototype.set.apply(this, arguments);
+					}
+					else {
+						return Backbone.Model.prototype.set.apply(this, arguments);
 					}
 				}
 			});
@@ -64,7 +88,10 @@
 		 * @augments Backbone.Collection
 		 */
 		Files = (function () {
-			return Backbone.Collection.extend({
+			/**
+			 * context this: instanceof Backbone.Collection
+			 */
+			return General.extend({
 
 				model: File,
 				getByFileName: function (fnames) {
@@ -72,6 +99,16 @@
 					return _.filter(this.models, function (file) {
 						return _.indexOf(fnames, file.get('path')) >= 0;
 					});
+				},
+
+				getFilesByIndexRange: function (start, end) {
+					var a = start < end ? start : end,
+					b = end > start ? end : start,
+					res	= [];
+					while (a <= b) {
+						res.push(this.at(a++));
+					}
+					return res;
 				}
 			});
 		}());
@@ -82,6 +119,9 @@
 		 */
 		Directory = (function () {
 
+			/**
+			 * context this: instanceof Backbone.Model
+			 */
 			function _reportState() {
 				this.collection.setSchemeState(this);
 			}
@@ -165,6 +205,10 @@
 					this.on('change:state', _.bind(_reportState, this));
 					this.on('change:parent', _.bind(_setSub, this));
 					this.set('state', this.collection.getSchemeStateByDir(this));
+
+					if (this.get('files')) {
+						this.get('files').addSetting('selectable', this.collection.canSelect());
+					}
 					//_setParent.call(this);
 					//_setSub.call(this);
 				},
@@ -213,6 +257,9 @@
 		 * @augments Backbone.Collection
 		 */
 		Directories = (function () {
+			/**
+			 * context this: instanceof Backbone.Collection
+			 */
 			var _filesCache = {};
 
 			function _createScheme() {
@@ -231,7 +278,6 @@
 			}
 
 			function _buildfilesCache() {
-				//console.log('building filescache', arguments);
 				var filegrp = [];
 				_.each(_.compact(this.pluck('files')), function (files) {
 					filegrp.push(files.models);
@@ -240,12 +286,12 @@
 			}
 
 			/**
-			 * takes nested directory models from the raw server response an
-			 * parese them in an unnseted array.
+			 * takes nested directory models from the raw server response and
+			 * parese them in an unnested array.
 			 *
 			 * Here, each directory gets a unique identifyer
 			 * If a directory has subdirectories, each subdirectory will get
-			 * a property called `_parent` with the value og its parent id
+			 * a property called `_parent` with the value of its parent id
 			 *
 			 * @name Directories#_parse
 			 *
@@ -258,10 +304,12 @@
 			 * @api private
 			 */
 			function _parse(dir, res, isroot) {
-				var that = this, uuid, subdir;
+				var that = this,
+				uuid,
+				subdir;
 
 				if (dir.directory) {
-					return _parse.call(this, dir.directory, res);
+					return _parse.call(that, dir.directory, res);
 				}
 
 				uuid = dir.id ? dir.id : 'dir' + _.uniqueId();
@@ -275,7 +323,7 @@
 						subdir = dir.subdirs.shift();
 						subdir.directory._parent = uuid;
 						//subdir.directory.parent = dir;
-						_parse.call(this, subdir, res);
+						_parse.call(that, subdir, res);
 					}
 				}
 
@@ -309,8 +357,8 @@
 				resp.directory.id = dir.id;
 				resp.directory.cid = dir.cid;
 
-				// subdirs will automatically remove them self when an remove
-				// event is triggered. We won't notify any one else than the
+				// subdirs will automatically remove themself if a remove
+				// event is triggered. We won't notify anyone else than the
 				// subdirs itself, so we remove them all together with option
 				// silent
 
@@ -335,7 +383,6 @@
 				initialize: function () {
 					this.cid = this.cid || 'c' + _.uniqueId();
 					//this.on('reset add update moved delete', _.throttle(_.bind(_buildfilesCache, this)), 0);
-					//console.log('subscribing filescache');
 					this.on('reset add update remove moved delete', _.bind(_buildfilesCache, this));
 					//this.on('reset', _.bind(_buildfilesCache, this));
 					//this.on('update', _.bind(_buildfilesCache, this));
@@ -483,7 +530,7 @@
 				 * takes an array of pathsnames or String as commy separated list
 				 *
 				 * @param {Mixed} fnames string or array
-				 * @return {Mixed} Array (found file models) or undefined
+				 * @return {Array} found file models
 				 */
 				getByFileName: function (fnames) {
 					var files = this.getFiles(),
@@ -493,15 +540,13 @@
 						fnames = fnames.replace(EXP_CS_LIST, ',').split(','); //allow comma separated lists
 					}
 
-					//console.log(fnames, 'fnames');
-
 					_.each(fnames, function (path) {
 						var fs = _.find(files, function (file) {
 							return file.get('path') === path;
 						});
 						fs && results.push(fs);
 					});
-					return results.length ? results : undefined;
+					return results;
 				},
 
 				/**
@@ -626,7 +671,7 @@
 				/**
 				 * Delete a directory or file from its collection
 				 *
-				 * @param {Backbone.Model instance} file the model to be removd
+				 * @param {Backbone.Model instance} file the model to be removed
 				 * @param {String} type accepts 'file' or 'dir'
 				 */
 				deleteItem: function (file, type) {
@@ -664,6 +709,9 @@
 						error: function () {}
 					});
 				},
+				canSelect: function () {
+					return true;
+				}
 			});
 		} ());
 		return Directories;

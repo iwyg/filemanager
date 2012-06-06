@@ -6,25 +6,30 @@
  */
 
 (function (jOuery, Symphony, require) {
-
+	'use strict';
 	var oldQ = jQuery;
 
 	require([
-		'fm_settings',
+		'settings',
 		'jquery',
 		'underscore',
 		'backbone',
 		'views/view_upload',
 		'views/view_directories',
+		'views/view_search',
 		'views/view_select',
 		'modules/mod_sysmessage',
 		'modules/mod_syncmanager',
 		'jqueryui',
 		'plugins/jquery-event-destroyed',
 		'orderable'
-	], function (fm_settings, $, _, Backbone, UploadView, TreeView, SelectView, SysMessage, syncManager) {
+	], function (fm_settings, $, _, Backbone, UploadView, TreeView, SearchView, SelectView, SysMessage, syncManager) {
 
-		var listings_base, upload_base, CoreSettings, changes = false;
+		var listings_base, upload_base, CoreSettings, changes = false,
+
+		cantSelect = function () {
+			return false;
+		};
 
 
 		$.noConflict();
@@ -37,29 +42,15 @@
 		}
 
 		Backbone.emulateHTTP = true;
-		/*
-		function C() {
-			if (typeof this.initialize === 'function') {
-				this.initialize.apply(this, arguments);
-			}
-		}
-		C.prototype = _.extend({}, Backbone.Events);
-		C.extend = Backbone.Model.extend;
-		*/
-		function Config() {
-			return this;
-		}
+
+		function Config() {}
 
 		Config.prototype = {
 			url: fm_settings.root + '/symphony/extension/filemanager/settings/',
-			get: function (id, entry) {
-				return $.ajax({url: this.url, data: {'field_id': id, 'entry_id': entry}});
+			get: function (id) {
+				return $.ajax({url: this.url, data: {'field_id': id}});
 			}
 		};
-		_.each(fm_settings.instances,  function (set) {
-			set.deferred = new Config().get(set.field_id, set.entry_id);
-		});
-
 
 		// DOMREADY
 		// ==================================================================
@@ -71,20 +62,26 @@
 				$.ajax({type: 'POST', url: form.attr('action'), data: formData});
 			};
 
+
 			_.each(fm_settings.instances, function (manager, name) {
 				var wrapper = $('#' + name),
 				container = $('#filemanager-container-' + manager.instance),
 				selectContainer = $('#filemanager-files-select-container-' + manager.instance),
 				dirTreeView,
+				searchView,
 				selectView,
-				upload;
+				upload,
+				limit;
 
 				wrapper.addClass('loading');
 
 				// setup sections when settings are available
+				manager.deferred = new Config().get(manager.field_id);
 				manager.deferred.done(function (settings) {
 					var dirSettings = {},
 					fileSettings = {};
+
+					limit = parseInt(settings.limit_files, 10);
 
 					_.each(settings, function (value, key) {
 						if (key.match(/^allow_dir_/)) {
@@ -108,24 +105,28 @@
 						baseName: settings.element_name //the field name we are postign to
 					});
 
+					if (limit === -1) {
+						selectContainer.remove();
+						dirTreeView.collection.canSelect = cantSelect;
+					}
+
 					syncManager.add(dirTreeView.collection);
 
 					dirTreeView.collection.on(syncManager.events, syncManager._callback);
-					// initialize selected files view
-					selectView = new SelectView({
-						dirtree: dirTreeView,
-						el: selectContainer.find('ul').get(0),
-						fieldname: settings.element_name,
-						mode: settings.display_mode,
-						sortable: settings.allow_sort_selected
-					});
 
-					if (settings.allow_dir_move) {
-						dirTreeView.$el.addClass('draggable');
+					// set searchin files:
+					if (settings.allow_file_search) {
+						searchView = new SearchView({
+							threshold: 3,
+							collection: dirTreeView.collection,
+							id: 'search-' + dirTreeView.cid
+						});
+						dirTreeView.$el.parent().find('label').after(searchView.$el);
 					}
 
-					if (settings.limit_files) {
-						selectView.collection.addSetting('limit', parseInt(settings.limit_files, 10));
+					// set moving directories:
+					if (settings.allow_dir_move) {
+						dirTreeView.$el.addClass('draggable');
 					}
 
 					// initialize upload selction if available
@@ -138,6 +139,7 @@
 
 						upload.collection.addSetting('allowed_types', new RegExp(settings.allowed_types), true);
 						upload.collection.addSetting('max_file_size', settings.max_upload_size);
+
 						upload.collection.addSetting('field_id', settings.field_id);
 
 						upload.on('uploadcreate', _.bind(dirTreeView.disableTask, dirTreeView, 'upload'));
@@ -151,30 +153,45 @@
 							//dirs._setSchemeState, dirs)
 						});
 					}
-					// setupt Events
-					// sync selection when directory is updated
-					dirTreeView.collection.on('update', function (dir) {
-						var currentSelected = selectView.collection.pluck('path'),
-						existing = dirTreeView.collection.getByFileName(currentSelected);
 
-						selectView.collection.reset(existing);
+					// set SelectView
+					if (limit !== -1) {
 
-						_.each(existing, function (f) {
-							f.set('selected', true);
+						// initialize selected files view
+						selectView = new SelectView({
+							dirtree: dirTreeView,
+							el: selectContainer.find('ul').get(0),
+							fieldname: settings.element_name,
+							mode: settings.display_mode,
+							sortable: settings.allow_sort_selected
 						});
 
-						selectView.render();
+						if (limit > 0) {
+							selectView.collection.addSetting('limit', limit);
+						}
+						//	if (limit === -1) {
+						//		selectView.collection.addSetting('limit', 0);
+						//	}
 
-					});
+						// setupt Events
+						// sync selection when directory is updated
+						dirTreeView.collection.on('update', function (dir) {
+							var currentSelected = selectView.collection.pluck('path'),
+							existing = dirTreeView.collection.getByFileName(currentSelected);
 
+							selectView.collection.reset(existing);
 
-					// unselect file if a file is deleted:
-					// dirTreeView.collection.on('itemdelete', function () {
-					//	console.log('item deleted', arguments);
-					// });
-					//selectView.on('prepoulate', _.bind(dirTreeView.selectById, dirTreeView));
-					//selectView.on('removedselected', _.bind(dirTreeView.unselectById, dirTreeView));
-					selectView.collection.on('selectionlimitexceed', dirTreeView.unselectById);
+							_.each(existing, function (f) {
+								f.set('selected', true);
+							});
+
+							selectView.render();
+
+						});
+
+						selectView.collection.on('selectionlimitexceed', _.bind(dirTreeView.unselectById, dirTreeView));
+					}
+
 
 					dirTreeView.collection.deferred.always(function () {
 						wrapper.removeClass('loading');
@@ -182,24 +199,10 @@
 					});
 
 					$(window).on('beforeunload.getdiff', function () {
-						if (selectView.collection.getDiff()) {
+						if (SelectView && selectView.collection.getDiff()) {
 							changes = true;
 						}
 					});
-
-					/*
-					$(window).on('beforeunload.filemanager', function () {
-
-						if (selectView.collection.hasChanges()) {
-							submitForm();
-							form.submit();
-							return Symphony.Language.get(SysMessage.unsaved_changes);
-						}
-					});
-					form.on('submit', function () {
-						$(window).off('before.filemanager');
-					});
-				   */
 
 				});
 				var bindunload = _.debounce(function () {

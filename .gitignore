@@ -2,9 +2,7 @@
 .DS_Store
 *.un~
 dev/ 
-/dev/ 
-/dev/* 
+dev/* 
 docs/
-/docs/
-/docs/*
+docs/*
 *.psd

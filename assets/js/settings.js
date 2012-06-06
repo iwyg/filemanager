@@ -1,1 +1,1 @@
-(function(a,b){a(function(){return{root:b.Context.get("root"),instances:{}}})})(this.define,this.Symphony)
+define(function(){})

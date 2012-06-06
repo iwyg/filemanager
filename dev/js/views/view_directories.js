@@ -6,6 +6,13 @@
  * @license http://opensource.org/licenses/gpl-3.0.html GNU Public License
  */
 
+/**
+ * @module TreeView
+ * @requires jQuery
+ * @requires Backbone
+ * @requires Underscore
+ */
+
 (function (window, Symphony, define) {
 	define([
 		'jquery',
@@ -18,103 +25,15 @@
 		'modules/mod_helper'
 	], function ($, _, Backbone, Dirs, templates, SysMessage, convertBytes, helper) {
 
-		var SearchView, FileView, DirView, MetaView, TreeView, metaStates = {},
-		siteRoot = Symphony.Context.get('root');
+		var FileView, DirView, MetaView, TreeView, metaStates = {},
+		siteRoot = Symphony.Context.get('root'),
+		$doc = $(document);
 
-		SearchView = (function () {
-			var threshold = 0, trcache;
-
-			function _addSelection(event) {
-				event.preventDefault();
-				var target = $([$(event.target), $(event.target).parents().filter('li')]).filter(function () {
-					return this.hasClass('result-item');
-				}),id;
-				id = target[0][0].id.replace(/result/, 'file');
-				target.addClass('selected');
-				//$('#' + id).find('> .text').trigger('click.dirtree');
-
-				var file = this.collection.getFileById(parseInt(id.substr(5), 10));
-				file.set('selected', true);
-			}
-
-			function _triggerSearch(event) {
-				var target, results, l;
-				threshold++;
-				this.reset();
-				trcache = this.options.threshold;
-				this.options.threshold = 0;
-				threshold = 0;
-				target = event.target;
-				results = this.collection.searchFiles(target.value);
-				l = results.length;
-				this.counter = $(templates.search_count({found: Symphony.Language.get(SysMessage[l === 1 ? 'count_file_found' : 'count_files_found'], {count: l})}));
-				_.each(results, _.bind(this.render, this));
-				this.field.after(this.counter);
-			}
-			function _clearOnEscape(event) {
-				if (event.keyCode !== 27) {
-					return;
-				}
-				this.reset();
-				this.field.val('').blur();
-			}
-			function _clear() {
-				_clearOnEscape.call(this, {keyCode: 27});
-			}
-			function _toggleSelected(model) {
-				var resultNode = $('#result-' + model.id);
-
-				if (resultNode.length) {
-					resultNode[model.get('selected') ? 'addClass' : 'removeClass']('selected');
-				}
-			}
-
-			function _bindEscape(event) {
-				this.field.parent().addClass('active');
-				$(document).on('keyup.searchlist', _.bind(_clearOnEscape, this));
-			}
-
-			function _unbindEscape(event) {
-				this.field.parent().removeClass('active');
-				$(document).off('keyup.searchlist');
-			}
-
-			return Backbone.View.extend({
-				events: {
-					'click.searchlist .result-item:not(.selected)': _addSelection,
-					'focus.searchlist input[type=text]': _bindEscape,
-					'blur.searchlist input[type=text]': _unbindEscape,
-					'click.searchlist .remove': _clear,
-					'keyup.searchlist input[type=text]' : _triggerSearch
-				},
-
-				initialize: function () {
-					this.template = templates.search_list;
-					this.list = this.$el.find('.results');
-					this.field = this.$el.find('input[type=text]');
-					this.collection.on('selected', _.bind(_toggleSelected, this));
-					//this.$el.on('keyup.searchlist input[type=text]', _.debounce(_.bind(_triggerSearch, this), 250));
-				},
-
-				reset: function () {
-					this.options.threshold = trcache;
-					this.list.empty();
-					if (this.counter) {
-						this.counter.remove();
-					}
-				},
-
-				render: function (file) {
-					var f = file.toJSON(), compiled;
-					f.thumb = helper.getThumbURL(file, '/image/2/40/40/5');
-					compiled = this.template(f);
-					this.list.append(compiled);
-				}
-			});
-		}());
 		/** ## MetaView
+		 * @module TreeView
+		 * @submodule MetaView
 		 * @class MetaView
-		 * @augments Backbone.View
+		 * @extends Backbone.View
 		 * @constructor
 		 */
 		MetaView = (function () {
@@ -132,12 +51,20 @@
 			 * @private
 			 * @api private
 			 */
-			function _switchSelected(type) {
+			function _switchSelected(model) {
+				console.log(arguments);
+				if (model.get('selected')) {
+					this.$el.addClass('file-selected');
+				} else {
+					this.$el.removeClass('file-selected');
+				}
+				/*
 				if (type === 'add') {
 					this.$el.addClass('file-selected');
 				} else if (type === 'remove') {
 					this.$el.removeClass('file-selected');
 				}
+			   */
 			}
 
 			return Backbone.View.extend({
@@ -147,7 +74,7 @@
 				},
 
 				/**
-				 * @name MetaView#initialize
+				 * @ #
 				 */
 				initialize: function () {
 					var switchSelected;
@@ -156,13 +83,13 @@
 					this.$el.on('destroyed', _.bind(this.remove, this));
 
 					switchSelected = _.bind(_switchSelected, this);
-					this.options.parentView
-						.on('select', switchSelected)
-						.on('unselect', switchSelected);
+					this.options.parentView.model
+						.on('change:selected', switchSelected);
+						//.on('unselect', switchSelected);
 				},
 
 				/**
-				 * @name MetaView#render
+				 * @method MetaVierender
 				 */
 				render: function () {
 					var data, compiled;
@@ -184,7 +111,7 @@
 				},
 
 				/**
-				 * @name MetaView#open
+				 * @method open
 				 */
 				open: function (hard) {
 					var metaView = this,
@@ -200,16 +127,20 @@
 					!hard ? this.$el.slideDown() : this.$el.css({display: 'block'});
 					this._open = true;
 					this.trigger('open', this);
+
+					_switchSelected.call(this, this.options.parentView.model);
+					/*
 					if (fileNode.hasClass('selected')) {
 						_switchSelected.call(this, 'add');
 					} else if (this.options.parentView.model.get('selected')) {
 						_switchSelected.call(metaView, 'add');
 				    }
+				   */
 					return this;
 				},
 
 				/**
-				 * @name MetaView#close
+				 * @method MetaView#close
 				 */
 				close: function (destroy) {
 					var that = this;
@@ -225,7 +156,7 @@
 				},
 
 				/**
-				 * @name MetaView#remove
+				 * @method MetaView#remove
 				 */
 				remove: function () {
 					this.undelegateEvents();
@@ -240,7 +171,7 @@
 		 *
 		 * Example: var metaView = MetaView.makeView.call(fileView);
 		 *
-		 * @name MetaView#makeView
+		 * @method MetaViemakeView
 		 * @static
 		 */
 		MetaView.makeView = function () {
@@ -395,7 +326,10 @@
 					parent && ! update && this.$el.appendTo(parent);
 					_setTasks.call(this);
 
-					this.model.get('state') === 'open' && this.$el.addClass(this.model.get('state'));
+					if (this.model.get('state') === 'open') {
+						this.$el.addClass(this.model.get('state'));
+						this.$el.find('> .sub-dir').css({display: 'block'});
+					}
 
 					if (update) {
 						this.trigger('update', this);
@@ -419,12 +353,18 @@
 			});
 		} ());
 
-		/** ## DIRECTORY TREE VIEW
-		 * @augments Backbone.View
+		/** ## Directory Tree View
+		 * Donec sed odio dui. Aenean eu leo quam. Pellentesque ornare sem
+		 * lacinia quam venenatis vestibulum. Cum `sociis` natoque penatibus
+		 * et magnis dis parturient montes, nascetur ridiculus mus.
+		 *
+		 * @extends Backbone.View
 		 * @constructor
 		 * @class TreeView
 		 */
 		TreeView = (function () {
+			var _last_selected = {},
+			_canSelectMultiple = {};
 			/**
 			 * Handles click event when file node gets selected
 			 * an triggers a select event and an select or unselect event on
@@ -447,9 +387,53 @@
 				//this.getDirViewByModel(fileModel.get('dir')).getFileByPath(fileModel.get('path')).trigger(event, type);
 			}
 
+			/**
+			 * helper function to determine if the shiftkey is pressed while
+			 * selecting files
+			 * @private
+			 */
+			function _multiSelectHelperOn(e) {
+				if (e.keyCode === 16) {
+					_canSelectMultiple[this.cid] = true;
+					this.$el.on('selectstart.dirtree', function (e) {
+						e.preventDefault();
+					});
+				}
+			}
+
+			/**
+			 * helper function to determine if the shiftkey is released while
+			 * selecting files
+			 * @private
+			 */
+			function _multiSelectHelperOff(e) {
+				if (e.keyCode === 16) {
+					this.$el.off('selectstart.dirtree');
+					_canSelectMultiple[this.cid] = false;
+				}
+			}
 
 			function _selectFile(file) {
-				this[file.get('selected') ? 'selectById' : 'unselectById'](file.id);
+				var that = this,
+				selected = file.get('selected'), files, last_selected = _last_selected[this.cid],
+				method = selected ? 'selectById' : 'unselectById', select;
+
+				if (this.canSelectMultiple()) {
+					files = file.collection.getFilesByIndexRange(file.index(), last_selected.index());
+					_.each(files, function (f) {
+						f.set('selected', selected);
+						that[method](f.id);
+						select = f;
+					});
+				} else {
+					select = file;
+					this[method](file.id);
+				}
+
+				if (selected) {
+					_last_selected[this.cid] = select;
+				}
+
 			}
 			/**
 			 * @private
@@ -686,11 +670,13 @@
 				}
 
 				_.each(fnames, function (path) {
-					var fm = view.collection.getByFileName(path),
-					fv = view.getFileViewByModel(fm[0]);
+					var fm = view.collection.getByFileName(path), fv;
+					fv = fm.length ? view.getFileViewByModel(fm[0]) : null;
 					if (fv) {
-						fv.setMetaView();
-						fv._metaView.open(true);
+						if (fv) {
+							fv.setMetaView();
+							fv._metaView.open(true);
+						}
 					}
 				});
 			}
@@ -721,6 +707,7 @@
 				},
 
 				initialize: function () {
+					var that = this;
 					this.collection = new Dirs();
 					this.dirViews = {};
 					this.collection.addSetting('field_id', this.options.field_id);
@@ -736,16 +723,17 @@
 					this.collection.on('selected', _.bind(_selectFile, this));
 					metaStates[this.collection.cid] = {};
 
-					this.searchView = new SearchView({
-						el : templates.search_bar({id: 'search-' + this.cid}),
-						threshold: 3,
-						collection: this.collection
-					});
+					this._canSelectMultiple = false;
+					_last_selected[this.cid] = null;
 
-					this.$el.parent().find('label').after(this.searchView.$el);
-					window['tree' + this.cid] = this;
+					$doc
+						.on('keydown.dirtree', _.bind(_multiSelectHelperOn, this))
+						.on('keyup.dirtree', _.bind(_multiSelectHelperOff, this));
 
-					//this.on('update', _.bind(_ensureDelegates, this));
+				},
+
+				canSelectMultiple: function () {
+					return _canSelectMultiple[this.cid];
 				},
 
 				tasks: function (e) {
@@ -914,7 +902,7 @@
 				 * @api public
 				 */
 				toggleDir: function (event) {
-					var target, subdir, toggle, trigger, toggle;
+					var target, subdir, trigger, toggle;
 					event.preventDefault();
 					event.stopPropagation();
 
@@ -938,6 +926,7 @@
 					if (helper.isjQueryObject(node)) {
 						node.find('> .sub-dir').slideDown();
 						node.addClass('open');
+						//node.find('> ul .sub-dir');
 						this.collection.get(node[0].id).set('state', 'open');
 					}
 				},
@@ -1010,9 +999,9 @@
 				 * Fetches all DirView instances
 				 * from a given DirView instance
 				 *
-				 * @param {DirView Instance} dir
-				 * @param {Boolean} deep pass true to get all nested subdirs
-				 * @return {Array} all DirView instances that are subdirs of the given DirView
+				 * @param	{DirView Instance}	dir
+				 * @param	{Boolean}			deep pass true to get all nested subdirs
+				 * @return	{Array}				all DirView instances that are subdirs of the given DirView
 				 * @api public
 				 */
 				getSubdirsFromView: function (dir, deep) {
@@ -1036,9 +1025,9 @@
 				 * get a DirView Instance form
 				 * by passing in a directory model
 				 *
-				 * @name TreeView#getDirViewByModel
-				 * @param {Object:Directory Instance} dir a given directory model
-				 * @return {Mixed} DirView Instance or undefined
+				 * @method getDirViewByModel
+				 * @param	{Object:Directory Instance}		dir a given directory model
+				 * @return	{Mixed}							DirView Instance or undefined
 				 * @api public
 				 */
 				getDirViewByModel: function (dir) {
@@ -1049,7 +1038,7 @@
 				 * get a DirView Instance form
 				 * by passing in a directory id
 				 *
-				 * @name TreeView#getDirViewById
+				 * @method getDirViewById
 				 * @param {String} id directory id
 				 * @return {Mixed} DirView Instance or undefined
 				 * @api public
@@ -1065,6 +1054,12 @@
 				}
 			});
 		} ());
+
+		_.extend(TreeView, {
+			DirView: DirView,
+			FileView: FileView,
+			MetaView: MetaView
+		});
 
 		return TreeView;
 	});

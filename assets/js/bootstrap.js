@@ -1,1 +1,1 @@
-(function(a){a("bootstrap",["fm_settings"],function(a){return function(b,c,d){a.instances["filemanager-"+d]={field_id:b,instance:d,entry_id:c}}})})(this.define)
+(function(a){a("bootstrap",["fm_settings"],function(a){return function(b,c){a.instances["filemanager-"+c]={field_id:b,instance:c}}})})(this.define)

@@ -8,11 +8,10 @@
 
 (function (define) {
 	define('bootstrap', ['fm_settings'], function (settings) {
-		return function (id, entry_id, instance) {
+		return function (id, instance) {
 			settings.instances['filemanager-' + instance] = {
 				field_id: id,
-				instance: instance,
-				entry_id: entry_id
+				instance: instance
 			};
 		};
 	});

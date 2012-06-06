@@ -19,20 +19,20 @@
 		var options = {};
 
 		return {
-			dirtree: _.template(dirtree),
-			dirtree_error: _.template(dirtree_error),
-			dirs: _.template(dirs),
-			newdir: _.template(newdir),
-			files: _.template(files),
-			selected_compact: _.template(selected_compact),
-			selected_preview: _.template(selected_preview),
-			upload: _.template(upload),
-			upload_list: _.template(upload_list),
-			upload_list_item: _.template(upload_list_item),
-			meta: _.template(meta),
-			search_bar: _.template(search_bar),
-			search_list: _.template(search_list),
-			search_count: _.template(search_count)
+			dirtree:			_.template(dirtree),
+			dirtree_error:		_.template(dirtree_error),
+			dirs:				_.template(dirs),
+			newdir:				_.template(newdir),
+			files:				_.template(files),
+			selected_compact:	_.template(selected_compact),
+			selected_preview:	_.template(selected_preview),
+			upload:				_.template(upload),
+			upload_list:		_.template(upload_list),
+			upload_list_item:	_.template(upload_list_item),
+			meta:				_.template(meta),
+			search_bar:			_.template(search_bar),
+			search_list:		_.template(search_list),
+			search_count:		_.template(search_count)
 		};
 	});
 }(this.define));

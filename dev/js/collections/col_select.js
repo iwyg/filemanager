@@ -37,7 +37,6 @@
 			initialize: function () {
 				this.cid = 'c' + _.uniqueId();
 				changes[this.cid] = [];
-				//this.on('add remove', _.bind(_unsaved, this));
 			},
 
 			record: function () {
@@ -58,7 +57,7 @@
 				modelsLength = isArray ? models.length : 1,
 				totalLength = this.models.length + modelsLength,
 				ids;
-				if (this.settings.limit && totalLength > this.settings.limit) {
+				if ((this.settings.limit !== undefined) && totalLength > this.settings.limit) {
 					ids = _.isArray(models) ? _.pluck(models, 'id') : models.id;
 					if (isArray) {
 						_.each(models, function (file) {

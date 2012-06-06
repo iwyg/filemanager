@@ -6,7 +6,7 @@
 	<% if (!moveable) {%>
 	<span class="ui-icon readonly"></span>	
 	<%}%>
-	<span class="ui-icon <%= cssclass %>"></span>
+	<span class="ui-icon file file-<%= extension %>"></span>
 	<span class="text" id="select-file-<%=id%>"><%= file %></span>
 	<% if (settings) { %>	
 	<span class="toolbar">

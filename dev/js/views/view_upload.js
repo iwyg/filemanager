@@ -8,7 +8,7 @@
 
 (function (Symphony, define, window, undefined) {
 
-	define(['jquery', 'underscore', 'backbone', 'collections/col_upload', 'modules/mod_animate_circle', 'modules/mod_sysmessage', 'templates/templates'], function ($, _, Backbone, upload, AnimatedCircle, SysMessage, templates) {
+	define(['jquery', 'underscore', 'backbone', 'collections/col_upload', 'modules/mod_animate_circle', 'modules/mod_sysmessage', 'templates/templates'], function ($, _, Backbone, Upload, AnimatedCircle, SysMessage, templates) {
 
 		var corf = Backbone.View.extend.call(function () {this.initialize.apply(this, arguments);}, Backbone.Events);
 		corf.extend = Backbone.View.extend;
@@ -51,6 +51,7 @@
 		});
 
 		// UPLOAD FILES LIST VIEW
+		// deprecated
 		// ==================================================================
 		var UploadListItemView = Backbone.View.extend({
 			events: {
@@ -58,7 +59,7 @@
 			},
 			initialize: function () {
 				//this.collection = new upload.constructors.UploadList();
-				this.collection = upload.addList();
+				//this.collection = upload.addList();
 				this.collection.field_id = this.options.field_id;
 				this.collection.on('create', _.bind(this.add, this));
 				this._ulQueue = [];
@@ -245,7 +246,7 @@
 					e.preventDefault();
 					this.cancel(e);
 					this.model.collection.remove(this.model);
-				},
+				}
 
 			});
 		}());
@@ -377,7 +378,7 @@
 				},
 				initialize: function () {
 					//this.collection = new upload.constructors.UploadList();
-					this.collection = upload.addList();
+					//this.collection = upload.addList();
 					this.collection
 						.on('create', _.bind(this.add, this))
 						.on('invalidtype', _.bind(_invalidType, this))
@@ -445,7 +446,7 @@
 					// remove all uploads first
 					this.$el.remove();
 					this.trigger('remove');
-				},
+				}
 			});
 		}());
 
@@ -459,10 +460,14 @@
 			},
 
 			initialize: function () {
+				var that = this;
 				this.files = [];
-				this.collection = upload;
+				this.collection = new Upload();
 				this.uploadList = {};
 				this._dirinstance = [];
+				this._notifyUploaded = _.debounce(function (dir) {
+					this.trigger('fileuploaded', dir);
+				}, 500);
 			},
 
 			toggleView: function () {
@@ -474,7 +479,8 @@
 					el: '#uploads-' + this.cid,
 					className: 'row item upload-container',
 					field_id: this.options.field_id,
-					destination: dir.get('path')
+					destination: dir.get('path'),
+					collection: this.collection.addList()
 				});
 				var me = this;
 				uploadList.render(dir);
@@ -484,9 +490,7 @@
 						me.$el.slideUp();
 					}
 				});
-				uploadList.on('fileuploaded', _.bind(function () {
-					me.trigger('fileuploaded', dir);
-				}));
+				uploadList.on('fileuploaded', _.bind(this._notifyUploaded, this, dir));
 
 			},
 
