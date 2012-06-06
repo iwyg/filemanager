@@ -65,8 +65,7 @@ cLass extension_filemanager extends Extension
         }
 
         Symphony::Configuration()->write();
-        $stats = array();
-        $stats[] = Symphony::Database()->query(
+        return Symphony::Database()->query(
             "CREATE TABLE IF NOT EXISTS `tbl_fields_filemanager` (
                 `id` int(11) unsigned NOT NULL auto_increment,
                 `field_id` int(11) unsigned NOT NULL,
@@ -90,21 +89,6 @@ cLass extension_filemanager extends Extension
                 KEY `field_id` (`field_id`)
             ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;"
         );
-        $stats[] = Symphony::Database()->query(
-            "CREATE TABLE IF NOT EXISTS `tbl_fields_filemanagerpagination` (
-                `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-                `field_id` int(11) unsigned NOT NULL,
-                `filemanager_id` int(11) unsigned default NULL,
-                PRIMARY KEY (`id`),
-                KEY `field_id` (`field_id`)
-            ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;"
-        );
-
-        if (in_array(false, $stats, true)) {
-            return false;
-        } else {
-            return true;
-        }
     }
 
 
@@ -123,11 +107,7 @@ cLass extension_filemanager extends Extension
     {
         $callback = Symphony::Engine()->getPageCallback();
         // Append styles for publish area
-        if ($callback['driver'] == 'publish') {
-        }
-
         if ($callback['driver'] == 'publish' && $callback['context']['page'] != 'index') {
-
             if (self::hasInstance('filemanager', $callback['context']['section_handle'])) {
                 Administration::instance()->Page->addStylesheetToHead(URL . '/extensions/filemanager/assets/css/filemanager.publish.css', 'screen', 100, false);
                 Administration::instance()->Page->addScriptToHead(URL . '/extensions/filemanager/assets/js/init.js', 112, false);
