@@ -120,7 +120,7 @@ Class extension_filemanager extends Extension {
 		}
 		if($callback['driver'] == 'publish' && $callback['context']['page'] != 'index') {
 			Administration::instance()->Page->addStylesheetToHead(URL . '/extensions/filemanager/assets/css/filemanager.publish.css', 'screen', 100, false);
-			Administration::instance()->Page->addScriptToHead(URL . '/extensions/filemanager/assets/js/init.js', 112, false);
+			Administration::instance()->Page->addScriptToHead(URL . '/extensions/filemanager/assets/js/filemanager.init.js', 112, false);
 		}
 	}
 
