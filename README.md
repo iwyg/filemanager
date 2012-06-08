@@ -10,6 +10,9 @@ Filemanager has two hard dependencies
 - [Backbone js for Symphony CMS][2]
 
 so if you want to use filemanager, please install these extensions first.
+(It is not necessary to install Backbone.js since it only provides the
+javascript source for backbone.js and underscore.js. Placing sym_backbonejs extension in
+your extensions directory without actually installing it shlould work fine). 
 
 ## Notes on Multiple field instances
 
