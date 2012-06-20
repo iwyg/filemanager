@@ -89,7 +89,7 @@
 				},
 
 				/**
-				 * @method MetaVierender
+				 * @method MetaVie#render()
 				 */
 				render: function () {
 					var data, compiled;

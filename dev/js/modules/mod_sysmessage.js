@@ -40,7 +40,12 @@
 	msgCache = [],
 	O = 0,
 
-	FILTER = /\{\$.*?\}/g;
+	FILTER = /\{\$.*?\}/g,
+
+	defaultMsg = {
+		message: 'undefined error',
+		context: null
+	};
 
 
 	define(['jquery', 'underscore'], function ($, _) {
@@ -55,9 +60,8 @@
 			this._msgID = O++;
 			parse = typeof parse === 'boolean' ? parse : true;
 			this.type = !type && response.status === 400 ? 'error' : response.success ? 'success' : type;
-			this.msgObj = this.type === 'success' ? response.success : this.type === 'error' ? parse ? $.parseJSON(response.responseText).STATUS_ERROR.error : response.error : {};
+			this.msgObj = this.type === 'success' ? response.success : this.type === 'error' ? (parse ? $.parseJSON(response.responseText).STATUS_ERROR : response.error) : defaultMsg;
 			msgQueue.push(this.parseMessage());
-
 			this.displayMessage();
 		}
 

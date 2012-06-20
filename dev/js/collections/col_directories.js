@@ -71,8 +71,11 @@
 					return this.collection.indexOf(this);
 				},
 
-				set: function (key) {
+				set: function (key, opts) {
 					if (key === 'selected') {
+						if (opts) {
+							console.log('selected', this.get('path'));
+						}
 						return this.collection.settings.selectable && Backbone.Model.prototype.set.apply(this, arguments);
 					}
 					else {

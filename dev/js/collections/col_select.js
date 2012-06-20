@@ -17,6 +17,10 @@
 			c.push(new Date().getTime());
 		}
 
+		function _preventSelect(file) {
+			file.set('selected', false);
+		}
+
 		function _diff(ref, other) {
 			var rl = ref.length, ol = other.length,
 			i = 0;
@@ -60,11 +64,13 @@
 				if ((this.settings.limit !== undefined) && totalLength > this.settings.limit) {
 					ids = _.isArray(models) ? _.pluck(models, 'id') : models.id;
 					if (isArray) {
-						_.each(models, function (file) {
-							file.set('selected', false);
-						});
+						setTimeout(function () {
+							_.each(models, _preventSelect);
+						}, 0);
 					} else {
-						models.set('selected', false);
+						setTimeout(function () {
+							_preventSelect(models);
+						}, 0);
 					}
 					this.trigger('selectionlimitexceed', ids);
 					return false;
