@@ -1,24 +1,21 @@
 <?php
-/* vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4: */
+/*
+vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4:
+*/
 
 /**
- * Short description for file
+ * This field provides fileaccess to you workspace directories with options
+ * to upload new files, create or delete directories, move files and
+ * directories.
+ * One may select one or more files per entry.
  *
- * Long description for file (if any)...
+ * PHP version 5.3
  *
- * PHP version 5
+ * @package Fields
+ * @author thomas appel <mail@thomas-appel.com>
+ * Displays <a href="http://opensource.org/licenses/gpl-3.0.html">GNU Public License</a>
+ * @license http://opensource.org/licenses/gpl-3.0.html GNU Public License
  *
- * LICENSE: This source file is subject to version 3.01 of the PHP license
- * that is available through the world-wide-web at the following URI:
- * http://www.php.net/license/3_01.txt.  If you did not receive a copy of
- * the PHP License and are unable to obtain it through the web, please
- * send a note to license@php.net so we can mail you a copy immediately.
- *
- * @category   CategoryName
- * @package    PackageName
- * @author     Thomas Appel <mail@thomas-appel.com>
- * @copyright  1997-2005 The PHP Group
- * @license    http://www.php.net/license/3_01.txt  PHP License 3.01
  */
 
 define('FILEMANAGER_EXCLUDE_DIRS', ',/workspace/events,/workspace/data-sources,/workspace/text-formatters,/workspace/pages,/workspace/utilities,/workspace/translations,/workspace/jit-image-manipulation');
@@ -45,7 +42,7 @@ class fieldFilemanager extends Field
     protected static $field_instance = 0;
 
     /**
-     * @see http://symphony-cms.com/learn/api/2.2.5/toolkit/field/#__construct
+     * @see toolkit.Field/#__construct()
      */
     public function __construct()
     {
@@ -57,18 +54,37 @@ class fieldFilemanager extends Field
         $this->_i = 0;
     }
 
+    /**
+     * _setJSRequireFunc
+     *
+     * create the requirejs bootstrap-func call for a fieldinstance.
+     *
+     * @param {Integer} $id         field id
+     * @param {Integer} $instance   field instance
+     * @static
+     * @access private
+     * @return {String} the js-function string
+     */
     private static function _setJSRequireFunc($id, $instance)
     {
         return '(function(define, id, instance) {require(["bootstrap"], function (fn) {fn(id, instance);})}(this.define, ' . $id . ', ' . $instance . '));';
     }
 
+    /**
+     * getInstance
+     *
+     * return the fields instance
+     *
+     * @access public
+     * @return void
+     */
     public function getInstance()
     {
         return self::$instance;
     }
 
     /**
-     * @see http://symphony-cms.com/learn/api/2.2.5/toolkit/field/#canFilter
+     * @see toolkit.Field/#canFilter()
      */
     public function canFilter()
     {
@@ -76,7 +92,7 @@ class fieldFilemanager extends Field
     }
 
     /**
-     * @see http://symphony-cms.com/learn/api/2.2.5/toolkit/field/#isSortable
+     * @see toolkit.Field#isSortable()
      */
     public function isSortable()
     {
@@ -84,7 +100,7 @@ class fieldFilemanager extends Field
     }
 
     /**
-     * @see http://symphony-cms.com/learn/api/2.2.5/toolkit/field/#mustBeUnique
+     * @see toolkit.Field#mustBeUnique()
      */
     public function mustBeUnique()
     {
@@ -92,7 +108,7 @@ class fieldFilemanager extends Field
     }
 
     /**
-     * @see http://symphony-cms.com/learn/api/2.2.5/toolkit/field/#allowDatasourceOutputGrouping
+     * @see toolkit.Field#allowDatasourceOutputGrouping()
      */
     public function allowDatasourceOutputGrouping()
     {
@@ -100,7 +116,7 @@ class fieldFilemanager extends Field
     }
 
     /**
-     * @see http://symphony-cms.com/learn/api/2.2.5/toolkit/field/#allowDatasourceParamOutput
+     * @see toolkit.Field##allowDatasourceParamOutput
      */
     public function allowDatasourceParamOutput()
     {
@@ -108,7 +124,7 @@ class fieldFilemanager extends Field
     }
 
     /**
-     * @see http://symphony-cms.com/learn/api/2.2.5/toolkit/field/#commit
+     * @see toolkit.Field##commit
      */
     public function commit()
     {
@@ -143,7 +159,7 @@ class fieldFilemanager extends Field
     }
 
     /**
-     * @see http://symphony-cms.com/learn/api/2.2.5/toolkit/field/#displaySettingsPanel
+     * @see toolkit.Field##displaySettingsPanel()
      */
     public function displaySettingsPanel(&$wrapper, $errors=NULL)
     {
@@ -348,7 +364,7 @@ class fieldFilemanager extends Field
     }
 
     /**
-     * see: http://symphony-cms.com/learn/api/2.2.5/toolkit/field/#displayPublishPanel
+     * see: toolkit.Field##displayPublishPanel()
      */
     public function displayPublishPanel(&$wrapper, $data=NULL, $flagWithError=NULL, $fieldnamePrefix=NULL, $fieldnamePostfix=NULL, $entry_id=NULL, $fieldnameSuffix=NULL )
     {
@@ -434,9 +450,14 @@ class fieldFilemanager extends Field
 
 
     /**
-     * @param $parent {XMLElement} the wrapper object
-     * @param $path {String} file path
+     * makeSelectNode
+     *
      * create xml output node for the file select field
+     *
+     * @param {XMLElement}  $parent the wrapper object
+     * @param {String}      $path   file path
+     * @access private
+     * @return void
      */
     private function makeSelectNode(&$parent, $path)
     {
@@ -455,10 +476,16 @@ class fieldFilemanager extends Field
     }
 
     /**
-     * @param $parent {XMLElement} the wrapper object
-     * @param $data {Mixed} string for a single selected file of array for
-     * multiple selections
+     * prePopulateSelectField
+     *
      * create xml output for selected files
+     *
+     * @param {XMLElement} $parent the wrapper object
+     * @param {Mixed} $data string for a single selected file of array for
+     * multiple selections
+     *
+     * @access public
+     * @return void
      */
     public function prePopulateSelectField (&$parent, &$data)
     {
@@ -484,7 +511,9 @@ class fieldFilemanager extends Field
     /**
      * deletFileFormDB
      *
-     * @param mixed $file
+     * delete a deprecated fileentry form the database.
+     *
+     * @param {String} $file the relative filepath
      * @access public
      * @return void
      */
@@ -492,12 +521,17 @@ class fieldFilemanager extends Field
     {
         return Symphony::Database()->query("DELETE FROM `tbl_entries_data_" . $this->get('id') . "` WHERE `file` = '" . $file . "'");
     }
+
     /**
+     * appendCheckbox
      *
-     * @param $parent {XMLElement} the wrapper object
-     * @param $fname {XMLElement} the wrapper object
-     * @returns {void}
-     * appends a checkbox element to a given XMLElement wrapper object
+     * appends a checkbox element to a given XMLElement wrapper object.
+     *
+     * @param {XMLElement} $wrapper the xmlelement the checkbox is appended to
+     * @param {String} $fname the fieldname
+     * @param {String} $value the labeltext
+     * @access public
+     * @return void
      */
     public function appendCheckbox(XMLElement &$wrapper, $fname = NULL, $value= NULL)
     {
@@ -518,7 +552,7 @@ class fieldFilemanager extends Field
         $wrapper->appendChild($label);
     }
 
-    // see: http://symphony-cms.com/learn/api/2.2.5/toolkit/field/#createTable
+    // see: toolkit.Field##createTable
     public function createTable()
     {
         return Symphony::Database()->query(
@@ -537,7 +571,7 @@ class fieldFilemanager extends Field
     }
 
     /**
-     *  @see: http://symphony-cms.com/learn/api/2.2.5/toolkit/field/#processRawFieldData
+     *  @see: toolkit.Field##processRawFieldData
      */
     public function processRawFieldData($data, &$status, $simulate=false, $entry_id=NULL)
     {
@@ -568,7 +602,7 @@ class fieldFilemanager extends Field
         return $data['file'];
     }
     /**
-     *  see: http://symphony-cms.com/learn/api/2.2.5/toolkit/field/#buildDSRetrievalSQL
+     *  see: toolkit.Field##buildDSRetrievalSQL
      */
     public function buildDSRetrievalSQL($data, &$joins, &$where, $andOperation = false, $limit = NULL)
     {
@@ -640,7 +674,7 @@ class fieldFilemanager extends Field
     }
 
     /**
-     * @see: http://symphony-cms.com/learn/api/2.2.5/toolkit/field/#appendFormattedElement
+     * @see: toolkit.Field##appendFormattedElement
      */
     public function appendFormattedElement(&$wrapper, $data)
     {
@@ -693,7 +727,7 @@ class fieldFilemanager extends Field
     }
     /**
      * TODO format more verbose output (e.g. list file names)
-     * @see: http://symphony-cms.com/learn/api/2.2.5/toolkit/field/#prepareTableValue
+     * @see: toolkit.Field##prepareTableValue()
      */
     public function prepareTableValue($data, XMLElement $link = null)
     {
@@ -730,11 +764,7 @@ class fieldFilemanager extends Field
     }
 
     /**
-     * groupRecords
-     *
-     * @param array $records the records to group
-     * @access public
-     * @see http://symphony-cms.com/learn/api/2.3/toolkit/field/#groupRecords
+     * @see toolkit.Field#groupRecords()
      */
     public function groupRecords($records)
     {
@@ -760,10 +790,7 @@ class fieldFilemanager extends Field
     }
 
     /**
-     * getExampleFormMarkup
-     *
-     * @access public
-     * @return void
+     * @see toolkit.Field#getExampleFormMarkup()
      */
     public function getExampleFormMarkup()
     {

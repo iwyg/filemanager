@@ -1,14 +1,18 @@
 <?php
 
 /**
+ * @package Lib
+ * @author thomas appel <mail@thomas-appel.com>
+
+ * Displays <a href="http://opensource.org/licenses/gpl-3.0.html">GNU Public License</a>
+ * @license http://opensource.org/licenses/gpl-3.0.html GNU Public License
+ */
+
+/**
  * DirectoryTools
  * A Class providing some methods and utilities needed for filemanager
  *
  * @uses DirectoryIterator
- * @package Lib
- * @author Thomas Appel <mail@thomas-appel.com>
- * Displays <a href="http://opensource.org/licenses/gpl-3.0.html">GNU Public License</a>
- * @license http://opensource.org/licenses/gpl-3.0.html GNU Public License
  */
 class DirectoryTools extends DirectoryIterator
 {
@@ -55,8 +59,9 @@ class DirectoryTools extends DirectoryIterator
 
     /**
      * _isRoot
-     *
-     * @param mixed $path
+	 *
+	 * check if a path is used as root on another field
+     * @param {String} $path
      * @access private
      * @return void
      */
@@ -113,9 +118,9 @@ class DirectoryTools extends DirectoryIterator
     /**
      * Trims a full filepath an takes the WORKSPACE constant as its base
      *
-     * @param			$path		String		path to be trimmed
-     * @return			string
-     * @access			public
+     * @param	{String}	$path		path to be trimmed
+     * @return	{string}
+     * @access	public
      */
     public function trimPath($path) {
         $replace_path = WORKSPACE;
@@ -126,8 +131,8 @@ class DirectoryTools extends DirectoryIterator
     /**
      * Check weather a path should be ignored or not
      *
-     * @param string $path_name name of the path to be checked
-     * @return boolean
+     * @param  {String} $path_name name of the path to be checked
+     * @return {Boolean}
      * @access public
      */
     public function isExcludedPath($path_name) {
@@ -150,7 +155,7 @@ class DirectoryTools extends DirectoryIterator
      * containing file information such as file name, file size, metatype, filepermission
      * etc.
      *
-     * @param DirectoryIterator $file
+     * @param {DirectoryIterator} $file
      * @access public
      * @return array
      */
@@ -191,8 +196,8 @@ class DirectoryTools extends DirectoryIterator
     /**
      * Sets the Directory model attributes
      *
-     * @param DirectoryIterator $child
-     * @param Boolean $root
+     * @param {DirectoryIterator} $child
+     * @param {Boolean} $root
      * @access private
      * @return array
      */
@@ -214,7 +219,7 @@ class DirectoryTools extends DirectoryIterator
      * Fetches the whole Directorystructure from a directory define by the
      * Class Constructor
      *
-     * @param boolean $root include or ignore the root directory name
+     * @param {Boolean} $root include or ignore the root directory name
      * @return array the directory tree as nested array
      */
     public function getDirectoryTree($root = false) {
@@ -258,7 +263,7 @@ class DirectoryTools extends DirectoryIterator
      *
      * as last resort it returns 'application/octet-stream'
      *
-     * @param string $file filepath
+     * @param {String} $file filepath
      * @return string
      */
 
