@@ -143,6 +143,10 @@ preview (if available).
 
 ## Changelog
 
+### 1.0.6, 2012-06-20
+
+- bugfixes
+
 ### 1.0.5, 2012-06-04
 
 - better handling when file selection is deactivated.
