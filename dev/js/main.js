@@ -25,6 +25,10 @@
 		'orderable'
 	], function (fm_settings, $, _, Backbone, UploadView, TreeView, SearchView, SelectView, SysMessage, syncManager) {
 
+		console.log('Arguments: ', arguments);
+		console.log('Backbone loaded: ', typeof Backbone === 'object');
+		console.log('Backbone version: ', Backbone ? Backbone.VERSION : 'not available');
+
 		var listings_base, upload_base, CoreSettings, changes = false,
 
 		cantSelect = function () {
@@ -36,6 +40,8 @@
 		Backbone.noConflict();
 		_.noConflict();
 		window.jQuery = oldQ.noConflict();
+		console.log('Backbone still avalive and loaded?: ', typeof Backbone === 'object');
+		console.log('Backbone version: ', Backbone ? Backbone.VERSION : 'not available');
 
 		if (typeof $.fn.symphonyOrderable !== 'function' && typeof oldQ.fn.symphonyOrderable === 'function') {
 			$.fn.symphonyOrderable = oldQ.fn.symphonyOrderable;

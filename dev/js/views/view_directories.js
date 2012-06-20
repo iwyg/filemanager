@@ -324,6 +324,7 @@
 
 					parent = pm ? document.getElementById('sub-' + pm.id) : document.getElementById('dir-list-root-' + this.model.collection.cid);
 					parent && ! update && this.$el.appendTo(parent);
+
 					_setTasks.call(this);
 
 					if (this.model.get('state') === 'open') {
@@ -730,6 +731,7 @@
 						.on('keydown.dirtree', _.bind(_multiSelectHelperOn, this))
 						.on('keyup.dirtree', _.bind(_multiSelectHelperOff, this));
 
+					window.collection = this.collection;
 				},
 
 				canSelectMultiple: function () {
@@ -956,8 +958,11 @@
 				 * @param {Object: Backbone.Model Instance} model the directory model
 				 * @api public
 				 */
-				renderPart: function (model) {
-					var dir, update = this.dirViews[model.id] ? true: false;
+				renderPart: function (model, index, models) {
+					console.log(arguments);
+					var dir, update = this.dirViews[model.id] ? true: false,
+					i = !isNaN(index) ? index : 0,
+					mdls = _.isArray(models) ? models : [model];
 
 					if (!update) {
 						dir = new DirView({

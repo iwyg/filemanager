@@ -32,9 +32,10 @@
 			'jqueryui':		'libs/jquery-ui-1.8.18.custom',
 			'underscore':	'../../../sym_backbonejs/assets/underscore',
 			'backbone':		'../../../sym_backbonejs/assets/backbone',
-			'text':			'../../../sym_requirejs/assets/text'
+			'text':			'../../../sym_requirejs/assets/text',
+			'order':		'../../../sym_requirejs/assets/order'
 		},
-		//urlArgs: Date.now() // add this during development
+		urlArgs: Date.now() // add this during development
 	}, ['main']);
 }(this, this.require, this.define, this.Symphony));
 
