@@ -44,7 +44,7 @@
 					var formData = new window.FormData();
 					_.each(data, function (value, key, obj) {
 						if (value instanceof window.Blob) {
-							formData.append(key + '[]', value, key.name);
+							formData.append(key + '[]', value, value.name);
 						} else if (value instanceof $) {
 							_.each(_serializeArray(value), function (o) {
 								formData.append(o.name, o.value);

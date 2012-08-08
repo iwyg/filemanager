@@ -143,6 +143,10 @@ preview (if available).
 
 ## Changelog
 
+### 1.0.6, 2012-08-08
+
+- bugfixes: Opera fileupload
+
 ### 1.0.6, 2012-06-20
 
 - bugfixes
