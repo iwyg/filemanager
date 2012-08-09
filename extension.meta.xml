@@ -14,8 +14,9 @@
 		</author>
 	</authors>
 	<releases>
-		<release version="1.0.7" date="2012-08-08" min="2.3">
-			- bugfixes: opera fileupload
+		<release version="1.0.7" date="2012-08-09" min="2.3">
+			- bugfix: opera fileupload
+			- bugfix: retain selection order
 		</release>
 		<release version="1.0.6" date="2012-06-20" min="2.3">
 			- bugfixes

@@ -158,6 +158,12 @@
 					if (limit !== -1) {
 
 						// initialize selected files view
+
+						var selectedFiles = [];
+						selectContainer.find('input.file-selected').each(function () {
+							selectedFiles.push(this.value);
+						});
+
 						selectView = new SelectView({
 							dirtree: dirTreeView,
 							el: selectContainer.find('ul').get(0),
@@ -165,10 +171,21 @@
 							mode: settings.display_mode,
 							sortable: settings.allow_sort_selected
 						});
+						// fetch selected files
+
 
 						if (limit > 0) {
 							selectView.collection.addSetting('limit', limit);
 						}
+
+						dirTreeView.collection.deferred.done(function () {
+							var selected = dirTreeView.collection.getByFileName(selectedFiles);
+							selectView.collection.reset(selected).each(function (file) {
+								file.set('selected', true);
+							});
+							selectView.collection.record();
+						});
+						dirTreeView.collection.on('selected', _.bind(selectView.onSelectChange, selectView));
 						//	if (limit === -1) {
 						//		selectView.collection.addSetting('limit', 0);
 						//	}

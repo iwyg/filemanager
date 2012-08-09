@@ -121,6 +121,10 @@
 				console.log(this.comparator);
 			},
 
+			onSelectChange: function (file) {
+				var method = file.get('selected') ? 'add' : 'remove';
+				this.collection[method](file);
+			},
 
 			prePopulate: function () {
 				var view = this,

@@ -145,7 +145,8 @@ preview (if available).
 
 ### 1.0.6, 2012-08-08
 
-- bugfixes: Opera fileupload
+- bugfix: opera fileupload
+- bugfix: retain selection order
 
 ### 1.0.6, 2012-06-20
 
