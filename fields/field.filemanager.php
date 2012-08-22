@@ -687,6 +687,7 @@ class fieldFilemanager extends Field
             $data['file'] = array($data['file']);
             $data['meta'] = array($data['meta']);
             $data['mimetype'] = array($data['mimetype']);
+            $data['size'] = array($data['size']);
         }
 
         $fld = new XMLElement($this->get('element_name'));
