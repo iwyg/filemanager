@@ -687,6 +687,7 @@ class fieldFilemanager extends Field
             $data['file'] = array($data['file']);
             $data['meta'] = array($data['meta']);
             $data['mimetype'] = array($data['mimetype']);
+            $data['size'] = array($data['size']);
         }
 
         $fld = new XMLElement($this->get('element_name'));
@@ -697,6 +698,7 @@ class fieldFilemanager extends Field
             }
 
             $size = General::formatFilesize($data['size'][$i]);
+	    $bytes = $data['size'][$i];
             $meta = $data['meta'][$i];
             $mime = $data['mimetype'][$i];
 
@@ -704,10 +706,10 @@ class fieldFilemanager extends Field
             $file = new XMLElement('file');
             $file->setAttributeArray(array(
                 'size' => $size,
+                'bytes' => $bytes,
                 'path' => str_replace(WORKSPACE, NULL, dirname(WORKSPACE . $value)),
                 'type' => $mime,
             ));
-
             $src = new XMLElement('filename', General::sanitize(basename($value)));
 
             $file->appendChild($src);
