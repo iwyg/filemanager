@@ -58,15 +58,28 @@ class DirectoryTools extends DirectoryIterator
      */
     private $_roots;
 
-    public function __construct($context, $ignore = NULL, $exclude = NULL, $roots=NULL, $nesting=NULL)
+    /**
+     * __construct
+     *
+     * @param Mixed  $baseDir Start Directory
+     * @param String $ignore  RegExp
+     * @param Mixed  $exclude array of paths that should be excluded
+     * @param array  $roots   array containing directories that are used as
+     * root on other fields
+     * @param int    $nesting nesting level relative to the bas directory
+     *  defaults to `0`
+     * @access public
+     * @return void
+     */
+    public function __construct($baseDir, $ignore = null, array $exclude = null, array $roots = array(), $nesting = 0)
     {
-        parent::__construct($context);
+        parent::__construct($baseDir);
 
         $this->_baseDir = $context;
-        $this->_ignore = $ignore;
+        $this->_ignore  = $ignore;
         $this->_exclude = $exclude;
-        $this->_roots = is_null($roots) ? array() : $roots;
-        $this->_level = is_null($nesting) || !$nesting ? 0 : $nesting;
+        $this->_roots   = $roots;
+        $this->_level   = $nesting;
     }
 
     /**
