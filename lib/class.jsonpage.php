@@ -107,21 +107,22 @@ class JSONPage extends AjaxPage
      */
     public function generate()
     {
-        switch($this->_status){
+        switch($this->_status) {
 
             case self::STATUS_OK:
                 $status_message = '200 OK';
                 break;
 
             case self::STATUS_BAD:
-            case self::STATUS_ERROR:
                 $status_message = '400 Bad Request';
+                break;
+            case self::STATUS_ERROR:
+                $status_message = '303 Error';
                 break;
 
             case self::STATUS_UNAUTHORISED:
                 $status_message = '401 Unauthorized';
                 break;
-
         }
 
         if ($this->_iframe_transport) {

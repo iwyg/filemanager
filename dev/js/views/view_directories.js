@@ -52,7 +52,7 @@
 			 * @api private
 			 */
 			function _switchSelected(model) {
-				console.log(arguments);
+
 				if (model.get('selected')) {
 					this.$el.addClass('file-selected');
 				} else {

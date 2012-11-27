@@ -38,17 +38,23 @@ class contentExtensionFilemanagerUpload extends contentExtensionFilemanagerSetti
     public function validateUploadedFile($tempname, $file)
     {
 		$max_upload_size = intval($this->get('max_upload_size'));
+
 		$allowed_types =  '/' . $this->get('allowed_types') . '/i';
+
 		$mime_type = DirectoryTools::getMimeType($tempname);
 
-		if (!preg_match($allowed_types, $mime_type)) {
+        if (!preg_match($allowed_types, $mime_type)) {
+
 			$this->handleGeneralError('file type {$mimetype} not allowed', array('mimetype' => $mime_type));
 			return false;
 		}
-		if (filesize($tempname) > $max_upload_size) {
+
+        if (filesize($tempname) > $max_upload_size) {
+
 			$this->handleGeneralError('file size ({$f_size}) limit exceeds allowed size', array('f_size' => filesize($tempname)));
 			return false;
 		}
+
 		return true;
 	}
 
@@ -58,9 +64,6 @@ class contentExtensionFilemanagerUpload extends contentExtensionFilemanagerSetti
     public function process()
     {
 		$this->setSettings(false);
-
-		//print_r($this->_settings);
-		//print_r($this->get('allow_dir_upload_files'));
 	}
 
 	/**
@@ -72,19 +75,20 @@ class contentExtensionFilemanagerUpload extends contentExtensionFilemanagerSetti
 
 		if (isset($data['iframe'])) {
 			$this->_iframe_transport = true;
-			//$this->_Result = $data;
-			//return;
 		}
 
-
 		$unique = intval($this->get('unique_file_name'), 10) == 1;
+
 		$dest = $this->sanitizePathFragment($data['destination']) . DIRECTORY_SEPARATOR;
+
 		$results = array();
 
 		if (is_array($data['file'])) {
-			foreach($data['file'] as $i => $file) {
-				if (!$this->validateUploadedFile($file['tmp_name'], $file['name'])) {
-					return false;
+
+            foreach ($data['file'] as $i => $file) {
+
+                if (!$valid = $this->validateUploadedFile($file['tmp_name'], $file['name'])) {
+					return $valid;
 				}
 
 				if (!is_writable(FILEMANAGER_WORKSPACE . $dest . $new_file)) {
@@ -99,7 +103,12 @@ class contentExtensionFilemanagerUpload extends contentExtensionFilemanagerSetti
 					return false;
 				}
 
-				$new_file = $unique ? DirectoryTools::getUniqueName($file['name']) : $file['name'];
+                try {
+                    $new_file = $unique ? DirectoryTools::getUniqueName($file['name']) : $file['name'];
+                } catch (Exception $e) {
+                    $this->handleGeneralError('fatal error: {$err}', array('err' => $e->getMessage()));
+					return false;
+                }
 
 				if (is_file(FILEMANAGER_WORKSPACE . $dest . $new_file)) {
 					// file exists error
@@ -114,7 +123,7 @@ class contentExtensionFilemanagerUpload extends contentExtensionFilemanagerSetti
 						'src' => $this->getHttpPath($dest . $new_file)
 					);
 				} else {
-					$this->handleGeneralError('Cannot upload {$file}',array('file' => $new_file));
+                    $this->handleGeneralError('Cannot upload {$file}',array('file' => $new_file));
 					return false;
 				}
 			}
