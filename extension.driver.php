@@ -191,10 +191,10 @@ cLass extension_filemanager extends Extension
 		$bb_path = EXTENSIONS . '/sym_backbonejs/assets/backbone.js';
 
         if (!class_exists('extension_sym_requirejs')) {
-            Symphony::Engine()->Page->Alert = new Alert(__('Filemanager requires requirejs. Please make sure the extension <a href="https://github.com/iwyg/sym_requirejs">sym_requirejs</a> is installed'), Alert::ERROR);
+            Symphony::Engine()->Page->Alert[] = new Alert(__('Filemanager requires requirejs. Please make sure the extension <a href="https://github.com/iwyg/sym_requirejs">sym_requirejs</a> is installed'), Alert::ERROR);
         }
         if (!is_file($bb_path)) {
-            Symphony::Engine()->Page->Alert = new Alert(__('Filemanager requires backbonejs Please make sure extension <a href="https://github.com/iwyg/sym_backbonejs">sym_backbonejs</a> is available'), Alert::ERROR);
+            Symphony::Engine()->Page->Alert[] = new Alert(__('Filemanager requires backbonejs Please make sure extension <a href="https://github.com/iwyg/sym_backbonejs">sym_backbonejs</a> is available'), Alert::ERROR);
         }
     }
 }
