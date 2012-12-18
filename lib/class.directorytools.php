@@ -291,11 +291,6 @@ class DirectoryTools extends DirectoryIterator
     }
 
     /**
-     * determine the mime-type of a given file
-     * Trys to use PECL Extension `finfo_file` first,
-     * then trys utilizing deprecated `function_exists`.
-     *
-     * as last resort it returns 'application/octet-stream'
      *
      * @param  {String} $file filepath
      * @return string
