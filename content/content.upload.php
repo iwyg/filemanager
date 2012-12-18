@@ -79,7 +79,7 @@ class contentExtensionFilemanagerUpload extends contentExtensionFilemanagerSetti
 
 		$unique = intval($this->get('unique_file_name'), 10) == 1;
 
-		$dest = $this->sanitizePathFragment($data['destination']) . DIRECTORY_SEPARATOR;
+        $dest = DOCROOT . $this->get('destination') . DIRECTORY_SEPARATOR . $this->sanitizePathFragment($data['destination']) . DIRECTORY_SEPARATOR;
 
 		$results = array();
 
@@ -91,13 +91,13 @@ class contentExtensionFilemanagerUpload extends contentExtensionFilemanagerSetti
 					return $valid;
 				}
 
-				if (!is_writable(FILEMANAGER_WORKSPACE . $dest . $new_file)) {
+				if (!is_writable($dest . $new_file)) {
 					// not writable error
 					$this->handleGeneralError('Cannot access {$file}', array('file' => $dest));
 					return false;
 				}
 
-				if (!is_dir(FILEMANAGER_WORKSPACE . $dest)) {
+				if (!is_dir($dest)) {
 					// invalid destination error
 					$this->handleGeneralError('invalid destination: {$dir}', array('dir' => $dest));
 					return false;
@@ -110,13 +110,13 @@ class contentExtensionFilemanagerUpload extends contentExtensionFilemanagerSetti
 					return false;
                 }
 
-				if (is_file(FILEMANAGER_WORKSPACE . $dest . $new_file)) {
+				if (is_file($dest . $new_file)) {
 					// file exists error
 					$this->handleGeneralError('file {$file} already exists',array('file' => $new_file));
 					return false;
 				}
 
-				if (General::uploadFile(FILEMANAGER_WORKSPACE . $dest, $new_file, $file['tmp_name'])) {
+				if (General::uploadFile($dest, $new_file, $file['tmp_name'])) {
 					$results[] = array(
 						'file' => 'ok',
 						'name' => $new_file,

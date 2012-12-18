@@ -39,11 +39,9 @@ class contentExtensionFilemanagerListing extends contentExtensionFilemanagerSett
 	 */
     protected function getDirectoryListing()
     {
-		$tp = $_GET['select']; // if 'select' is set, update information on a specific subdir on the root path
+        $tp = trim($_GET['select']); // if 'select' is set, update information on a specific subdir on the root path
 
-		$dest_path = !isset($tp) ?  $this->get('destination') : '/workspace' . $tp;
-
-
+        $dest_path = strlen($tp) > 0 ? '/workspace' . $tp : $this->get('destination');
 		$base_dir = $this->sanitizePath($dest_path);
 
 
