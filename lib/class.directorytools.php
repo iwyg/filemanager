@@ -332,7 +332,7 @@ class DirectoryTools extends DirectoryIterator
      */
     public static function getMimeType(&$file)
     {
-        if (function_exists('finfo_open')) {
+        if (function_exists('finfo_open') && defined('FILEINFO_MIME_TYPE')) {
             return finfo_file(finfo_open(FILEINFO_MIME_TYPE), $file);
         }
 
