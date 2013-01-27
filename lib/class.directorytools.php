@@ -75,7 +75,7 @@ class DirectoryTools extends DirectoryIterator
     {
         parent::__construct($baseDir);
 
-        $this->_baseDir = $context;
+        $this->_baseDir = $baseDir;
         $this->_ignore  = $ignore;
         $this->_exclude = $exclude;
         $this->_roots   = $roots;

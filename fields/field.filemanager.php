@@ -237,7 +237,9 @@ class fieldFilemanager extends Field
         $dest = $this->get('destination');
         $excl = explode(',', $this->get('exclude_dirs'));
 
-        $directories = General::listDirStructure(WORKSPACE . substr($dest, strlen('/workspace')), null, true, DOCROOT, $ignore);
+
+        $ignoreDirs = explode(',', WORKSPACE . DIRECTORY_SEPARATOR . implode(',' . WORKSPACE . DIRECTORY_SEPARATOR ,$ignore));
+        $directories = General::listDirStructure(WORKSPACE . substr($dest, strlen('/workspace')), null, true, DOCROOT, $ignoreDirs);
 
         $options = array();
 
