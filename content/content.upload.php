@@ -79,7 +79,7 @@ class contentExtensionFilemanagerUpload extends contentExtensionFilemanagerSetti
 
 		$unique = intval($this->get('unique_file_name'), 10) == 1;
 
-        $dest = DOCROOT . $this->get('destination') . DIRECTORY_SEPARATOR . $this->sanitizePathFragment($data['destination']) . DIRECTORY_SEPARATOR;
+        $dest = WORKSPACE . DIRECTORY_SEPARATOR . $this->sanitizePathFragment($data['destination']) . DIRECTORY_SEPARATOR;
 
 		$results = array();
 
