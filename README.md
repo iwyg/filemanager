@@ -143,7 +143,12 @@ preview (if available).
 
 ## Changelog
 
-### 1.0.6, 2012-08-08
+### 1.0.8, 2013-02-21
+
+- bugfix: legacy method call
+- validate uploaded file against all error codes
+
+### 1.0.7, 2012-08-08
 
 - bugfix: opera fileupload
 - bugfix: retain selection order

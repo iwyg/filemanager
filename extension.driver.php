@@ -47,7 +47,7 @@ cLass extension_filemanager extends Extension
     {
         /* Drop configuration array */
         Symphony::Configuration()->remove('filemanager');
-        Administration::instance()->write();
+        Symphony::Configuration()->write();
         /* Drop database tables */
         try {
             Symphony::Database()->query("DROP TABLE `tbl_fields_filemanager`");
@@ -62,6 +62,7 @@ cLass extension_filemanager extends Extension
         if (!Symphony::Configuration()->get('filemanager')) {
             Symphony::Configuration()->set('mimetypes', 'application/pdf image/jpeg image/png text/*', 'filemanager');
             Symphony::Configuration()->set('ignore', base64_encode('^\..*'), 'filemanager');
+            Symphony::Configuration()->write();
         }
 
         Symphony::Configuration()->write();
@@ -176,9 +177,10 @@ cLass extension_filemanager extends Extension
             $ignore = preg_replace('/(\/i?|\(|\))/i', '', $ignore);
 
             Symphony::Configuration()->set('ignore', base64_encode($ignore), 'filemanager');
-            Administration::instance()->write();
+            Symphony::Configuration()->write();
         }
-        if (version_compare($previousVersion, '1.0.5', '<')) {
+
+        if (version_compare($previousVersion, '.0.5', '<')) {
             Symphony::Database()->query("ALTER TABLE `tbl_fields_filemanager` ADD COLUMN `allow_file_search` tinyint(1) default '1'");
         }
     }

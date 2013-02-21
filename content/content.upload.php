@@ -35,8 +35,44 @@ class contentExtensionFilemanagerUpload extends contentExtensionFilemanagerSetti
 	 * Validate uploaded file for mimetype and filesize
 	 * @param string $tempname uploaded file
 	 */
-    public function validateUploadedFile($tempname, $file)
+    public function validateUploadedFile($tempname, $file, $error)
     {
+
+        if ($error !== 0) {
+            $msg = '';
+            die;
+
+            switch ($error) {
+            case 1:
+                $msg = 'file size ({$f_size}) limit exceeds allowed size';
+            break;
+            case 2:
+                $msg = 'file size ({$f_size}) limit exceeds allowed size';
+            break;
+            case 3:
+                $msg = "$file was only partially uploaded";
+            break;
+            case 4:
+                $msg = "$file was not uploaded";
+            break;
+            case 6:
+                $msg = "temprary upload directory is missing";
+            break;
+            case 7:
+                $msg = "couldn't write $file to disk";
+            break;
+            case 8:
+                $msg = "Upload has stopped for $file";
+                break;
+            default:
+                $msg = "undefined error";
+                break;
+            }
+
+			$this->handleGeneralError($msg, array('f_size' => filesize($tempname)));
+			return false;
+        }
+
 		$max_upload_size = intval($this->get('max_upload_size'));
 
 		$allowed_types =  '/' . $this->get('allowed_types') . '/i';
@@ -87,7 +123,7 @@ class contentExtensionFilemanagerUpload extends contentExtensionFilemanagerSetti
 
             foreach ($data['file'] as $i => $file) {
 
-                if (!$valid = $this->validateUploadedFile($file['tmp_name'], $file['name'])) {
+                if (!$valid = $this->validateUploadedFile($file['tmp_name'], $file['name'], intval($file['error']))) {
 					return $valid;
 				}
 

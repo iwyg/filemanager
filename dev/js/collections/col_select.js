@@ -62,7 +62,6 @@
 				//totalLength = this.models.length + modelsLength,
 				totalLength = this.models.length,
 				ids;
-				console.log(totalLength, this.settings.limit);
 				if ((this.settings.limit !== undefined) && totalLength > this.settings.limit) {
 					ids = _.isArray(models) ? _.pluck(models, 'id') : models.id;
 					if (isArray) {

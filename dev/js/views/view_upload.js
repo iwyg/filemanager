@@ -10,7 +10,9 @@
 
 	define(['jquery', 'underscore', 'backbone', 'collections/col_upload', 'modules/mod_animate_circle', 'modules/mod_sysmessage', 'templates/templates'], function ($, _, Backbone, Upload, AnimatedCircle, SysMessage, templates) {
 
-		var corf = Backbone.View.extend.call(function () {this.initialize.apply(this, arguments);}, Backbone.Events);
+		var corf = Backbone.View.extend.call(function () {
+			this.initialize.apply(this, arguments);
+		}, Backbone.Events);
 		corf.extend = Backbone.View.extend;
 
 		var cbs = function () {
@@ -358,10 +360,26 @@
 
 			}
 
-			function _invalidType() {
+			function _invalidType(file) {
+				new SysMessage('error', {
+					error: {
+						message: SysMessage.file_type_invalid,
+						context: {
+							item: file
+						}
+					}
+				}, false);
 			}
 
-			function _invalidSize() {
+			function _invalidSize(file) {
+				new SysMessage('error', {
+					error: {
+						message: SysMessage.file_size_exceeds,
+						context: {
+							item: file
+						}
+					}
+				}, false);
 			}
 
 
