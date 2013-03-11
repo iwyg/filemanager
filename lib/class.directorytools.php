@@ -340,13 +340,10 @@ class DirectoryTools extends DirectoryIterator
             return mime_content_type($file);
         }
 
-        try {
-            $mime = `file --mime-type $file`;
+		if ($mime = @`file --mime-type $file`) {
             return preg_replace("/^.*\:\s?/","",$mime);
-        } catch (Exception $e) {
-            // throw nothing here;
-        }
-        return 'application/octet-stream';
+		}
+		return 'application/octet-stream';
     }
 
     /**
