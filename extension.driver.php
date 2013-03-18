@@ -96,12 +96,17 @@ cLass extension_filemanager extends Extension
 
     public static function hasInstance($ext_name=NULL, $section_handle)
     {
-        $sid  = SectionManager::fetchIDFromHandle($section_handle);
-        $section = SectionManager::fetch($sid);
-        $fm = $section->fetchFields($ext_name);
-        return is_array($fm) && !empty($fm);
+        if($section_handle)
+		{
+			$sid  = SectionManager::fetchIDFromHandle($section_handle);
+			$section = SectionManager::fetch($sid);
+			$fm = $section->fetchFields($ext_name);
+			return is_array($fm) && !empty($fm);
+		} else {
+			return false;
+		}
     }
-
+    
     /**
      * apend needed css an js files to the document head
     */
