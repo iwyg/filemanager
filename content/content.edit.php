@@ -219,7 +219,7 @@ class contentExtensionFilemanagerEdit extends contentExtensionFilemanagerSetting
     {
 
         $name = $_POST['mkdir'];
-        $dest_path = FILEMANAGER_WORKSPACE . $this->sanitizePathFragment($_POST['within']) . DIRECTORY_SEPARATOR;
+        $dest_path = FILEMANAGER_WORKSPACE . $this->sanitizePathFragment($_POST['within']) . '/';
 
         if (!is_readable($dest_path) || !is_writeable($dest_path)) {
             return $this->_handleAccessError($dest_path);
@@ -234,7 +234,7 @@ class contentExtensionFilemanagerEdit extends contentExtensionFilemanagerSetting
 
             return $this->handleSuccess('Directory {$dir} successfully created in {$path}', array(
                     'dir' => $name,
-                    'path' => substr($dest_path, strlen(FILEMANAGER_WORKSPACE . DIRECTORY_SEPARATOR)),
+                    'path' => substr($dest_path, strlen(FILEMANAGER_WORKSPACE . '/')),
                     'destination' => $dest_path . $name,
                     'destination_path' => $dest_path,
                     'oo_within' => $_POST['within'],
@@ -244,7 +244,7 @@ class contentExtensionFilemanagerEdit extends contentExtensionFilemanagerSetting
         } catch (Exception $e) {
             return $this->handleGeneralError('Failed creating Directory {$dir} in {$path}', array(
                     'dir' => $name,
-                    'path' => substr($dest_path, strlen(FILEMANAGER_WORKSPACE . DIRECTORY_SEPARATOR)),
+                    'path' => substr($dest_path, strlen(FILEMANAGER_WORKSPACE . '/')),
                     'destination' => $dest_path . $name,
                     'destination_path' => $dest_path
                 )
@@ -304,13 +304,15 @@ class contentExtensionFilemanagerEdit extends contentExtensionFilemanagerSetting
      */
     public static function listDirs($dir, &$dirs = array())
     {
+        $dir = $this->sanitizePathFragment($dir);
+
         if (is_dir($dir)) {
             $dirs[] = $dir;
             $objects = scandir($dir);
             foreach ($objects as $object) {
                 if ($object != '.' && $object != '..') {
-                    if (is_dir($dir . DIRECTORY_SEPARATOR . $object)) {
-                        self::listDirs($dir . DIRECTORY_SEPARATOR . $object, $dirs);
+                    if (is_dir($dir . '/' . $object)) {
+                        self::listDirs($dir . '/' . $object, $dirs);
                     }
                 }
             }

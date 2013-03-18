@@ -155,7 +155,7 @@ class DirectoryTools extends DirectoryIterator
      *
      * @param  {String} $path path to be trimmed
      * @return {string}
-     * @access	public
+     * @access  public
      */
     public function trimPath($path)
     {
@@ -212,19 +212,19 @@ class DirectoryTools extends DirectoryIterator
         $fparts = pathinfo($fbase);
 
         return array(
-            'file'		=> $fbase,
-            'src'		=> URL . '/workspace' . $path,
-            'path'		=> $path,
-            'dirname'	=> $this->trimPath(dirname($file->getPathname())),
-            'type'		=> self::getMimeType($fpath),
-            //'suffix'	=> $file->getExtension(),
+            'file'      => $fbase,
+            'src'       => URL . '/workspace' . $path,
+            'path'      => $path,
+            'dirname'   => $this->trimPath(dirname($file->getPathname())),
+            'type'      => self::getMimeType($fpath),
+            //'suffix'  => $file->getExtension(),
             'extension' => strtolower($fparts['extension']),
-            'size'		=> $file->getSize(),
-            'owner'		=> $own['name'],
-            'group'		=> $grp['name'],
-            'lastmod'	=> date('Y/m/d h:m:s', $file->getMTime()),
-            'inode'		=> $file->getInode(),
-            'perms'		=> @substr(@sprintf('%o', fileperms(($fpath))), -4),
+            'size'      => $file->getSize(),
+            'owner'     => $own['name'],
+            'group'     => $grp['name'],
+            'lastmod'   => date('Y/m/d h:m:s', $file->getMTime()),
+            'inode'     => $file->getInode(),
+            'perms'     => @substr(@sprintf('%o', fileperms(($fpath))), -4),
             'writable'  => $file->isWritable(),
             'readable'  => $file->isReadable(),
             'moveable'  => is_writable($file->getPath()),
@@ -245,11 +245,11 @@ class DirectoryTools extends DirectoryIterator
 
         return array(
             'directory' => array(
-                'name'		=>  basename($r_path),
-                'path'		=>  !$root ? $this->trimPath($r_path) : $this->trimPath($r_path),
-                'level'		=> $this->_level,
-                'writable'	=> $child->isWritable(),
-                'readable'	=> $child->isReadable(),
+                'name'      =>  basename($r_path),
+                'path'      =>  !$root ? $this->trimPath($r_path) : $this->trimPath($r_path),
+                'level'     => $this->_level,
+                'writable'  => $child->isWritable(),
+                'readable'  => $child->isReadable(),
                 'deletable' => !$this->_isRoot($r_path)
             )
         );
@@ -340,11 +340,8 @@ class DirectoryTools extends DirectoryIterator
             return mime_content_type($file);
         }
 
-        try {
-            $mime = `file --mime-type $file`;
+        if ($mime = @`file --mime-type $file`) {
             return preg_replace("/^.*\:\s?/","",$mime);
-        } catch (Exception $e) {
-            // throw nothing here;
         }
         return 'application/octet-stream';
     }
@@ -352,7 +349,7 @@ class DirectoryTools extends DirectoryIterator
     /**
      * Takes a filename and converts it into a unique one
      *
-     * @param		$filename		Stringthe		original file name
+     * @param       $filename       Stringthe       original file name
      * @return string
      */
     public static function getUniqueName($filename)

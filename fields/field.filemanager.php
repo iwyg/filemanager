@@ -19,12 +19,12 @@ vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4:
  */
 
 define('FILEMANAGER_EXCLUDE_DIRS', ',/workspace/events,/workspace/data-sources,/workspace/text-formatters,/workspace/pages,/workspace/utilities,/workspace/translations,/workspace/jit-image-manipulation');
-define('FILEMANAGER_WORKSPACE', preg_replace('/\//i', DIRECTORY_SEPARATOR , WORKSPACE));
+define('FILEMANAGER_WORKSPACE', str_replace(DIRECTORY_SEPARATOR, '/', WORKSPACE));
 
 require_once(TOOLKIT . '/fields/field.upload.php');
 require_once(EXTENSIONS . '/filemanager/lib/class.directorytools.php');
 
-class fieldFilemanager extends Field
+class FieldFilemanager extends Field
 {
 
 
@@ -238,7 +238,7 @@ class fieldFilemanager extends Field
         $excl = explode(',', $this->get('exclude_dirs'));
 
 
-        $ignoreDirs = explode(',', WORKSPACE . DIRECTORY_SEPARATOR . implode(',' . WORKSPACE . DIRECTORY_SEPARATOR ,$ignore));
+        $ignoreDirs = explode(',', WORKSPACE . '/' . implode(',' . FILEMANAGER_WORKSPACE . '/' ,$ignore));
         $directories = General::listDirStructure(WORKSPACE . substr($dest, strlen('/workspace')), null, true, DOCROOT, $ignoreDirs);
 
         $options = array();

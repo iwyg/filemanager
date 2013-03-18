@@ -197,7 +197,7 @@ class contentExtensionFilemanagerSettings extends JSONPage
      */
     public function sanitizePathFragment($path)
     {
-        return preg_replace('/(\/|\\\)/i', DIRECTORY_SEPARATOR, $path);
+        return str_replace(DIRECTORY_SEPARATOR, '/', $path);
     }
 
     /**
@@ -216,7 +216,7 @@ class contentExtensionFilemanagerSettings extends JSONPage
             return $path;
         }
 
-        return FILEMANAGER_WORKSPACE . substr($path, strlen(DIRECTORY_SEPARATOR . 'WORKSPACE'));
+        return $this->sanitizePathFragment(FILEMANAGER_WORKSPACE . substr($path, strlen('/WORKSPACE')));
     }
 
     /**

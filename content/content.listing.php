@@ -64,7 +64,7 @@ class contentExtensionFilemanagerListing extends contentExtensionFilemanagerSett
 		}
 
 
-		$excl = $this->sanitizePath(explode(',', preg_replace('/\//im', DIRECTORY_SEPARATOR, FILEMANAGER_EXCLUDE_DIRS)));
+		$excl = $this->sanitizePath(explode(',', FILEMANAGER_EXCLUDE_DIRS));
 
 		array_shift($excl);
 
