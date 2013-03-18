@@ -96,7 +96,10 @@ cLass extension_filemanager extends Extension
 
     public static function hasInstance($ext_name=NULL, $section_handle)
     {
-        $sid  = SectionManager::fetchIDFromHandle($section_handle);
+        if (!$sid = SectionManager::fetchIDFromHandle($section_handle) {
+        	return;
+        }
+        
         $section = SectionManager::fetch($sid);
         $fm = $section->fetchFields($ext_name);
         return is_array($fm) && !empty($fm);
@@ -109,8 +112,10 @@ cLass extension_filemanager extends Extension
     {
         $callback = Symphony::Engine()->getPageCallback();
         // Append styles for publish area
-        if ($callback['driver'] == 'publish' && $callback['context']['page'] != 'index') {
-            if (self::hasInstance('filemanager', $callback['context']['section_handle'])) {
+        if ($callback['driver'] === 'publish' && $callback['context']['page'] !== 'index' && 
+        	isset($callback['context']['section_handle']) && !empty($callback['context']['section_handle'])
+        ) {
+            if (self::hashInstance('filemanager', $callback['context']['section_handle'])) {
                 Administration::instance()->Page->addStylesheetToHead(URL . '/extensions/filemanager/assets/css/filemanager.publish.css', 'screen', 100, false);
                 Administration::instance()->Page->addScriptToHead(URL . '/extensions/filemanager/assets/js/filemanager.init.js', 400, false);
             }
