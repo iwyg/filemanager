@@ -75,7 +75,7 @@ class DirectoryTools extends DirectoryIterator
     {
         parent::__construct($baseDir);
 
-        $this->_baseDir = $baseDir;
+        $this->_baseDir = $this->sanitizePath($baseDir);
         $this->_ignore  = $ignore;
         $this->_exclude = $exclude;
         $this->_roots   = $roots;
@@ -159,7 +159,7 @@ class DirectoryTools extends DirectoryIterator
      */
     public function trimPath($path)
     {
-        $replace_path = WORKSPACE;
+        $replace_path = FILEMANAGER_WORKSPACE;
         $sub = '';
 
         return $sub . substr($path, strlen($replace_path));
@@ -199,8 +199,8 @@ class DirectoryTools extends DirectoryIterator
      */
     public function _getFileInfo(DirectoryIterator $file)
     {
-        $fpath = $file->getPathname();
-        $path = $this->trimPath($fpath);
+        $fpath = $this->sanitizePath($file->getPathname());
+        $path = $this->sanitizePath($this->trimPath($fpath));
 
         $grp = function_exists('posix_getgrgid') ? posix_getgrgid($file->getGroup()) : array('name' => 'undefined');
         $own = function_exists('posix_getpwuid') ? posix_getpwuid($file->getOwner()) : array('name' => 'undefined');
@@ -215,7 +215,7 @@ class DirectoryTools extends DirectoryIterator
             'file'      => $fbase,
             'src'       => URL . '/workspace' . $path,
             'path'      => $path,
-            'dirname'   => $this->trimPath(dirname($file->getPathname())),
+            'dirname'   => $this->sanitizePath($this->trimPath(dirname($file->getPathname()))),
             'type'      => self::getMimeType($fpath),
             //'suffix'  => $file->getExtension(),
             'extension' => strtolower($fparts['extension']),
@@ -299,7 +299,12 @@ class DirectoryTools extends DirectoryIterator
     public function getSanitizedPathname(&$file)
     {
         // fix path normalization on none *nix systems
-        return preg_replace('/\\\/i', '/', $file->getPathname());
+        return $this->sanitizePath($file->getPathname());
+    }
+
+    protected function sanitizePath($path)
+    {
+        return str_replace('\\', '/', $path);
     }
 
     /**
@@ -312,7 +317,7 @@ class DirectoryTools extends DirectoryIterator
     public function getSanitizedBasename(&$file)
     {
         // fix path normalization on none *nix systems
-        return preg_replace('/\\\/i', '/', $file->getBasename());
+        return $this->sanitizePath($file->getBasename());
     }
 
     /**
