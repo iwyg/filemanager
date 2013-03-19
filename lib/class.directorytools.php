@@ -115,7 +115,7 @@ class DirectoryTools extends DirectoryIterator
                 continue;
             }
             if ($child->isDir()) {
-                if ($this->isExcludedPath($child->getPathname())) {
+                if ($this->isExcludedPath($this->sanitizePath($child->getPathname()))) {
                     continue;
                 }
                 $this->_level++;
