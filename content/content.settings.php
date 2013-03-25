@@ -17,7 +17,7 @@ require_once(EXTENSIONS . '/filemanager/fields/field.filemanager.php');
  * @uses JSONPage
  *
  */
-class contentExtensionFilemanagerSettings extends JSONPage
+class ContentExtensionFilemanagerSettings extends JSONPage
 {
     public static $exclude = array('/workspace/data-sources', '/workspace/events', '/workspace/pages', '/workspace/translations');
 

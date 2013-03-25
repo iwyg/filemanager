@@ -28,7 +28,7 @@ class JSONPage extends AjaxPage
         $this->_Result = array();
 
         $this->addHeaderToPage('Content-Type', 'application/json');
-        $this->_status = self::STATUS_OK;
+        $this->_status = self::HTTP_STATUS_OK;
         //Administration::instance()->Profiler->sample('Page template created', PROFILE_LAP);
     }
 
@@ -44,9 +44,9 @@ class JSONPage extends AjaxPage
      */
     public function handleFailedAuthorisation()
     {
-        $this->_status = self::STATUS_UNAUTHORISED;
+        $this->_status = self::HTTP_STATUS_UNAUTHORIZED;
 
-        $this->addResult('STATUS_UNAUTHORISED', array(
+        $this->addResult('HTTP_STATUS_UNAUTHORIZED', array(
             'message' => __('You are not authorised to access this page.'),
             'context' => array()
         ));
@@ -61,8 +61,8 @@ class JSONPage extends AjaxPage
      */
     public function handleGeneralError($message, Array $context)
     {
-        $this->_status = self::STATUS_ERROR;
-        $this->addResult('STATUS_ERROR', array(
+        $this->_status = self::HTTP_STATUS_ERROR;
+        $this->addResult('HTTP_STATUS_ERROR', array(
             'message' => $message,
             'context' => $context
         ));
@@ -72,14 +72,14 @@ class JSONPage extends AjaxPage
 
     public function handleSuccess($message, Array $context)
     {
-        $this->_status = self::STATUS_OK;
+        $this->_status = self::HTTP_STATUS_OK;
 
         $this->addResult('success', array(
             'message' => $message,
             'context' => $context
         ));
-        unset($this->_Result['STATUS_ERROR']);
-        unset($this->_Result['STATUS_UNAUTHORISED']);
+        unset($this->_Result['HTTP_STATUS_ERROR']);
+        unset($this->_Result['HTTP_STATUS_UNAUTHORIZED']);
         return true;
     }
 
@@ -107,22 +107,10 @@ class JSONPage extends AjaxPage
      */
     public function generate()
     {
-        switch($this->_status) {
-
-            case self::STATUS_OK:
-                $status_message = '200 OK';
-                break;
-
-            case self::STATUS_BAD:
-                $status_message = '400 Bad Request';
-                break;
-            case self::STATUS_ERROR:
-                $status_message = '303 Error';
-                break;
-
-            case self::STATUS_UNAUTHORISED:
-                $status_message = '401 Unauthorized';
-                break;
+        if (isset(self::$HTTP_STATUSES)) {
+            $status_message = self::$HTTP_STATUSES[$this->_status];
+        } else {
+            $status_message = 'undefiend';
         }
 
         if ($this->_iframe_transport) {
@@ -144,7 +132,6 @@ class JSONPage extends AjaxPage
      */
     public function view($override=false)
     {
-        //$this->_Result = preg_replace("/(^[\r\n]*|[\r\n]+)[\s\t]*[\r\n\']+/", "",json_encode($this->_Result));
         if (!$override) {
             $this->_Result = preg_replace('/\r+/mi', '',json_encode($this->_Result));
         }

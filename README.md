@@ -143,6 +143,11 @@ preview (if available).
 
 ## Changelog
 
+### 1.0.9, 2013-03-25
+
+- Symphony CMS 2.3.2
+- several bug fixes
+
 ### 1.0.8, 2013-02-21
 
 - bugfix: legacy method call

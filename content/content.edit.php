@@ -14,7 +14,7 @@ require_once(EXTENSIONS . '/filemanager/content/content.settings.php');
  *
  * @uses contentExtensionFilemanagerSettings
  */
-class contentExtensionFilemanagerEdit extends contentExtensionFilemanagerSettings
+class ContentExtensionFilemanagerEdit extends ContentExtensionFilemanagerSettings
 {
 
     public function __construct()
@@ -38,16 +38,16 @@ class contentExtensionFilemanagerEdit extends contentExtensionFilemanagerSetting
     protected function task($type)
     {
         switch ($type) {
-        case 'move':
-            $this->moveItem();
+            case 'move':
+                $this->moveItem();
             break;
-        case 'delete':
-            $this->deleteItem();
+            case 'delete':
+                $this->deleteItem();
             break;
-        case 'create':
-            $this->createDir();
+            case 'create':
+                $this->createDir();
             break;
-        default:
+            default:
             break;
         }
     }

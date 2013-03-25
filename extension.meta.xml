@@ -14,31 +14,35 @@
 		</author>
 	</authors>
 	<releases>
-		<release version="1.0.8" date="20123-02-21" min="2.3">
+		<release version="1.0.9" date="2013-03-25" min="2.3.2">
+			- Symphony CMS 2.3.2
+			- several bug fixes
+		</release>
+		<release version="1.0.8" date="2013-02-21" min="2.3" max="2.3.1">
 			- bugfix: legacy method call
 			- validate uploaded file against all error codes
 		</release>
-		<release version="1.0.7" date="2012-08-09" min="2.3">
+		<release version="1.0.7" date="2012-08-09" min="2.3" max="2.3.1">
 			- bugfix: opera fileupload
 			- bugfix: retain selection order
 		</release>
-		<release version="1.0.6" date="2012-06-20" min="2.3">
+		<release version="1.0.6" date="2012-06-20" min="2.3" max="2.3.1">
 			- bugfixes
 		</release>
-		<release version="1.0.5" date="2012-06-04" min="2.3">
+		<release version="1.0.5" date="2012-06-04" min="2.3" max="2.3.1">
 			- better handling when file selection is deactivated.
 			- searchview is now optional (but activated by default).
 		</release>
-		<release version="1.0.4" date="2012-05-25" min="2.3">
+		<release version="1.0.4" date="2012-05-25" min="2.3" max="2.3.1">
 			- Fixed a bug with uploads on multiple instances.
 			- you may now select and unselect multiple files at once
 		</release>
-		<release version="1.0.3" date="2012-05-15" min="2.3">
+		<release version="1.0.3" date="2012-05-15" min="2.3" max="2.3.1">
 			- Fixed a bug with file selection limit.
 			- Selecting files can now be deactivated (e.g. to use it as a standanlone filemanager)
 			- updated lang.de
 		</release>
-		<release version="1.0.2" date="2012-05-10" min="2.3">
+		<release version="1.0.2" date="2012-05-10" min="2.3" max="2.3.1">
 			- no longer compatible to Symphony 2.2.x releases
 		</release>
 		<release version="1.0.1" date="2012-05-09" min="2.2.4">
