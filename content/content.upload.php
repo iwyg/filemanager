@@ -27,146 +27,145 @@ class contentExtensionFilemanagerUpload extends contentExtensionFilemanagerSetti
      */
     public function __construct()
     {
-		parent::__construct();
-		$this->moveUploadedFiles();
-	}
+        parent::__construct();
+        $this->moveUploadedFiles();
+    }
 
-	/**
-	 * Validate uploaded file for mimetype and filesize
-	 * @param string $tempname uploaded file
-	 */
+    /**
+     * Validate uploaded file for mimetype and filesize
+     * @param string $tempname uploaded file
+     */
     public function validateUploadedFile($tempname, $file, $error)
     {
 
         if ($error !== 0) {
             $msg = '';
-            die;
 
             switch ($error) {
-            case 1:
-                $msg = 'file size ({$f_size}) limit exceeds allowed size';
-            break;
-            case 2:
-                $msg = 'file size ({$f_size}) limit exceeds allowed size';
-            break;
-            case 3:
-                $msg = "$file was only partially uploaded";
-            break;
-            case 4:
-                $msg = "$file was not uploaded";
-            break;
-            case 6:
-                $msg = "temprary upload directory is missing";
-            break;
-            case 7:
-                $msg = "couldn't write $file to disk";
-            break;
-            case 8:
-                $msg = "Upload has stopped for $file";
+                case 1:
+                    $msg = 'file size ({$f_size}) limit exceeds allowed size';
                 break;
-            default:
-                $msg = "undefined error";
+                case 2:
+                    $msg = 'file size ({$f_size}) limit exceeds allowed size';
+                break;
+                case 3:
+                    $msg = "$file was only partially uploaded";
+                break;
+                case 4:
+                    $msg = "$file was not uploaded";
+                break;
+                case 6:
+                    $msg = "temprary upload directory is missing";
+                break;
+                case 7:
+                    $msg = "couldn't write $file to disk";
+                break;
+                case 8:
+                    $msg = "Upload has stopped for $file";
+                break;
+                default:
+                    $msg = "undefined error";
                 break;
             }
 
-			$this->handleGeneralError($msg, array('f_size' => filesize($tempname)));
-			return false;
+            $this->handleGeneralError($msg, array('f_size' => filesize($tempname)));
+            return false;
         }
 
-		$max_upload_size = intval($this->get('max_upload_size'));
+        $max_upload_size = intval($this->get('max_upload_size'));
 
-		$allowed_types =  '/' . $this->get('allowed_types') . '/i';
+        $allowed_types =  '/' . $this->get('allowed_types') . '/i';
 
-		$mime_type = DirectoryTools::getMimeType($tempname);
+        $mime_type = DirectoryTools::getMimeType($tempname);
 
         if (!preg_match($allowed_types, $mime_type)) {
 
-			$this->handleGeneralError('file type {$mimetype} not allowed', array('mimetype' => $mime_type));
-			return false;
-		}
+            $this->handleGeneralError('file type {$mimetype} not allowed', array('mimetype' => $mime_type));
+            return false;
+        }
 
         if (filesize($tempname) > $max_upload_size) {
 
-			$this->handleGeneralError('file size ({$f_size}) limit exceeds allowed size', array('f_size' => filesize($tempname)));
-			return false;
-		}
+            $this->handleGeneralError('file size ({$f_size}) limit exceeds allowed size', array('f_size' => filesize($tempname)));
+            return false;
+        }
 
-		return true;
-	}
+        return true;
+    }
 
-	/**
-	 * @see content/content.settings.php#process
-	 */
+    /**
+     * @see content/content.settings.php#process
+     */
     public function process()
     {
-		$this->setSettings(false);
-	}
+        $this->setSettings(false);
+    }
 
-	/**
-	 *  try to move uploaded files to detination
-	 */
+    /**
+     *  try to move uploaded files to detination
+     */
     public function moveUploadedFiles()
     {
-		$data = General::getPostData();
+        $data = General::getPostData();
 
-		if (isset($data['iframe'])) {
-			$this->_iframe_transport = true;
-		}
+        if (isset($data['iframe'])) {
+            $this->_iframe_transport = true;
+        }
 
-		$unique = intval($this->get('unique_file_name'), 10) == 1;
+        $unique = intval($this->get('unique_file_name'), 10) == 1;
 
         $dest = sprintf('%s/%s/', FILEMANAGER_WORKSPACE,  $this->sanitizePathFragment($data['destination']));
 
-		$results = array();
+        $results = array();
 
-		if (is_array($data['file'])) {
+        if (is_array($data['file'])) {
 
             foreach ($data['file'] as $i => $file) {
 
                 if (!$valid = $this->validateUploadedFile($file['tmp_name'], $file['name'], intval($file['error']))) {
-					return $valid;
-				}
+                    return $valid;
+                }
 
-				if (!is_writable($dest . $new_file)) {
-					// not writable error
-					$this->handleGeneralError('Cannot access {$file}', array('file' => $dest));
-					return false;
-				}
+                if (!is_writable($dest . $new_file)) {
+                    // not writable error
+                    $this->handleGeneralError('Cannot access {$file}', array('file' => $dest));
+                    return false;
+                }
 
-				if (!is_dir($dest)) {
-					// invalid destination error
-					$this->handleGeneralError('invalid destination: {$dir}', array('dir' => $dest));
-					return false;
-				}
+                if (!is_dir($dest)) {
+                    // invalid destination error
+                    $this->handleGeneralError('invalid destination: {$dir}', array('dir' => $dest));
+                    return false;
+                }
 
                 try {
                     $new_file = $unique ? DirectoryTools::getUniqueName($file['name']) : $file['name'];
                 } catch (Exception $e) {
                     $this->handleGeneralError('fatal error: {$err}', array('err' => $e->getMessage()));
-					return false;
+                    return false;
                 }
 
-				if (is_file($dest . $new_file)) {
-					// file exists error
-					$this->handleGeneralError('file {$file} already exists',array('file' => $new_file));
-					return false;
-				}
+                if (is_file($dest . $new_file)) {
+                    // file exists error
+                    $this->handleGeneralError('file {$file} already exists',array('file' => $new_file));
+                    return false;
+                }
 
-				if (General::uploadFile($dest, $new_file, $file['tmp_name'])) {
-					$results[] = array(
-						'file' => 'ok',
-						'name' => $new_file,
-						'src' => $this->getHttpPath($dest . $new_file)
-					);
-				} else {
+                if (General::uploadFile($dest, $new_file, $file['tmp_name'])) {
+                    $results[] = array(
+                        'file' => 'ok',
+                        'name' => $new_file,
+                        'src' => $this->getHttpPath($dest . $new_file)
+                    );
+                } else {
                     $this->handleGeneralError('Cannot upload {$file}',array('file' => $new_file));
-					return false;
-				}
-			}
+                    return false;
+                }
+            }
 
-			$this->success($results);
-		}
-	}
+            $this->success($results);
+        }
+    }
 
     /**
      * success
@@ -177,8 +176,8 @@ class contentExtensionFilemanagerUpload extends contentExtensionFilemanagerSetti
      */
     public function success($data)
     {
-		$this->_Result = $data;
-	}
+        $this->_Result = $data;
+    }
 
     /**
      * getHttpPath
@@ -190,6 +189,6 @@ class contentExtensionFilemanagerUpload extends contentExtensionFilemanagerSetti
      */
     public function getHttpPath($path)
     {
-		return URL . '/workspace' . $path;
-	}
+        return URL . '/workspace' . $path;
+    }
 }
