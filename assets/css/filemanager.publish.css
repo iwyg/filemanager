@@ -682,7 +682,7 @@
   float: right;
 }
 .filemanager .btn:hover {
-  background-color: #a2a2a2;
+  background-color: #dd4422;
 }
 .filemanager .btn.disabled {
   cursor: default;
@@ -1261,7 +1261,7 @@
   background: #f4f4f4;
 }
 .filemanager-dir-listing-body p.error {
-  color: red;
+  color: #dd4422;
   padding: 12px;
 }
 .filemanager.loading {
