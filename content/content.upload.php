@@ -118,12 +118,12 @@ class ContentExtensionFilemanagerUpload extends ContentExtensionFilemanagerSetti
 
             foreach ($data['file'] as $i => $file) {
 
-                // the /[%]/ list can be added to as seen fit
+                // the /[%|&]/ list can be added to as seen fit
                 // this is done so that image srcs will not choke when trying to be displayed
                 // since a % sign is a special character for uris.
                 // just using a urlencode will convert % => %25 which has the same affect as above
                 // the urlencode will then at least handle spaces and replacing them with a + sign
-                $encoded_name = urlencode(preg_replace('/[%]/', '', $file['name']));
+                $encoded_name = urlencode(preg_replace('/[%|&]/', '', $file['name']));
 
                 if (!$valid = $this->validateUploadedFile($file['tmp_name'], $encoded_name, intval($file['error']))) {
                     return $valid;
