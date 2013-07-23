@@ -1,4 +1,4 @@
-# Filemanager
+# Filemanager [deprecated]
 
 ## Dependencies
 
