@@ -599,8 +599,7 @@ class FieldFilemanager extends Field
     }
 
     public function getParameterPoolValue(array $data, $entry_id=NULL)
-    {
-        FB::log($data);
+    {       
         return $data['file'];
     }
     /**
@@ -611,8 +610,7 @@ class FieldFilemanager extends Field
         $field_id = $this->get('id');
 
         if (self::isFilterRegex($data[0])) {
-            FB::log('A:');
-            FB::log($data);
+            
             $this->_key++;
 
             if (preg_match('/^regexp:/i', $data[0])) {
