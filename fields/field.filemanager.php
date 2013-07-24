@@ -638,8 +638,7 @@ class FieldFilemanager extends Field
                 ";
 
         } elseif ($andOperation) {
-            FB::log('B:');
-            FB::log($data);
+            
             foreach ($data as $value) {
                 $this->_key++;
                 $value = $this->cleanValue($value);
@@ -657,8 +656,7 @@ class FieldFilemanager extends Field
             }
 
         } else {
-            FB::log('C:');
-            FB::log($data);
+            
             if (!is_array($data)) $data = array($data);
 
             foreach ($data as &$value) {
@@ -666,7 +664,7 @@ class FieldFilemanager extends Field
             }
 
             $this->_key++;
-            FB::log($limit);
+            
             $data = implode("', '", $data);
 
 
