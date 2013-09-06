@@ -35,7 +35,7 @@ This results in all files getting validated on the serverside, though clientside
 
 ### Preferences
 
-![Filebrowser View](http://dev.thomas-appel.com/symphony/assets/sym_fm_preferences.png)
+![Filebrowser View](https://dl.dropboxusercontent.com/u/17036738/symphony/filemanager/sym_fm_preferences.png)
 
 - `Default MIME types`: define the default MIME types which should be allowed for
   uploading. This will be overriddin if you set `default MIME types` on the
@@ -48,27 +48,27 @@ you want to ignore all files with  `.jpg` and  `.gif` extensions, write
 
 ### Field Settings
 
-![Filebrowser View](http://dev.thomas-appel.com/symphony/assets/sym_fm_1_settings_diroptions.png)
+![Filebrowser View](https://dl.dropboxusercontent.com/u/17036738/symphony/filemanager/sym_fm_1_settings_diroptions.png)
 
 #### `Directory options`: 
 
 Set the rootdirectory within `workspace` and select which directories should be excluded. You can also choose to allow
 moving, removing and/or creating directories. Uncheck `Show filesearch` if you don't need fielsearch on this field (since 1.0.5).
 
-![Filebrowser View](http://dev.thomas-appel.com/symphony/assets/sym_fm_1_settings_fileuoload_a.png)
+![Filebrowser View](https://dl.dropboxusercontent.com/u/17036738/symphony/filemanager/sym_fm_1_settings_fileuoload_a.png)
 
 #### `Allow fileupload`:
 
 Check this, if you want to allow uploading files. After you save your current
 section, more options will become available, as they are: 
 
-![Filebrowser View](http://dev.thomas-appel.com/symphony/assets/sym_fm_1_settings_fileuoload_b.png)
+![Filebrowser View](https://dl.dropboxusercontent.com/u/17036738/symphony/filemanager/sym_fm_1_settings_fileuoload_b.png)
 
 - `Unique Filenames`: check this, if you want to have unique filenames
 - `Allowed MIME types`: define the MIME types that should be allowed for
   uploading. This will override the defaults set in preferences for this field.
 
-![Filebrowser View](http://dev.thomas-appel.com/symphony/assets/sym_fm_1_settings_fileoptions.png)
+![Filebrowser View](https://dl.dropboxusercontent.com/u/17036738/symphony/filemanager/sym_fm_1_settings_fileoptions.png)
 
 #### `File options`:
 
@@ -76,7 +76,7 @@ Extend the default fileextensions that should be ignored (see Preferences) and
 set if you want to allow moving files to another location and/or allow deleting
 files.
 
-![Filebrowser View](http://dev.thomas-appel.com/symphony/assets/sym_fm_1_settings_fselectoptions.png)
+![Filebrowser View](https://dl.dropboxusercontent.com/u/17036738/symphony/filemanager/sym_fm_1_settings_fselectoptions.png)
 
 #### `Select options`:
 
@@ -88,7 +88,7 @@ and `preview`).
 
 ## The Field
 
-![Filemanager](http://dev.thomas-appel.com/symphony/assets/sym_fm_1_filemanager.png)
+![Filemanager](https://dl.dropboxusercontent.com/u/17036738/symphony/filemanager/sym_fm_1_filemanager.png)
 
 ### Selections
 
@@ -102,11 +102,11 @@ once.
 
 #### display mode compact
 
-![Selection View](http://dev.thomas-appel.com/symphony/assets/sym_fm_1_selection_compact.png)
+![Selection View](https://dl.dropboxusercontent.com/u/17036738/symphony/filemanager/sym_fm_1_selection_compact.png)
 
 #### display mode preview
 
-![Selection View](http://dev.thomas-appel.com/symphony/assets/sym_fm_1_selection_preview.png)
+![Selection View](https://dl.dropboxusercontent.com/u/17036738/symphony/filemanager/sym_fm_1_selection_preview.png)
 
 ### Uploads
 
@@ -116,11 +116,11 @@ rootdirectory (given your configuration allows fileuploads).
 
 Uploaded files will show up in the filebrowser as soon as they are validated.
 
-![Upload View](http://dev.thomas-appel.com/symphony/assets/sym_fm_1_upload.png)
+![Upload View](https://dl.dropboxusercontent.com/u/17036738/symphony/filemanager/sym_fm_1_upload.png)
 
 ### Filebrowser
 
-![Filebrowser View](http://dev.thomas-appel.com/symphony/assets/sym_fm_1_filebrowser.png)
+![Filebrowser View](https://dl.dropboxusercontent.com/u/17036738/symphony/filemanager/sym_fm_1_filebrowser.png)
 
 This is the heart of the Filemanager field. Depending on your configuration, you
 can move and delete files and directories, create new directories or upload
@@ -128,14 +128,14 @@ files from your local harddrive.
 
 ### Search for files
 
-![Filebrowser View](http://dev.thomas-appel.com/symphony/assets/sym_fm_1_filesearch.png)
+![Filebrowser View](https://dl.dropboxusercontent.com/u/17036738/symphony/filemanager/sym_fm_1_filesearch.png)
 
 Results are shown while you are typing. You can add searchresults directly to your selection by
 clicking on the a result node.
 
 ### Meta View
 
-![Filebrowser View](http://dev.thomas-appel.com/symphony/assets/sym_fm_1_filebrowser_meta.png)
+![Filebrowser View](https://dl.dropboxusercontent.com/u/17036738/symphony/filemanager/sym_fm_1_filebrowser_meta.png)
 
 Each fileview also has a meta view panel. Click on a files' infobutton to
 display additional file information such as file size, file type and a file
