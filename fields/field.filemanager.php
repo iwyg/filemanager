@@ -115,6 +115,11 @@ class FieldFilemanager extends Field
         return true;
     }
 
+    public function canPrePopulate()
+    {
+        return true;
+    }
+
     /**
      * @see toolkit.Field##allowDatasourceParamOutput
      */
@@ -235,7 +240,8 @@ class FieldFilemanager extends Field
         $label = Widget::Label(__('Exclude Directories'));
 
         $dest = $this->get('destination');
-        $excl = explode(',', $this->get('exclude_dirs'));
+        $excl = $this->get('exclude_dirs');
+        $excl = is_array($excl) ? $excl : explode(',', (string)$excl);
 
 
         $ignoreDirs = explode(',', WORKSPACE . '/' . implode(',' . FILEMANAGER_WORKSPACE . '/' ,$ignore));
@@ -599,7 +605,7 @@ class FieldFilemanager extends Field
     }
 
     public function getParameterPoolValue(array $data, $entry_id=NULL)
-    {       
+    {
         return $data['file'];
     }
     /**
@@ -610,7 +616,7 @@ class FieldFilemanager extends Field
         $field_id = $this->get('id');
 
         if (self::isFilterRegex($data[0])) {
-            
+
             $this->_key++;
 
             if (preg_match('/^regexp:/i', $data[0])) {
@@ -636,7 +642,7 @@ class FieldFilemanager extends Field
                 ";
 
         } elseif ($andOperation) {
-            
+
             foreach ($data as $value) {
                 $this->_key++;
                 $value = $this->cleanValue($value);
@@ -654,7 +660,7 @@ class FieldFilemanager extends Field
             }
 
         } else {
-            
+
             if (!is_array($data)) $data = array($data);
 
             foreach ($data as &$value) {
@@ -662,7 +668,7 @@ class FieldFilemanager extends Field
             }
 
             $this->_key++;
-            
+
             $data = implode("', '", $data);
 
 
@@ -746,7 +752,8 @@ class FieldFilemanager extends Field
                 $string = sizeof($files) . __(' files');
             } elseif (isset($data['file'])) {
                 if (is_file(WORKSPACE . $data['file'])) {
-                    $string = General::sanitize(basename($data['file']));
+                    $string = General::sanitize($data['file']);
+
                 } else {
                     $this->deletFileFormDB($data['file']);
                     $string =  0 . __(' files');
@@ -796,4 +803,23 @@ class FieldFilemanager extends Field
     {
         return Widget::Input('fields['.$this->get('element_name').']', '...', 'hidden');
     }
+
+//    public function createSectionAssociation($parent_section_id = null, $child_field_id = null, $parent_field_id = null, $show_association = true){
+//        var_dump(func_get_args());
+//        die;
+//        return SectionManager::createSectionAssociation($parent_section_id, $child_field_id, $parent_field_id, $show_association);
+//    }
+//
+//    /**
+//     * Permanently remove a section association for this field in the database.
+//     *
+//     * @deprecated This function will be removed in a future Symphony release,
+//     *  Use `SectionManager::removeSectionAssociation` instead.
+//     * @param integer $child_field_id
+//     *  the field ID of the linked section's linked field.
+//     * @return boolean
+//     */
+//    public function removeSectionAssociation($child_field_id){
+//        return SectionManager::removeSectionAssociation($child_field_id);
+//    }
 }
