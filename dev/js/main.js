@@ -62,7 +62,6 @@
 				$.ajax({type: 'POST', url: form.attr('action'), data: formData});
 			};
 
-
 			_.each(fm_settings.instances, function (manager, name) {
 				var wrapper = $('#' + name),
 				container = $('#filemanager-container-' + manager.instance),
@@ -216,7 +215,7 @@
 					});
 
 					$(window).on('beforeunload.getdiff', function () {
-						if (SelectView && selectView.collection.getDiff()) {
+						if (SelectView && selectView.collection && selectView.collection.getDiff()) {
 							changes = true;
 						}
 					});

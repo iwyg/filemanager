@@ -27,8 +27,10 @@
 	require({
 		baseUrl: Symphony.Context.get('root') + '/extensions/filemanager/assets/js',
 		paths: {
-			'jquery':		'../../../../symphony/assets/js/jquery',
+			//'jquery':		'../../../../symphony/assets/js/jquery',
+			'jquery':		'libs/jquery',
 			'orderable':	'../../../../symphony/assets/js/symphony.orderable',
+			//'jqueryui':		'libs/jquery-ui-1.10.3.custom',
 			'jqueryui':		'libs/jquery-ui-1.8.18.custom',
 			'underscore':	'../../../sym_backbonejs/assets/underscore',
 			'backbone':		'../../../sym_backbonejs/assets/backbone',
