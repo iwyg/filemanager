@@ -9,6 +9,7 @@
 @dir_tree_bg: #F4F4F4;
 @bg_grey: #b6b6b6;
 @btn_start_color: #5e96c6;
+@symphony_red: #dd4422;
 
 @select_color: #668ABE;
 @select_grad_color: #5C83BA;
@@ -673,7 +674,7 @@
 		}
 
 		&:hover {
-			background-color: darken(@bg_grey, 8%);
+			background-color: @symphony_red;
 		}
 
 		&.disabled {
@@ -1266,7 +1267,7 @@
 	overflow: hidden;
 	background: @dir_tree_bg;
 	p.error {
-		color: red;
+		color: @symphony_red;
 		padding: 12px;
 	}
 }
