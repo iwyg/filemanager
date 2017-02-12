@@ -711,7 +711,7 @@ class FieldFilemanager extends Field
             $file->setAttributeArray(array(
                 'size' => $size,
                 'bytes' => $bytes,
-                'path' => str_replace(WORKSPACE, NULL, dirname(WORKSPACE . $value)),
+                'path' => str_replace(DIRECTORY_SEPARATOR, '/', str_replace(WORKSPACE, NULL, dirname(WORKSPACE . $value))),
                 'type' => $mime,
             ));
             $src = new XMLElement('filename', General::sanitize(basename($value)));
